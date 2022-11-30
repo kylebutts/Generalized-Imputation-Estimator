@@ -1,0 +1,30 @@
+# A Unified Framework for Dynamic Treatment Effect Estimation in Interactive Fixed Effect Models
+
+This repository contains the replication code for our paper 
+
+## Simulations
+
+1. `Simulation-1-twfe_vs_factor.jl` contains code to produce Table 1
+
+2. `Simulation-2-signal_to_noise.jl` contains code to produce Figure 1
+
+There are set of helper functions in `Simulation-helpers.jl` and `Simulation-factor_imputation.jl` that are used in both simulations. `Simulations-helpers.jl` contains our data-generating process code and our TWFE and TWFE imputation estimators. `Simulation-factor_imputation.jl` contain the code to estimate our generalized imputation estimator.
+
+## Application
+
+1. `Walmart-data.R` contains all the data to produce our final sample.
+
+- It takes imputed CBP data from [Eckert et. al.](https://www.fpeckert.me/cbp/), 1967 CBP data, 1980 Census Summary files, Walmart openings from [Arcidiacono et. al. (2020)](https://www.aeaweb.org/articles?id=10.1257/app.20180047) and combines it.
+- Note that `efsy_panel_naics.csv` needs to be downloaded from their website and put in the `raw-data/` folder since it is too large for github.
+- The sample restrictions on the data follow from [Basker (2005)](https://direct.mit.edu/rest/article/87/1/174/57523/Job-Creation-or-Destruction-Labor-Market-Effects)
+
+2. `Walmart-analysis-cbp_testing_p.jl` determines the correct number of factors following [Ahn, Lee, and Schmidt (2013)](https://doi.org/10.1016/j.jeconom.2012.12.002). This is run first to determine the p to use for retail (p = 2) and wholesale retail (p = 1) employment. It also produces the naive-standard error figures.
+
+3. `Walmart-analysis-did2s_cbp_bootstrap.R` and `Walmart-analysis-factor_cbp_bootstrap.jl` produce the TWFE imputation and generalized imputation bootstrapped estiamtes and saves them in `data/` folder. The first row in each corresponds to the true point estimates.
+
+4. `Walmart-figures-event_study_cbp.jl` produces Figures 2 and 3 using the bootstrapped simulations from the above scripts.
+
+5. `Walmart-figures-synthetic_control_style_plot.jl` produces Figure 4 synthetic control style plots.
+
+
+
