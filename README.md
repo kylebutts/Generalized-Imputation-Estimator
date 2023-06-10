@@ -1,8 +1,29 @@
-# A Unified Framework for Dynamic Treatment Effect Estimation in Interactive Fixed Effect Models
+# Generalized Imputation Estimators for Factor Models
 
-This repository contains the replication code for our paper 
+[Nicholas Brown](https://sites.google.com/msu.edu/nicholasbrown)<sup>1</sup> and
+[Kyle Butts](https://www.kylebutts.com/)<sup>2</sup>
+<br>
+<sup>2</sup>Queen's University, <sup>1</sup>University of Colorado: Boulder
 
-## Simulations
+#### [Paper](https://www.econ.queensu.ca/sites/econ.queensu.ca/files/wpaper/qed_wp_1495.pdf) | [Five-minute Summary](https://www.kylebutts.com/papers/generalized-imputation-estimators/)
+
+
+## Abstract
+
+We present a unifying identification strategy of dynamic average treatment effect parameters for staggered 
+interventions when parallel trends are valid only after controlling for interactive fixed effects. This 
+setting nests the usual parallel trends assumption, but allows treated units to have heterogeneous exposure 
+to unobservable macroeconomic trends. We show that any estimator that is consistent for the unobservable trends 
+up to a non-singular rotation can be used to consistently estimate heterogeneous dynamic treatment effects. 
+This result can apply to data sets with either many or few pre-treatment time periods. We also demonstrate 
+the robustness of two-way fixed effects imputation to certain parallel trends violations and provide a 
+test for its consistency. A quasi-long differencing estimator is proposed and implemented to estimate the 
+effect of Walmart openings on local economic conditions.
+
+
+## Replication
+
+### Simulations
 
 1. `Simulation-1-twfe_vs_factor.jl` contains code to produce Table 1
 
@@ -10,7 +31,7 @@ This repository contains the replication code for our paper
 
 There are set of helper functions in `Simulation-helpers.jl` and `Simulation-factor_imputation.jl` that are used in both simulations. `Simulations-helpers.jl` contains our data-generating process code and our TWFE and TWFE imputation estimators. `Simulation-factor_imputation.jl` contain the code to estimate our generalized imputation estimator.
 
-## Application
+### Application
 
 1. `Walmart-data.R` contains all the data to produce our final sample.
 
@@ -27,4 +48,15 @@ There are set of helper functions in `Simulation-helpers.jl` and `Simulation-fac
 5. `Walmart-figures-synthetic_control_style_plot.jl` produces Figure 4 synthetic control style plots.
 
 
+
+
+## Citation
+
+```
+@techreport{brown2022unified,
+  title={A Unified Framework for Dynamic Treatment Effect Estimation in Interactive Fixed Effect Models},
+  author={Brown, Nicholas and Butts, Kyle},
+  year={2022}
+}
+```
 
