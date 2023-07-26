@@ -2,7 +2,7 @@
 # Simulation showing the effectiveness of including w_i β_t in TWFE imputation
 # as a function of signal-to-noise ratio of w_i to the factor loading
 
-using Random, Distributions, Statistics, LinearAlgebra
+using Random, Distributions, Statistics, StatsBase, LinearAlgebra
 using Plots, PrettyTables
 using DataFrames, Chain, FixedEffectModels, Printf
 using Optim, ForwardDiff
@@ -34,7 +34,8 @@ T = 8;
 T0 = 5;
 b = [1.0, 1.0];
 K = 2;
-S = 5000;
+S = 250;
+# S = 20;
 s = 1;
 p = 1;
 true_te = [0 0 0 0 0 1 2 3];
@@ -54,7 +55,7 @@ for i in 1:nsims
   include_factor = true
   parallel_trends = false
   instrument_noise = sim.instrument_noise
-  println("Starting on: 
+  println("\n\nStarting on: 
   Include Factor = $(include_factor),
   Parallel Trends = $(parallel_trends), 
   Instrument Noise = $(instrument_noise)
@@ -64,15 +65,25 @@ for i in 1:nsims
   did2s = zeros(Float32, T-T0, S);
   generalized = zeros(Float32, T-T0, S);
 
-  for s in 1:S
-    # Generate data ------------------------------------------------------------
+  s = 1
+  while s <= S
+    (s % 20 == 0) && print("\n.")
+
+    # Generate data ----------------------------------------------------------
     data = generate_data(rng, f, include_factor, parallel_trends, instrument_noise)
+    
+    try
+      # did2s w/ covariates Estimator ------------------------------------------
+      did2s_w_covariates[:, s] = est_did2s_covariates_R(data)
+      
+      # Factor Imputation Estimator --------------------------------------------
+      generalized[:, s] = est_factor_imputation(data)
 
-    # did2s w/ covariates Estimator --------------------------------------------
-    did2s_w_covariates[:, s] = est_did2s_covariates_R(data)
-
-    # Factor Imputation Estimator ----------------------------------------------
-    generalized[:, s] = est_factor_imputation(data)
+      s = s+1
+      print(".")
+    catch
+      print("x")
+    end
   end
 
   for j in 1:(T-T0)
@@ -100,7 +111,7 @@ sims.generalized_bias_sd_tau8 = generalized_bias_sd[:, 3]
 sims
 
 # Export results 
-# CSV.write("simulation-2.csv", sims)
+CSV.write("data/simulation-2.csv", sims)
 
 # Plot -------------------------------------------------------------------------
 

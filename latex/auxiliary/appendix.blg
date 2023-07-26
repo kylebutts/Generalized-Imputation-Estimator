@@ -1,0 +1,58 @@
+This is BibTeX, Version 0.99d (TeX Live 2022)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: appendix.aux
+The style file: econ-aea.bst
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=200001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: references.bib
+Warning--I'm ignoring Hansen_1982's extra "doi" field
+--line 373 of file references.bib
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Warning--there is no volume, number, and pages in Brown_Butts_Westerlund_2023
+You've used 7 entries,
+            6828 wiz_defined-function locations,
+            1359 strings with 11234 characters,
+and the built_in function-call counts, 7397 in all, are:
+= -- 1179
+> -- 245
+< -- 18
++ -- 81
+- -- 79
+* -- 439
+:= -- 930
+add.period$ -- 6
+call.type$ -- 7
+change.case$ -- 50
+chr.to.int$ -- 7
+cite$ -- 8
+duplicate$ -- 213
+empty$ -- 385
+format.name$ -- 76
+if$ -- 1924
+int.to.chr$ -- 0
+int.to.str$ -- 0
+missing$ -- 0
+newline$ -- 29
+num.names$ -- 59
+pop$ -- 84
+preamble$ -- 1
+purify$ -- 50
+quote$ -- 0
+skip$ -- 587
+stack$ -- 0
+substring$ -- 627
+swap$ -- 36
+text.length$ -- 8
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 104
+warning$ -- 1
+while$ -- 49
+width$ -- 0
+write$ -- 115
+(There were 2 warnings)

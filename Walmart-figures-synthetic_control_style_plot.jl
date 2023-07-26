@@ -228,7 +228,6 @@ for est in ests
   treated.y_0_hat = 
     treated.ytilde_0_hat .+ treated.yinf_t .+ treated.yi_pre .- treated.yinf_pre
 
-
   collapsed = treated |>
     (x -> groupby(x, [:rel_year])) |>
     (x -> combine(x, 
@@ -238,34 +237,7 @@ for est in ests
       :ytilde_0_hat => mean
     ))
 
-
-  alice = RGBA(16/255, 120/255, 149/255, 1)
-  ruby = RGBA(154/255, 36/255, 21/255, 1)
-
-  pgfplotsx()
-
-  synthetic_plot = plot(legend = :topleft)
-  xlabel!("Event Time")
-  ylabel!("")
-  plot!(
-    collapsed.rel_year, collapsed.ytilde_mean, 
-    linecolor = ruby, linewidth = 1.4,
-    label = L"Average of $\tilde{y}_{it}$"
-  )
-  plot!(
-    collapsed.rel_year, collapsed.ytilde_0_hat_mean, 
-    linecolor = alice, linewidth = 1.4, 
-    label = L"Average of $\hat{\tilde{y}}_{it}(0)$"
-  )
-  vline!([-0.5], linestyle = :dash, linecolor = :black, label = "")
-  synthetic_plot = plot(synthetic_plot, size = (600, 300) .* 0.75)
-
-  savefig(
-    synthetic_plot, "figures/synthetic_$(outcome)_p_$(p).tex"
-  )
-  savefig(
-    synthetic_plot, "figures/synthetic_$(outcome)_p_$(p).pdf"
-  )
+  CSV.write("data/synthetic_$(outcome)_p_$(p).csv", collapsed)
 
 end
 

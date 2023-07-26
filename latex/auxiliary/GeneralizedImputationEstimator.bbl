@@ -1,0 +1,286 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  This bbl file is created by aea.bst ver.3.1.1
+%  The latest aea.bst is available at
+%  <https://github.com/ShiroTakeda/econ-bst>
+
+\begin{thebibliography}{xxx}
+
+\harvarditem[Abadie]{Abadie}{2021}{Abadie_2021}
+\textbf{Abadie, Alberto.} 2021. ``Using synthetic controls: Feasibility, data
+  requirements, and methodological aspects.'' \textit{Journal of Economic
+  Literature} 59 (2):   391--425.
+  \href{http://dx.doi.org/10.1257/jel.20191450}{\urlstyle{rm}
+  \nolinkurl{10.1257/jel.20191450}}.
+
+\harvarditem[Ahn et~al.]{Ahn, Lee, and Schmidt}{2013}{Ahn_Lee_Schmidt_2013}
+\textbf{Ahn, Seung~C, Young~H Lee, and Peter Schmidt.} 2013. ``Panel data
+  models with multiple time-varying individual effects.'' \textit{Journal of
+  econometrics} 174 (1):   1--14.
+  \href{http://dx.doi.org/10.1016/j.jeconom.2012.12.002}{\urlstyle{rm}
+  \nolinkurl{10.1016/j.jeconom.2012.12.002}}.
+
+\harvarditem[Ahn et~al.]{Ahn, Lee, and Schmidt}{2001}{Ahn_Lee_Schmidt_2001}
+\textbf{Ahn, Seung~Chan, Young~Hoon Lee, and Peter Schmidt.} 2001. ``GMM
+  estimation of linear panel data models with time-varying individual
+  effects.'' \textit{Journal of Econometrics} 101 (2):   219--255.
+  \href{http://dx.doi.org/10.1016/s0304-4076(00)00083-x}{\urlstyle{rm}
+  \nolinkurl{10.1016/s0304-4076(00)00083-x}}.
+
+\harvarditem[Arcidiacono et~al.]{Arcidiacono, Ellickson, Mela, and
+  Singleton}{2020}{arcidiacono2020competitive}
+\textbf{Arcidiacono, Peter, Paul~B Ellickson, Carl~F Mela, and John~D
+  Singleton.} 2020. ``The competitive effects of entry: Evidence from
+  supercenter expansion.'' \textit{American Economic Journal: Applied
+  Economics} 12 (3):   175--206.
+  \href{http://dx.doi.org/10.2139/ssrn.3045492}{\urlstyle{rm}
+  \nolinkurl{10.2139/ssrn.3045492}}.
+
+\harvarditem[Arkhangelsky et~al.]{Arkhangelsky, Athey, Hirshberg, Imbens, and
+  Wager}{2021}{arkhangelsky2021synthetic}
+\textbf{Arkhangelsky, Dmitry, Susan Athey, David~A Hirshberg, Guido~W Imbens,
+  and Stefan Wager.} 2021. ``Synthetic difference-in-differences.''
+  \textit{American Economic Review} 111 (12):   4088--4118.
+  \href{http://dx.doi.org/10.1257/aer.20190159}{\urlstyle{rm}
+  \nolinkurl{10.1257/aer.20190159}}.
+
+\harvarditem[Athey et~al.]{Athey, Bayati, Doudchenko, Imbens, and
+  Khosravi}{2021}{Athey_et_al_2021}
+\textbf{Athey, Susan, Mohsen Bayati, Nikolay Doudchenko, Guido Imbens, and
+  Khashayar Khosravi.} 2021. ``Matrix completion methods for causal panel data
+  models.'' \textit{Journal of the American Statistical Association} 116 (536):
+    1716--1730.
+  \href{http://dx.doi.org/10.1080/01621459.2021.1891924}{\urlstyle{rm}
+  \nolinkurl{10.1080/01621459.2021.1891924}}.
+
+\harvarditem[Bai]{Bai}{2009}{Bai_2009}
+\textbf{Bai, Jushan.} 2009. ``Panel data models with interactive fixed
+  effects.'' \textit{Econometrica} 77 (4):   1229--1279.
+  \href{http://dx.doi.org/10.3982/ecta6135}{\urlstyle{rm}
+  \nolinkurl{10.3982/ecta6135}}.
+
+\harvarditem[Basker]{Basker}{2005}{basker2005job}
+\textbf{Basker, Emek.} 2005. ``Job Creation or Destruction? Labor Market
+  Effects of Wal-Mart Expansion.'' \textit{Review of Economics and Statistics}
+  87 (1):   174--183.
+  \href{http://dx.doi.org/10.1162/0034653053327568}{\urlstyle{rm}
+  \nolinkurl{10.1162/0034653053327568}}.
+
+\harvarditem[Borusyak et~al.]{Borusyak, Jaravel, and
+  Spiess}{2022}{Borusyak_Jaravel_Spiess_2021}
+\textbf{Borusyak, Kirill, Xavier Jaravel, and Jann Spiess.} 2022. ``Revisiting
+  Event Study Designs: Robust and Efficient Estimation.''Technical report.
+  \href{http://dx.doi.org/10.47004/wp.cem.2022.1122}{\urlstyle{rm}
+  \nolinkurl{10.47004/wp.cem.2022.1122}}.
+
+\harvarditem[Brown]{Brown}{2023}{Brown_2022}
+\textbf{Brown, Nicholas.} 2023. ``Moment-based Estimation of Linear Panel Data
+  Models with Factor-augmented Errors.''Technical report.
+
+\harvarditem[Brown et~al.]{Brown, Butts, and
+  Westerlund}{2023}{Brown_Butts_Westerlund_2023}
+\textbf{Brown, Nicholas, Kyle Butts, and Joakim Westerlund.} 2023.
+  ``Difference-in-Differences via Common Correlated Effects.'' \textit{arXiv
+  preprint arXiv:2301.11358}, \url{https://arxiv.org/abs/2301.11358}.
+
+\harvarditem[Brown et~al.]{Brown, Schmidt, and
+  Wooldridge}{2023}{Brown_Schmidt_Wooldridge2021}
+\textbf{Brown, Nicholas~L., Peter Schmidt, and Jeffrey~M. Wooldridge.} 2023.
+  ``Simple Alternatives to the Common Correlated Effects Model.''
+  \href{http://dx.doi.org/10.13140/RG.2.2.12655.76969/1}{\urlstyle{rm}
+  \nolinkurl{10.13140/RG.2.2.12655.76969/1}}.
+
+\harvarditem[Butts and Gardner]{Butts and Gardner}{2022}{butts2022did2s}
+\textbf{Butts, Kyle, and John Gardner.} 2022. ``did2s: Two-Stage
+  Difference-in-Differences.'' \textit{R Journal} 14 (3): .
+  \href{http://dx.doi.org/10.32614/rj-2022-048}{\urlstyle{rm}
+  \nolinkurl{10.32614/rj-2022-048}}.
+
+\harvarditem[Callaway and Karami]{Callaway and
+  Karami}{2023}{Callaway_Karami_2020}
+\textbf{Callaway, Brantly, and Sonia Karami.} 2023. ``Treatment effects in
+  interactive fixed effects models with a small number of time periods.''
+  \textit{Journal of Econometrics} 233 (1):   184--208.
+  \href{http://dx.doi.org/10.1016/j.jeconom.2022.02.001}{\urlstyle{rm}
+  \nolinkurl{10.1016/j.jeconom.2022.02.001}}.
+
+\harvarditem[Callaway and Sant'Anna]{Callaway and
+  Sant'Anna}{2021}{Callaway_Santanna_2021}
+\textbf{Callaway, Brantly, and Pedro~HC Sant'Anna.} 2021.
+  ``Difference-in-differences with multiple time periods.'' \textit{Journal of
+  Econometrics} 225 (2):   200--230.
+  \href{http://dx.doi.org/10.1016/j.jeconom.2020.12.001}{\urlstyle{rm}
+  \nolinkurl{10.1016/j.jeconom.2020.12.001}}.
+
+\harvarditem[Chan and Kwok]{Chan and Kwok}{2022}{Chan_and_Kwok_2022}
+\textbf{Chan, Marc~K, and Simon~S Kwok.} 2022. ``The PCDID approach:
+  difference-in-differences when trends are potentially unparallel and
+  stochastic.'' \textit{Journal of Business \& Economic Statistics} 40 (3):
+  1216--1233.
+  \href{http://dx.doi.org/10.1080/07350015.2021.1914636}{\urlstyle{rm}
+  \nolinkurl{10.1080/07350015.2021.1914636}}.
+
+\harvarditem[Cui et~al.]{Cui, Norkut{\.{e}}, Sarafidis, and
+  Yamagata}{2021}{Cui_et_al_2022}
+\textbf{Cui, Guowei, Milda Norkut{\.{e}}, Vasilis Sarafidis, and Takashi
+  Yamagata.} 2021. ``Two-stage instrumental variable estimation of linear panel
+  data models with interactive effects.'' \textit{The Econometrics Journal} 25
+  (2):   340--361. \href{http://dx.doi.org/10.1093/ectj/utab029}{\urlstyle{rm}
+  \nolinkurl{10.1093/ectj/utab029}}.
+
+\harvarditem[Eckert et~al.]{Eckert, Fort, Schott, and
+  Yang}{2021}{eckert2021imputing}
+\textbf{Eckert, Fabian, Teresa~C. Fort, Peter~K. Schott, and Natalie~J. Yang.}
+  2021. ``Imputing Missing Values in the US Census Bureau's County Business
+  Patterns.''Technical report, National Bureau of Economic Research.
+  \href{http://dx.doi.org/10.3386/w26632}{\urlstyle{rm}
+  \nolinkurl{10.3386/w26632}}.
+
+\harvarditem[Fan et~al.]{Fan, Liao, and Wang}{2016}{Fan_2016}
+\textbf{Fan, Jianqing, Yuan Liao, and Weichen Wang.} 2016. ``Projected
+  principal component analysis in factor models.'' \textit{Annals of
+  statistics} 44 (1):  219.
+  \href{http://dx.doi.org/10.1214/15-aos1364}{\urlstyle{rm}
+  \nolinkurl{10.1214/15-aos1364}}.
+
+\harvarditem[Freyaldenhoven et~al.]{Freyaldenhoven, Hansen, Pérez, and
+  Shapiro}{Forthcoming}{Freyaldenhoven_Hansen_Perez_Shapiro_2022}
+\textbf{Freyaldenhoven, Simon, Christian Hansen, Jorge~Pérez Pérez, and
+  Jesse~M. Shapiro.} Forthcoming. ``Visualization, identification, and
+  estimation in the linear panel event-study design..'' \textit{Advances in
+  Economics and Econometrics: Twelfth World Congress}.
+  \href{http://dx.doi.org/10.3386/w29170}{\urlstyle{rm}
+  \nolinkurl{10.3386/w29170}}.
+
+\harvarditem[Freyaldenhoven et~al.]{Freyaldenhoven, Hansen, and
+  Shapiro}{2019}{freyaldenhoven2019pre}
+\textbf{Freyaldenhoven, Simon, Christian Hansen, and Jesse~M. Shapiro.} 2019.
+  ``Pre-Event Trends in the Panel Event-Study Design.'' \textit{American
+  Economic Review} 109 (9):   3307--3338.
+  \href{http://dx.doi.org/10.1257/aer.20180609}{\urlstyle{rm}
+  \nolinkurl{10.1257/aer.20180609}}.
+
+\harvarditem[Gardner]{Gardner}{2021}{Gardner_2021}
+\textbf{Gardner, John.} 2021. ``Two-Stage Difference-in-Differences.''Technical
+  report.
+
+\harvarditem[Gobillon and Magnac]{Gobillon and
+  Magnac}{2016}{Gobillon_Magnac_2016}
+\textbf{Gobillon, Laurent, and Thierry Magnac.} 2016. ``Regional Policy
+  Evaluation: Interactive Fixed Effects and Synthetic Controls.''
+  \textit{Review of Economics and Statistics} 98 (3):   535--551.
+  \href{http://dx.doi.org/10.1162/REST_a_00537}{\urlstyle{rm}
+  \nolinkurl{10.1162/REST_a_00537}}.
+
+\harvarditem[Goodman-Bacon]{Goodman-Bacon}{2021}{Goodman-Bacon_2021}
+\textbf{Goodman-Bacon, Andrew.} 2021. ``Difference-in-differences with
+  variation in treatment timing.'' \textit{Journal of Econometrics} 225 (2):
+  254--277.
+  \href{http://dx.doi.org/10.1016/j.jeconom.2021.03.014}{\urlstyle{rm}
+  \nolinkurl{10.1016/j.jeconom.2021.03.014}}.
+
+\harvarditem[Hahn et~al.]{Hahn, Liao, and Ridder}{2018}{Hahn_Liao_Geert_2018}
+\textbf{Hahn, Jinyong, Zhipeng Liao, and Geert Ridder.} 2018. ``Nonparametric
+  two-step sieve M estimation and inference.'' \textit{Econometric Theory} 34
+  (6):   1281--1324.
+  \href{http://dx.doi.org/10.1017/s0266466618000014}{\urlstyle{rm}
+  \nolinkurl{10.1017/s0266466618000014}}.
+
+\harvarditem[Imbens et~al.]{Imbens, Kallus, and
+  Mao}{2021}{Imbens_Kallus_Mao_2021}
+\textbf{Imbens, Guido, Nathan Kallus, and Xiaojie Mao.} 2021. ``Controlling for
+  Unmeasured Confounding in Panel Data Using Minimal Bridge Functions: From
+  Two-Way Fixed Effects to Factor Models.'' \textit{arXiv preprint
+  arXiv:2108.03849}.
+
+\harvarditem[Juodis and Sarafidis]{Juodis and
+  Sarafidis}{2020}{Juodis_Sarafidis_2020}
+\textbf{Juodis, Artūras, and Vasilis Sarafidis.} 2020. ``A Linear Estimator
+  for Factor-Augmented Fixed-T Panels With Endogenous Regressors.''
+  \textit{Journal of Business and Economic Statistics}.
+  \href{http://dx.doi.org/10.1080/07350015.2020.1766469}{\urlstyle{rm}
+  \nolinkurl{10.1080/07350015.2020.1766469}}.
+
+\harvarditem[Kejriwal et~al.]{Kejriwal, Li, and
+  Totty}{2021}{kejriwal2021efficacy}
+\textbf{Kejriwal, Mohitosh, Xiaoxiao Li, and Evan Totty.} 2021. ``The Efficacy
+  of Ability Proxies for Estimating the Returns to Schooling: A Factor
+  Model-Based Evaluation.'' \textit{Available at SSRN 3843260}.
+  \href{http://dx.doi.org/10.2139/ssrn.3843260}{\urlstyle{rm}
+  \nolinkurl{10.2139/ssrn.3843260}}.
+
+\harvarditem[Manson]{Manson}{2020}{manson2020ipums}
+\textbf{Manson, Steven~M.} 2020. ``IPUMS national historical geographic
+  information system: Version 15.0.''
+
+\harvarditem[Mogensen and Riseth]{Mogensen and Riseth}{2018}{mogensen2018optim}
+\textbf{Mogensen, P, and A~Riseth.} 2018. ``Optim: A mathematical optimization
+  package for Julia.'' \textit{Journal of Open Source Software} 3 (24): ,
+  \url{https://joss.theoj.org/papers/10.21105/joss.00615}.
+
+\harvarditem[Neumark et~al.]{Neumark, Zhang, and
+  Ciccarella}{2008}{neumark2008effects}
+\textbf{Neumark, David, Junfu Zhang, and Stephen Ciccarella.} 2008. ``The
+  effects of Wal-Mart on local labor markets.'' \textit{Journal of Urban
+  Economics} 63 (2):   405--430.
+  \href{http://dx.doi.org/10.1016/j.jue.2007.07.004}{\urlstyle{rm}
+  \nolinkurl{10.1016/j.jue.2007.07.004}}.
+
+\harvarditem[Pesaran]{Pesaran}{2006}{Pesaran_2006}
+\textbf{Pesaran, M.~Hashem.} 2006. ``Estimation and Inference in Large
+  Heterogeneous Panels with a Multifactor Error Structure.''
+  \textit{Econometrica} 74 (4):   967--1012.
+  \href{http://dx.doi.org/10.1111/j.1468-0262.2006.00692.x}{\urlstyle{rm}
+  \nolinkurl{10.1111/j.1468-0262.2006.00692.x}}.
+
+\harvarditem[Rai]{Rai}{2023}{Rai_2022}
+\textbf{Rai, Bhavna.} 2023. ``Efficient estimation with missing data and
+  endogeneity.''Technical Report~2.
+  \href{http://dx.doi.org/10.1080/07474938.2023.2178089}{\urlstyle{rm}
+  \nolinkurl{10.1080/07474938.2023.2178089}}.
+
+\harvarditem[Rambachan and Roth]{Rambachan and Roth}{2023}{rambachan2022more}
+\textbf{Rambachan, Ashesh, and Jonathan Roth.} 2023. ``A More Credible Approach
+  to Parallel Trends.''Technical report.
+  \href{http://dx.doi.org/10.1093/restud/rdad018}{\urlstyle{rm}
+  \nolinkurl{10.1093/restud/rdad018}}.
+
+\harvarditem[Stapp]{Stapp}{2014}{stapp2014Walmart}
+\textbf{Stapp, Jacob.} 2014. ``The Walmart Effect: Labor Market Implications in
+  Rural and Urban Counties.'' \textit{SS-AAEA Journal of Agricultural
+  Economics} 2014 (318-2016-9525): ,
+  \url{https://ideas.repec.org/a/ags/ssaaea/232737.html}.
+
+\harvarditem[Volpe and Boland]{Volpe and Boland}{2022}{volpe2022economic}
+\textbf{Volpe, Richard, and Michael~A Boland.} 2022. ``The Economic Impacts of
+  Walmart Supercenters.'' \textit{Annual Review of Resource Economics} 14
+  43--62.
+  \href{http://dx.doi.org/10.1146/annurev-resource-111820-032827}{\urlstyle{rm}
+  \nolinkurl{10.1146/annurev-resource-111820-032827}}.
+
+\harvarditem[Westerlund]{Westerlund}{2020}{Westerlund_2020}
+\textbf{Westerlund, Joakim.} 2020. ``A cross-section average-based principal
+  components approach for fixed-T panels.'' \textit{Journal of Applied
+  Econometrics} 35 (6):   776--785.
+  \href{http://dx.doi.org/10.1002/jae.2786}{\urlstyle{rm}
+  \nolinkurl{10.1002/jae.2786}}.
+
+\harvarditem[Westerlund et~al.]{Westerlund, Petrova, and
+  Norkut\.e}{2019}{Westerlund_Petrova_Norkute_2019}
+\textbf{Westerlund, Joakim, Yana Petrova, and Milda Norkut\.e.} 2019. ``CCE in
+  fixed-T panels.'' \textit{Journal of Applied Econometrics} 34  746--761.
+  \href{http://dx.doi.org/10.1002/jae.2707}{\urlstyle{rm}
+  \nolinkurl{10.1002/jae.2707}}.
+
+\harvarditem[Wooldridge]{Wooldridge}{2021}{Wooldridge_2021}
+\textbf{Wooldridge, Jeffrey~M.} 2021. ``Two-Way Fixed Effects, the Two-Way
+  Mundlak Regression, and Difference-in-Differences Estimators.''Technical
+  report, \url{https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3906345}.
+
+\harvarditem[Xu]{Xu}{2017}{Xu_2017}
+\textbf{Xu, Yiqing.} 2017. ``Generalized synthetic control method: Causal
+  inference with interactive fixed effects models.'' \textit{Political
+  Analysis} 25 (1):   57--76.
+  \href{http://dx.doi.org/10.1017/pan.2016.2}{\urlstyle{rm}
+  \nolinkurl{10.1017/pan.2016.2}}.
+
+\end{thebibliography}

@@ -1,0 +1,71 @@
+This is BibTeX, Version 0.99d (TeX Live 2022)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: GeneralizedImputationEstimator.aux
+The style file: econ-aea.bst
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=200001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: references.bib
+Warning--I didn't find a database entry for ""
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Warning--empty institution in Borusyak_Jaravel_Spiess_2021
+Warning--empty institution in Brown_2022
+Warning--there is no volume, number, and pages in Brown_Butts_Westerlund_2023
+Warning--empty journal in Brown_Schmidt_Wooldridge2021
+Warning--there is no volume, number, and pages in Brown_Schmidt_Wooldridge2021
+Warning--there is no volume, number, and pages in Freyaldenhoven_Hansen_Perez_Shapiro_2022
+Warning--empty institution in Gardner_2021
+Warning--there is no volume, number, and pages in Imbens_Kallus_Mao_2021
+Warning--there is no volume, number, and pages in Juodis_Sarafidis_2020
+Warning--there is no volume, number, and pages in kejriwal2021efficacy
+Warning--empty journal in manson2020ipums
+Warning--there is no volume, number, and pages in manson2020ipums
+Warning--empty institution in Rai_2022
+Warning--empty institution in rambachan2022more
+Warning--empty institution in Wooldridge_2021
+You've used 40 entries,
+            6828 wiz_defined-function locations,
+            1620 strings with 19114 characters,
+and the built_in function-call counts, 43372 in all, are:
+= -- 7109
+> -- 1445
+< -- 104
++ -- 492
+- -- 487
+* -- 2603
+:= -- 5341
+add.period$ -- 39
+call.type$ -- 40
+change.case$ -- 290
+chr.to.int$ -- 40
+cite$ -- 55
+duplicate$ -- 1231
+empty$ -- 2122
+format.name$ -- 470
+if$ -- 11325
+int.to.chr$ -- 0
+int.to.str$ -- 0
+missing$ -- 0
+newline$ -- 128
+num.names$ -- 324
+pop$ -- 438
+preamble$ -- 1
+purify$ -- 284
+quote$ -- 0
+skip$ -- 3400
+stack$ -- 0
+substring$ -- 3691
+swap$ -- 210
+text.length$ -- 108
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 684
+warning$ -- 15
+while$ -- 269
+width$ -- 0
+write$ -- 627
+(There were 16 warnings)

@@ -1,0 +1,1428 @@
+\documentclass{beamer}
+
+\mode<presentation>
+{
+  \usetheme{Madrid}
+  \usecolortheme{default}
+  \usefonttheme{default} 
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{bm}
+\usepackage{mathabx}
+\usepackage{pdfpages}
+
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{adjustbox}
+\usepackage{graphicx}
+
+\newcommand{\R}{\mathbb{R}} %real numbers
+\newcommand{\N}{\mathbb{N}} %natural number
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}} %Independence symbol
+\newcommand{\1}{\mathds{1}} %indicator function
+\newcommand{\del}{\partial}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert} %norm operator
+\newcommand{\supnorm}[1]{\norm{#1}_\infty} %essential supremum
+\newcommand{\convd}{\stackrel{d}{\rightarrow}} %convergence in distribution symbol
+\newcommand{\plim}{\stackrel{p}{\rightarrow}} %convergence in probability symbol
+\global\long\def\expec#1{\mathbb{E}\left[#1\right]}%
+\newcommand{\condexpec}[2]{\mathbb{E}\left[#1 \ \vert \ #2\right]}
+\global\long\def\prob#1{\mathbb{P}\left[#1\right]}%
+\global\long\def\var#1{\mathrm{Var}\left[#1\right]}%
+\global\long\def\cov#1{\mathrm{Cov}\left[#1\right]}%
+\global\long\def\one{\mathbf{1}}%
+
+
+\newcommand{\trueb}{\bm \beta_0}
+\newcommand{\truet}{\bm \theta_0}
+\newcommand{\trueT}{\bm \Theta_0}
+\newcommand{\xbar}{\bar{\bm x}_i}
+\newcommand{\Xbar}{\overline{\bm X}}
+\newcommand{\ybar}{\overline{\bm y}}
+\newcommand{\bcce}{\widehat{\bm \beta}_{CCE}}
+\newcommand{\qldmg}{\widehat{\bm \beta}_{QLDMG}} %quasi-diff MG
+\newcommand{\qldp}{\widehat{\bm \beta}_{QLDP}}
+\newcommand{\ccep}{\widehat{\bm \beta}_{CCEP}}
+
+%summands indexed by i and t
+\newcommand{\isum}{\sum_{i = 1}^N}
+\newcommand{\tsum}{\sum_{t = 1}^T}
+\newcommand{\fep}{\widehat{\bm \beta}_{FEP}}
+\newcommand{\gfep}{\widehat{\bm \beta}_{GFEP}}
+\newcommand{\bu}{\widehat{\bm \beta}_u}
+\newcommand{\br}{\widehat{\bm \beta}_r}
+\newcommand{\ba}{\widehat{\bm \beta}_A}
+
+%'sketch of proof' environment
+\newenvironment{sproof}{%
+  \renewcommand{\proofname}{Sketch of Proof}\proof}{\endproof}
+
+  % Table and Figure labelling ---------------------------------------------------
+
+\usepackage{caption}
+
+\DeclareCaptionLabelSeparator{threedash}{\,---\,}
+\DeclareCaptionFont{navy}{\color{navy}}
+\DeclareCaptionFont{jet}{\color{jet}}
+\captionsetup[table]{format=plain, labelsep=threedash, font={navy, bf}}
+\captionsetup[figure]{format=plain, labelsep=threedash, font={navy, bf}}
+
+% Alternative: Left align captions
+% \captionsetup[table]{labelfont=it, textfont={navy, bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
+% \captionsetup[figure]{labelfont=it, textfont={navy, bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
+
+% multifigure with \caption
+% \begin{subfigure}\caption{} \end{subfigure}
+\usepackage{subcaption}
+\captionsetup[subfigure]{format=plain, font={jet, footnotesize, bf}}
+
+
+% Tables -----------------------------------------------------------------------
+
+% Fix \input with tables
+% \input fails when \\ is at end of external .tex file
+\makeatletter
+\let\input\@@input
+\makeatother
+
+% Make tables/figures wider than \textwidth using:
+% \begin{adjustbox}{width = 1.2\textwidth, center}
+% \end{adjustbox}
+\usepackage{adjustbox}
+
+% Slighty more spacing between rows
+\usepackage{array}
+\renewcommand\arraystretch{1.25}
+
+% Table with easy to use footnotes
+% \begin{threeparttable}
+%    \begin{tabular} ... \end{tabular}
+%    \begin{tablenotes}
+%        \item \textit{Notes.}
+%    \end{tablenotes}  
+% \end{threeparttable}
+\usepackage[flushleft]{threeparttable}
+\setlength\labelsep{0pt}
+
+% \toprule, \cmidrule, \bottomrule
+\usepackage{booktabs}
+
+% If tables are too narrow, fill columns using:
+% \begin{tabularx}{\linewidth}{cols}
+% col-types: X - center, L - left, R -right
+% If you want relative scale for columns: 
+% >{\hsize=.8\hsize}X/L/R
+\usepackage{tabularx}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+% Landscape table 
+% \begin{landscape} \pagestyle{lscaped} table... \end{landscsape}
+% \usepackage{pdflscape} - rotates page left-side up in pdf
+% \usepackage{lscape} - does not rotate page, only figure/table
+
+\usepackage{pdflscape}
+
+% For landscape, fix page number location
+\usepackage{fancyhdr}
+\fancypagestyle{lscaped}{%
+    \fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \textnormal
+    \fancyfoot{%
+        \tikz[remember picture,overlay]
+        \node[outer sep=2.5cm,above,rotate=90] at (current page.east) {\thepage};
+    }
+}
+  
+
+% ------------------------------------------------------------------------------
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\usepgfplotslibrary{polar}
+\usepgfplotslibrary{smithchart}
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{dateplot}
+\usepgfplotslibrary{ternary}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{backgrounds}
+\usepgfplotslibrary{patchplots}
+\usepgfplotslibrary{fillbetween}
+\pgfplotsset{%
+    layers/standard/.define layer set={%
+        background,axis background,axis grid,axis ticks,axis lines,axis tick labels,pre main,main,axis descriptions,axis foreground%
+    }{
+        grid style={/pgfplots/on layer=axis grid},%
+        tick style={/pgfplots/on layer=axis ticks},%
+        axis line style={/pgfplots/on layer=axis lines},%
+        label style={/pgfplots/on layer=axis descriptions},%
+        legend style={/pgfplots/on layer=axis descriptions},%
+        title style={/pgfplots/on layer=axis descriptions},%
+        colorbar style={/pgfplots/on layer=axis descriptions},%
+        ticklabel style={/pgfplots/on layer=axis tick labels},%
+        axis background@ style={/pgfplots/on layer=axis background},%
+        3d box foreground style={/pgfplots/on layer=axis foreground},%
+    },
+}
+
+
+\setbeamertemplate{enumerate items}[default]
+\setbeamertemplate{itemize item}[circle]
+\setbeamertemplate{itemize subitem}[square]
+\setbeamertemplate{itemize subsubitem}[triangle]
+% \setbeamertemplate{page number in head/foot}{}
+
+
+%Title page info
+%%% The [] is what appears on the footline of each slide; default is what is in the brackets {}
+\title[]{A Unified Framework for Dynamic Treatment Effect Estimation in Interactive Fixed Effect Models}
+\author[Brown and Butts (2022)]{
+\begin{tabular}{c @{\extracolsep{16pt}} c}
+  Nicholas Brown & 
+  Kyle Butts  \\
+  {\small\textit{Queen's University}} & 
+  {\small\textit{University of Colorado Boulder}} \\
+\end{tabular}
+}
+
+\date[]{
+\begin{tabular}{c @{\extracolsep{16pt}} c}
+January 19, 2023
+\end{tabular}
+}
+
+%puts table of contents before each section
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\frame{\titlepage}
+
+% \begin{frame}{Table of Contents}
+% \tableofcontents
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Introduction}
+    We are interested in effects of a treatment/intervention. 
+    \begin{itemize}
+        \item Observed outcomes have two potential states:
+        \begin{itemize}
+            \item Treated: $y_{it}(1)$.
+            \item Untreated: $y_{it}(0)$.
+        \end{itemize}
+        \end{itemize}
+
+            \begin{block}{Definition}
+        \textbf{Average Treatment Effect on the Treated:}
+        \begin{equation}
+            \text{ATT}_t = \condexpec{y_{it}(1) - y_{it}(0)}{D_i = 1}
+        \end{equation}
+    \end{block}
+    \begin{itemize}
+        \item $D_i = 1$ if unit is eventually treated; $0$ otherwise.
+        \begin{itemize}
+            \item See paper for staggered intervention case. 
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Introduction}
+    Standard parallel trends assumption: 
+    \begin{equation}
+        \condexpec{y_{it}(0) - y_{i,t-1}(0)}{D_i = 0} = \condexpec{y_{it}(0) - y_{i,t-1}(0)}{D_i = 1}
+    \end{equation}
+
+    \vspace{.5 cm}
+
+    Strength of assumption depends on $y_{it}(0)$. We assume a \textbf{common factor model}:
+    \begin{equation}
+        y_{it}(0) = \mu_i + \theta_t + \sum_{r = 1}^p f_{t,r} * \gamma_{r, i} + u_{it}
+    \end{equation}
+    \begin{itemize}
+        \item \textbf{Factors} are common, time-varying effects.
+        \item Time effects are constant. 
+    \end{itemize}
+
+\end{frame}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Example: Job Training Program}
+    Workers are eligible for a job training program.
+    \begin{itemize}
+        \item Interested in workers' income $y_{it}$.
+    \end{itemize}
+
+    \vspace{.5cm} \pause
+
+    \textbf{Untreated Model 1:} $y_{it}(0) = TFP_t + skill_i + u_{it}$.
+    \begin{itemize}
+        \item Two-way fixed effects (TWFE).
+    \end{itemize}
+
+    \vspace{.5cm} \pause
+    
+    \textbf{Untreated Model 2:} $y_{it}(0) = TFP_t * skill_i + u_{it}$.
+    \begin{itemize}
+        \item Technology adoption is tied to skill. 
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Example: Local Effects of Walmart Openings}
+    New Walmart may affect local labor market outcomes.
+    \begin{itemize}
+        \item Interested in employment in retail and non-retail sectors. 
+        \item Walmart does place stores randomly (unfortunate).
+    \end{itemize}
+
+    \vspace{.5cm} \pause
+
+    \textbf{Untreated Model 1:} $y_{it}(0) = macro_t + local_i + u_{it}$.
+    \begin{itemize}
+        \item Selection on macro trends and micro conditions.
+    \end{itemize}
+
+    \vspace{.5cm} \pause
+    
+    \textbf{Untreated Model 2:} $y_{it}(0) = macro_t * local_i + u_{it}$.
+    \begin{itemize}
+        \item Selection on local exposure to macro trends. 
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Contribution}
+        Current methods for factor models require
+        \begin{enumerate}
+            \item \textbf{Large time series:} Gobillon and Magnac (2016), Xu (2017), Abadie (2021), Athey et al. (2021).
+            \item \textbf{White noise errors:} Imbens et al. (2021).
+            \item \textbf{Time-constant effects:} Chan and Kwok (2022).
+        \end{enumerate}
+
+         \vspace{.5 cm}
+
+         Our identification approach: estimate factor model, impute $y_{it}(0)$.
+         \begin{itemize}
+             \item Long or short time series. 
+             \item No restrictions on time series dependence. 
+             \item Obtain plotted $y_{it}(0)$ for visual inspection.
+             \item Allow $\text{ATT}_t$ to vary over time. 
+         \end{itemize}
+
+         
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Contribution}
+
+    \textbf{Imputation solution:} ``estimate" time and unit fixed effects ($\mu_i + \theta_t$) with untreated sample, then impute $\condexpec{y_{it}(0)}{D_i = 1}$.
+    \begin{itemize}
+        \item Borusyak et al. (2022), Gardner (2021), Wooldridge (2021).
+        \item We are the first to consider factor model imputation.
+        \begin{itemize}
+            \item Explicitly nest TWFE.
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{.5cm}
+
+         \textbf{Callaway and Karami (2022):} Fixed-$T$, differencing strategy. 
+         \begin{itemize}
+             \item Their instruments are a subset of ours. 
+             \item We give general identification result.
+         \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Model: Panel Structure}
+    $N$ individuals observed for $T$ times periods.
+\begin{itemize}
+    \item Treatment begins \textbf{after} period $T_0$.
+    \item $N_1$ treated individuals, $N_0$ untreated individuals.
+\end{itemize}
+
+\vspace{.5cm}
+
+Stack outcomes over time:
+\begin{itemize}
+    \item $\bm y_i = (y_{i1},...,y_{iT})'$.
+    \item $\bm F = (\bm f_1,...,\bm f_T)'$ where $\bm f_t = (f_{1t},...,f_{pt})'$.
+    \item $\bm \gamma_i = (\gamma_{i1},...,\gamma_{ip})'$.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Model: Potential Outcomes}
+We assume random sampling in the cross-section.
+
+    \begin{block}{Assumption 1 (Untreated Potential Outcomes)}
+        \begin{equation}
+            y_{it}(0) = \mu_i + \theta_t + \bm f_t' \bm \gamma_i + u_{it}
+        \end{equation}
+    \end{block}
+        \begin{itemize}
+            \item $\bm f_t$: $p \times 1$ vector of common factors.
+            \item $\bm \gamma_i$: $p \times 1$ vector of individual factor loadings.
+            \item Nests the common TWFE model ($\bm \gamma_i = \bm 0$). 
+        \end{itemize}
+
+        \vspace{.5 cm}
+
+        \textbf{Important:} Allows arbitrary treatment effects.
+        \begin{equation}
+            y_{it}(1) = y_{it}(0) + \tau_{it}
+        \end{equation}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Model: Anticipation}
+    \begin{block}{Assumption 2 (No Anticipation)}
+        $y_{it} = y_{it}(0)$ if unit $i$ is untreated at time $t$.
+    \end{block}
+    \begin{itemize}
+        \item Treated units do not change their behavior before treatment.
+        \item Can be relaxed to a conditional mean assumption. 
+        \item Define first treatment date to capture anticipatory effectcs.  
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Model: Selection}
+    \begin{block}{Assumption 3 (Selection into Treatment)}
+        \begin{equation*}
+            \condexpec{u_{it}}{\mu_i, \bm \gamma_i, D_i} = \theta_t
+        \end{equation*}
+        for a sequence of constants $\theta_1,...,\theta_T$.
+    \end{block}
+    \begin{itemize}
+        \item \textbf{Mean Model:} $\condexpec{y_{it}(0)}{\mu_i, \bm \gamma_i, D_i} = \mu_i + \theta_t + \bm f_t' \bm \gamma_i$.
+        \item Allows selection into treatment based on level and interactive fixed effects (e.g. skill and innovation).
+        \item Can include covariates.
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{ATT Identification}
+
+Treated sample:
+\begin{equation}
+    \condexpec{y_{it}(0)}{D_i = 1} = \theta_t + \condexpec{\mu_i}{D_i = 1} + \bm f_t' \condexpec{\bm \gamma_i}{D_i = 1}
+\end{equation}
+\begin{itemize} 
+    \item \textbf{Insight:} Do not need to know $\bm \gamma_i$; only $\condexpec{\bm \gamma_i}{D_i = 1}$.
+\end{itemize}
+
+\vspace{.5cm}
+
+\textbf{First:} eliminate additive effects. 
+\begin{itemize}
+    \item Must be careful to maintain common factors. 
+\end{itemize}
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{ATT Identification}
+
+\begin{block}{Definition}
+
+\vspace{-.25 cm}
+
+    \begin{gather*}
+    \overline{y}_{0 , t} = \frac{1}{N_{0}} \sum_{i = 1}^N (1 - D_i) y_{it} \\
+    \overline{y}_{i,t\leq T_0} = \frac{1}{T_0} \sum_{t = 1}^{T_0} y_{it} \\
+    \overline{y}_{0, t < T_0} = \frac{1}{N_{0} T_0} \sum_{i = 1}^N \sum_{t = 1}^{T_0} (1 - D_i) y_{it}
+\end{gather*}
+\end{block}
+
+\begin{itemize}
+    \item $\overline{y}_{0,t}$: never-treated cross-sectional averages.
+    \item $\overline{y}_{i,t \leq T_0}$: pre-treated time averages.
+    \item $\overline{y}_{0, t \leq T_0}$: overall never-treated pre-treated average. 
+\end{itemize}
+
+\vspace{.25 cm}
+
+\textbf{Note:} none of the averages are contaminated by treatment. 
+
+
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{ATT Identification}
+    We only consider residuals $\tilde{y}_{it} = y_{it} - \overline{y}_{0,t} - \overline{y}_{i,t \leq T_0} + \overline{y}_{0, t \leq T_0}$.
+    \begin{itemize}
+        \item Similar to double-demeaned TWFE residuals.
+    \end{itemize}
+
+    \vspace{.5 cm}
+
+    \textbf{Note:} not the residuals from TWFE regression on untreated sample.
+    \begin{itemize}
+        \item Borusyak et al. (2022), Gardner (2021), Wooldridge (2021).
+        \item Will remove $\mu_i + \theta_t$ but ruins common factor structure.
+        \begin{itemize}
+            \item Some units have more time observations than others.
+        \end{itemize}
+        \item Restrict regression to use only pre-treatment variation.
+    \end{itemize}
+
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{ATT Identification}
+
+    \begin{block}{Lemma 2.1}
+        \begin{align*}
+            \condexpec{\tilde{y}_{it}}{D_i = 1} 
+            &= \condexpec{\tau_{it} + \tilde{\bm f}_t' \tilde{\bm \gamma}_i }{D_i = 1}\\
+            &= \text{ATT}_t + \tilde{\bm f}'_t \condexpec{\Tilde{\bm \gamma}_i}{D_i = 1}
+        \end{align*}
+        where $\tilde{\bm f}_t$ are the pre-treatment demeaned factors and $\tilde{\bm \gamma}_i$ are the never-treated demeaned loadings.
+    \end{block}
+    \begin{itemize}
+        \item \textbf{General result:} Our transformation removes $(\mu_i, \theta_t)$ but preserves a common factor structure.
+        \item Every factor imputation approach needs a result like Lemma 2.1 to nest TWFE structure.
+    \end{itemize}
+
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{ATT Identification}
+Post-treatment treated outcomes:
+\begin{equation}
+    \condexpec{\Tilde{y}_{it}}{D_i = 1} = \text{ATT}_t + \Tilde{\bm f}_t' \condexpec{\tilde{\bm \gamma}_i}{D_i = 1}
+\end{equation}
+
+    \begin{block}{Corollary 2.1}
+        If
+        \begin{equation*}
+            \condexpec{\bm \gamma_i}{D_i} = \expec{\bm \gamma_i}
+        \end{equation*}, the ATTs are identified by the modified TWFE transformation.
+    \end{block}
+    \begin{equation}
+        \condexpec{\tilde{y}_{it}}{D_i = 1} = \condexpec{\tau_{it}}{D_i = 1} = \text{ATT}_t
+    \end{equation}
+    for $t > T_0$.
+
+    \begin{itemize}
+        \item Says TWFE is sufficient even if there are factors. 
+        \item \textbf{Later:} we can test for this condition.
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{ATT Identification}
+\label{Theorem 2.1 proof back}
+    \begin{block}{Definition (Imputation Matrix)}
+        Let $\bm X$, $\bm W$ be $n \times k$ and $m \times k$ respectively. If $\text{Rank}(\bm X) = k$, the \textbf{imputation matrix} is 
+        \begin{equation}
+            \bm P(\bm W, \bm X) = \bm W (\bm X' \bm X)^{-1} \bm X'
+        \end{equation}
+    \end{block}
+
+    \vspace{.5 cm}
+
+    \textbf{Notation:} Stack the factors $\tilde{\bm F} = (\tilde{\bm f_1},...,\tilde{\bm f}_T)'$.
+    \begin{itemize}
+        \item Let $\tilde{\bm F}_{t \leq T_0}$ and $\tilde{\bm F}_{t > T_0}$ be the first $T_0$ and last $T - T_0$ rows of $\tilde{\bm F}$.
+    \end{itemize}
+
+    \vspace{.5 cm}
+
+    \begin{block}{Theorem 2.1}
+        Suppose $\tilde{\bm F}$ is known and $\text{Rank}(\tilde{\bm F}_{t \leq T_0}) = p$. Then for $t > T_0$,
+        \begin{equation}
+            \text{ATT}_t = \condexpec{\tilde{y}_{it} - \bm P(\tilde{\bm f}_t, \tilde{\bm F}_{t \leq T_0}) \bm y_{i, t \leq T_0} }{D_i = 1}
+        \end{equation}
+    \end{block}
+
+    \hyperlink{Theorem 2.1 proof}{\beamerbutton{Proof.}}
+        
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Factor Identification}
+
+We consider instrument-based identification of Ahn, Lee, and Schmidt (2013).
+\begin{itemize}
+    \item Allows fixed-$T$ analysis.
+    \item Provides moment conditions; inference is easy.
+\end{itemize}
+
+\begin{block}{Assumption 4}
+    The following rank assumptions for the untreated units, where $\bm w_i$ is a $L \times 1$ vector of instruments: 
+\begin{enumerate}[(i)]
+    \item $\text{Rank}( Var(\bm \gamma_i \ \vert \ D_i = 0 ) ) = \text{Rank}(\tilde{\bm F}_{t < T_0}) = p < T_0$.
+    \item The matrix $\expec{\bm I_{(T-p)} \otimes \bm w_i \tilde{\bm \gamma}_i' \ \vert \ D_i = 0}$ has full column rank.
+    \item $\condexpec{\bm u_i}{\bm w_i, D_i = 0} = \bm 0$.
+    \item $p$ is known.
+\end{enumerate}
+\end{block}
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Factor Identification}
+    \textbf{Fact:} $\tilde{\bm F} \tilde{\bm \gamma}_i$ are never separately identifiable (\textbf{rotation problem}):
+    \begin{equation*}
+        \tilde{\bm F} \tilde{\bm \gamma}_i = (\tilde{\bm F}\bm A) (\bm A^{-1} \tilde{\bm \gamma}_i)
+    \end{equation*} 
+
+    \vspace{.25cm}
+
+    Impose the $p^2$ normalizations
+    \begin{equation*}
+        \tilde{\bm F}(\bm \theta) = 
+    \begin{pmatrix}
+        \bm \Theta\\
+        - \bm I_p
+    \end{pmatrix}
+    \end{equation*}
+
+    where $\bm \theta = \text{vec}(\bm \Theta)$. The \textbf{quasi-long-differencing} (QLD) matrix is
+    \begin{equation*}
+        \bm H(\bm \theta)' = 
+    \begin{pmatrix}
+        \bm I_{(T-p)} & \bm \Theta
+    \end{pmatrix}
+    \end{equation*}
+    \begin{itemize}
+        \item $\bm H(\bm \theta)' \bm F(\bm \theta) = \bm 0$ for any $\bm \theta$. 
+    \end{itemize}
+
+
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Factor Identification}
+\label{Lemma 2.3 proof back}
+    \begin{block}{Lemma 2.2}
+        $\bm \theta$ is identified by
+        \begin{equation}
+            \condexpec{\bm H(\bm \theta)' \tilde{\bm y}_i \otimes \bm w_i }{D_i = 0} = \bm 0
+        \end{equation}
+    \end{block}
+    \begin{itemize}
+        \item Use control sample to exploit entire time series. 
+    \end{itemize}
+
+    \vspace{.5cm}
+    
+    $\tilde{\bm F}(\bm \theta) \neq \tilde{\bm F}$, but irrelevant for estimation. 
+    \begin{block}{Lemma 2.3}
+        $\bm P(\tilde{\bm F}(\bm \theta)_{t > T_0}, \tilde{\bm F}(\bm \theta)_{t \leq T_0}) = \bm P(\tilde{\bm F}_{t > T_0}, \tilde{\bm F}_{t \leq T_0})$
+    \end{block}
+
+    \hyperlink{Lemma 2.3 proof}{\beamerbutton{Proof.}}
+    
+    \begin{itemize}
+        \item Knowing $\bm \theta$ is just as good as knowing $\tilde{\bm F}$.
+        \item Result holds for \emph{any} rotation.
+        \begin{itemize}
+            \item E.g. principal components, CCE, etc.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Estimation}
+    We jointly estimate the QLD parameters and ATTs:
+    \begin{gather*}
+        \expec{ \bm g_{i0}(\bm \theta)} = \expec{\frac{(1 - D_i)}{\mathbb{P}(D_i = 0)} \bm H(\bm \theta)' \tilde{\bm y}_i \otimes \bm w_i } = \bm 0\\
+        \expec{\bm g_{i1}(\bm \theta, \bm \tau)} = \expec{\frac{D_i}{\mathbb{P}(D_i = 1)} \left( \tilde{y}_{i,t > T_0} - \bm P(\tilde{\bm F}_{t > T_0}, \tilde{\bm F}_{t \leq T_0}) \bm y_{i, t \leq T_0} - \bm \tau \right) } = \bm 0
+    \end{gather*}
+    where $\bm \tau = (\tau_{T_0 + 1},...,\tau_T)'$ denote the ATTs. 
+
+    \vspace{.5cm}
+
+    \begin{equation}
+        \bm \Delta = 
+        \begin{pmatrix}
+            \expec{\bm g_{i0}(\bm \theta)} & \bm 0\\
+            \bm 0 & \expec{\bm g_{i1}(\bm \theta, \bm \tau)}
+        \end{pmatrix}
+    \end{equation}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Estimation}
+    Collect the moment functions as $\bm g_i(\bm \theta, \bm \tau) = (\bm g_{i0}(\bm \theta)', \bm g_{i1}(\bm \theta, \bm \tau))'$ and let $(\widehat{\bm \theta}', \widehat{\bm \tau}')'$ solve
+    \begin{equation*}
+        \min_{\bm \theta, \bm \tau} \left( \sum_{i = 1}^N \bm g_i(\bm \theta, \bm \tau) \right)' \widehat{\bm \Delta}^{-1} \left( \sum_{i = 1}^N \bm g_i(\bm \theta, \bm \tau) \right)
+    \end{equation*}
+
+    \begin{block}{Theorem 3.1}
+        Suppose $\widehat{\bm \Delta} \plim \bm \Delta$. Then for $T$ fixed and $N \rightarrow \infty$, 
+        \begin{equation}
+            \sqrt{N}(\widehat{\bm \tau} - \bm \tau) \convd N \left( \bm 0, \bm \Delta_1 + \bm D_{21}' \text{Avar}(\sqrt{N}(\widehat{\bm \theta} - \bm \theta)) \bm D_{21} \right)
+        \end{equation}
+    \end{block}
+    \begin{itemize}
+        \item Inference is simple to carry out.
+        \begin{itemize}
+            \item Joint and two-step estimators are asymptotically equivalent. 
+        \end{itemize}
+        \item Can estimate aggregate effects (Callaway and Sant'Anna 2021).
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Asymptotic Variance}
+    \begin{equation*}
+        Avar(\sqrt{N}(\widehat{\bm \tau} - \bm \tau)) = \underbrace{\bm \Delta_1}_\text{Uncertainty for ATT, given $\bm \theta$} + \underbrace{\bm D_{21} Avar(\sqrt{N}(\widehat{\bm \theta} - \bm \theta)) \bm D_{21}'}_\text{Uncertainty for $\bm \theta$}
+    \end{equation*}
+
+    \begin{block}{Theorem 3.2}
+        Define 
+        \begin{equation}
+            \widehat{\bm \Delta}_1 = \frac{1}{N_1} \isum D_i \left( \widehat{\bm \Delta}_{i1} - \widehat{\bm \tau} \right) \left( \widehat{\bm \Delta}_{i1} - \widehat{\bm \tau} \right)'
+        \end{equation}
+        Under the conditions of Theorem 3.1, 
+        \begin{equation}
+            \widehat{\bm \Delta}_1 \plim \bm \Delta_1
+        \end{equation}
+    \end{block}
+    \begin{itemize}
+        \item Gives valid standard errors when $\bm D_{21} = \bm 0$. 
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Anticipating Treatment}
+%     We may believe treated units anticipate treatment at period $Q + 1 \leq T_0$.
+%     \begin{itemize}
+%         \item Redefine last pre-treatment period as $Q$:
+%     \end{itemize}
+%     \begin{equation*}
+%         \expec{ \frac{D_i}{\mathbb{P}(D_i = 1)} \Big( \tilde{\bm y}_{i,t >Q} - \bm P\big(\bm F(\bm \theta)_{t > Q}, \bm F(\bm \theta)_{t \leq Q}\big) \tilde{\bm y}_{i,t \leq Q} - \bm \tau \Big) } = \bm 0 
+%     \end{equation*}
+%     where $\bm \tau = (\tau_{Q + 1},...,\tau_{T_0},...,\tau_T)$.
+
+%     \begin{block}{Testing for Anticipation}
+%         Under Assumption 2 (No Anticipation), 
+%         \begin{equation*}
+%             \tau_{Q+1} = ... = \tau_{T_0} = 0
+%         \end{equation*}
+%     \end{block}
+%     \begin{itemize}
+%         \item Testable hypothesis by Theorem 3.1.
+%         \item Need $Q > p$.
+%     \end{itemize}
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Adding Covariates}
+%     Weaken the parallel trends assumption with a rich set of covariates:
+%     \begin{equation}
+%         \condexpec{y_{it}(0)}{\bm X_i, \mu_i, \bm \gamma_i, D_i} = \bm X_i \bm \beta_t + \theta_t + \mu_i + \bm F \bm \gamma_i
+%     \end{equation}
+
+%     Jointly estimate $(\bm \theta', \bm \beta')'$:
+%     \begin{equation}
+%         \condexpec{\bm H(\bm \theta)' (\tilde{\bm y_i} - \tilde{\bm X_i} \bm \beta_t) \otimes \bm w_i}{D_i = 0} = \bm 0
+%     \end{equation}
+%     \begin{itemize}
+%         \item Include $\bm X_i \subset \bm w_i$.
+%     \end{itemize}
+
+%     Identifying the ATTs:
+%     \begin{equation*}
+%         \condexpec{(\tilde{\bm y}_{i, t > T_0} - \tilde{\bm X}_{i,t > T_0} \bm \beta_{t > T_0}) - \bm P(\tilde{\bm F}_{t > T_0}, \tilde{\bm F}_{t \leq T_0})( \tilde{\bm y}_{i,t \leq T_0} - \tilde{\bm X}_{i, t \leq T_0} \bm \beta_{t \leq T_0}) }{D_i = 1}
+%     \end{equation*}
+% \end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Adding Covariates}
+%     We can allow slopes to vary by treatment status and timing:
+%     \begin{gather*}
+%         \condexpec{\bm H(\bm \theta)' (\tilde{\bm y_i} - \tilde{\bm X_i} \bm \beta_0) \otimes \bm w_i}{D_i = 0}\\
+%         \condexpec{ \bm z_i \otimes \left( \tilde{\bm e}_{i, t > T_0}- \bm P(\tilde{\bm F}_{t > T_0}, \tilde{\bm F}_{t \leq T_0}) \tilde{\bm e}_{i, t \leq T_0} - \bm \tau \right) }{D_i = 1}
+%     \end{gather*}
+%     \begin{itemize}
+%         \item $\tilde{\bm e}_{i, t > T_0} = \tilde{\bm y}_{i,t > T_0} - \tilde{\bm X}_{i, t > T_0} \bm \beta_{1, \text{post}}$.
+%         \item $\tilde{\bm e}_{i, t \leq T_0} = \tilde{\bm y}_{i, t \leq T_0} - \tilde{\bm X}_{i, t \leq T_0} \bm \beta_{1, \text{pre}}$.
+%     \end{itemize}
+
+%     \vspace{.5 cm}
+
+%     $\bm z_i$ is a vector of instruments to identify the slopes.
+%     \begin{itemize}
+%         \item More model complexity means more instruments necessary.
+%     \end{itemize}
+    
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Testing the Factor Model}
+    In general, the TWFE model is easier to estimate than a general factor model.
+    \begin{itemize}
+        \item Computationally simple. 
+        \item Can be done via routine statistical packages. 
+    \end{itemize}
+
+    \vspace{.5 cm}
+
+    Could compare our estimator to TWFE via generalized Hausman test.
+    \begin{itemize}
+        \item Requires structural assumptions on the model's errors.
+        \item Possibly poor finite-sample performance. 
+    \end{itemize}
+
+    \vspace{.5 cm}
+
+    We provide some simple tests for sufficiency of TWFE
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Testing the Factor Model: Number of Factors}
+    Ahn, Lee, and Schmidt (2013) provide tests for $p$ based off of moments for estimating $\bm \theta$. 
+
+    \begin{align*}
+        H_0&: y_{it}(0) = \mu_i + \lambda_t + u_{it} \\
+        H_A&: y_{it}(0) = \mu_i + \lambda_t + \bm f_t' \bm \gamma_i + u_{it} 
+    \end{align*}
+
+    \begin{block}{Theorem 4.1}
+        Under the null hypothesis, $p = 0$. 
+    \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Testing the Factor Model: Heterogeneity Variation}
+    Even if factors are present, Corollary 2.1 says TWFE is consistent if $\condexpec{\bm \gamma_i}{D_i} = \expec{\bm \gamma_i}$.
+
+    \vspace{.25 cm}
+    
+    \begin{itemize}
+        \item No systemic variation in heterogeneity.
+    \end{itemize}
+
+    \vspace{.5 cm}
+
+    Impute the pre-treated observations onto an identity matrix:
+
+    \begin{equation*}
+        \bm P(\bm I_{p}, \bm F(\bm \theta)_{t \leq T_0}) \condexpec{\bm y_{i, t \leq T_0}}{D_i} = \bm A^* \condexpec{\bm \gamma_i}{D_i} 
+    \end{equation*}
+    \begin{itemize}
+        \item $\bm A^*$ is a nonsingular rotation.
+    \end{itemize}
+
+    \begin{equation*}
+        \bm A^* \condexpec{\bm \gamma_i}{D_i} = \bm A^* \expec{\bm \gamma_i} \iff \condexpec{\bm \gamma_i}{D_i } = \expec{\bm \gamma_i}
+    \end{equation*}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Testing the Factor Model: Heterogeneity Variation}
+    \begin{gather*}
+        \expec{\frac{(1 - D_i)}{\mathbb{P}(D_i = 0)} \bm H(\bm \theta)' \tilde{\bm y}_i \otimes \bm w_i} = \bm 0\\
+        \expec{\frac{(1 - D_i)}{\mathbb{P}(D_i = 0)} \left( \bm P(\bm I_{p}, \bm F(\bm \theta)_{t \leq T_0}) \tilde{\bm y}_{i, t \leq T_0} - \bm \gamma_0 \right) } = \bm 0\\
+        \expec{\frac{D_i}{\mathbb{P}(D_i = 1)} \left( \bm P(\bm I_{p}, \bm F(\bm \theta)_{t \leq T_0}) \tilde{\bm y}_{i, t \leq T_0} - \bm \gamma_1 \right) } = \bm 0\\
+        \expec{\bm P(\bm I_{p}, \bm F(\bm \theta)_{t \leq T_0}) \tilde{\bm y}_{i, t \leq T_0} - \bm \gamma} = \bm 0
+    \end{gather*}
+
+    \begin{block}{Theorem 4.2}
+        If $\bm \gamma_0 = \bm \gamma_1 = \bm \gamma$, TWFE is sufficient for estimating $\bm \tau$.
+    \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Testing the Factor Structure: Common Factors}
+    \textbf{Factor model:} The factors in the untreated sample are the same as those in the treated sample ($\bm F_0 \neq \bm F_1$).
+    \begin{itemize}
+        \item \textbf{Idea:} Estimate the factors using both samples and compare.
+    \end{itemize}
+
+    \begin{gather*}
+    \expec{\bm g^0_i(\bm \theta_0)} = \expec{\frac{(1-D_i)}{\mathbb{P}(D_i = 0)} \bm H^*(\bm \theta_0)' \bm y_{i,t < T_0} \otimes \bm w_i } = \bm 0_{T_0 \times 1} \\
+    \expec{\bm g^1_i(\bm \theta_1)} = \expec{\frac{D_i}{\mathbb{P}(D_i = 1)} \bm H^*(\bm \theta_1)' \bm y_{i,t < T_0} \otimes \bm w_i } = \bm 0_{T_0 \times 1}
+\end{gather*}
+\begin{itemize}
+    \item Just like loadings: $\bm \theta_0 = \bm \theta_1 \iff \bm F_0 = \bm F_1$.
+\end{itemize}{}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Testing the Factor Structure: Common Factors}
+    Can test for structural breaks in factors.
+    \begin{itemize}
+        \item Break accross the sample, not over time. 
+        \item First, test $p_0 = p_1$.
+        \begin{itemize}
+            \item If $p_0 > p_1$, might still be fine. 
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{1cm}
+
+    Define:
+    \begin{gather*}
+    \bm S_0(\bm \theta_0) = Var(\bm g^0_i)\\
+    \bm S_1(\bm \theta_1) = Var(\bm g^1_i)
+\end{gather*}
+with consistent estimators $\widehat{\bm S}_0$ and $\widehat{\bm S}_1$.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Testing the Factor Structure: Common Factors}
+    Test statistic:
+    \begin{equation}
+    \bm J(\bm \theta_0, \bm \theta_1) = \frac{N_0}{N} g^0 (\bm \theta_0)' \widehat{\bm S}_0^{-1} g^0 (\bm \theta_0) + \frac{N_1}{N} g^1 (\bm \theta_1)' \widehat{\bm S}_1^{-1} \bm g^1(\bm \theta_1)
+\end{equation}
+
+\begin{block}{Theorem 4.3}
+    Let $\widehat{\bm \theta}$ use both sets of moments, and $(\widehat{\bm \theta}_0, \widehat{\bm \theta}_1$ use each set of moments. If $\bm \theta_0 = \bm \theta_1$, then
+    \begin{equation*}
+        N * \left( J( \widehat{\bm \theta}, \widehat{\bm \theta}) - J(\widehat{\bm \theta}_0, \widehat{\bm \theta}_1)  \right) \stackrel{d}{\rightarrow} \chi^2_{((T_0-p)p)}
+    \end{equation*}
+\end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Testing the Factor Model}
+%     In general, the TWFE model is easier to estimate than a general factor model.
+%     \begin{itemize}
+%         \item Computationally simple. 
+%         \item Can be done via routine statistical packages. 
+%     \end{itemize}
+
+%     \vspace{.5 cm}
+
+%     Could compare our estimator to TWFE via generalized Hausman test.
+%     \begin{itemize}
+%         \item May require structural assumptions on the model's errors.
+%         \item Possibly poor finite-sample performance. 
+%     \end{itemize}
+
+%     \vspace{.5 cm}
+
+%     We provide some simple tests for sufficiency of TWFE.
+% \end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Testing the Factor Model: Number of Factors}
+%     Ahn, Lee, and Schmidt (2013) provide tests for $p$ based off of moments for estimating $\bm \theta$. 
+
+%     \begin{align*}
+%         H_0&: y_{it}(0) = \mu_i + \lambda_t + u_{it} \\
+%         H_A&: y_{it}(0) = \mu_i + \lambda_t + \bm f_t' \bm \gamma_i + u_{it} 
+%     \end{align*}
+
+%     \begin{block}{Theorem 4.1}
+%         Under the null hypothesis, $p = 0$. 
+%     \end{block}
+% \end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Testing the Factor Model: Heterogeneity Variation}
+%     Even if factors are present, Corollary 2.1 says TWFE is consistent if $\condexpec{\bm \gamma_i}{D_i} = \expec{\bm \gamma_i}$.
+
+%     \vspace{.25 cm}
+    
+%     \begin{itemize}
+%         \item No systemic variation in heterogeneity.
+%     \end{itemize}
+
+%     \vspace{.5 cm}
+
+%     Impute the pre-treated observations onto an identity matrix:
+
+%     \begin{equation*}
+%         \bm P(\bm I_{p}, \bm F(\bm \theta)_{t \leq T_0}) \condexpec{\bm y_{i, t \leq T_0}}{D_i} = \bm A^* \condexpec{\bm \gamma_i}{D_i} 
+%     \end{equation*}
+%     \begin{itemize}
+%         \item $\bm A^*$ is a nonsingular rotation.
+%     \end{itemize}
+
+%     \begin{equation*}
+%         \bm A^* \condexpec{\bm \gamma_i}{D_i} = \bm A^* \expec{\bm \gamma_i} \iff \condexpec{\bm \gamma_i}{D_i } = \expec{\bm \gamma_i}
+%     \end{equation*}
+% \end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Testing the Factor Model: Heterogeneity Variation}
+%     \begin{gather*}
+%         \expec{\frac{(1 - D_i)}{\mathbb{P}(D_i = 0)} \bm H(\bm \theta)' \tilde{\bm y}_i \otimes \bm w_i} = \bm 0\\
+%         \expec{\frac{(1 - D_i)}{\mathbb{P}(D_i = 0)} \left( \bm P(\bm I_{p}, \bm F(\bm \theta)_{t \leq T_0}) \tilde{\bm y}_{i, t \leq T_0} - \bm \gamma_0 \right) } = \bm 0\\
+%         \expec{\frac{D_i}{\mathbb{P}(D_i = 1)} \left( \bm P(\bm I_{p}, \bm F(\bm \theta)_{t \leq T_0}) \tilde{\bm y}_{i, t \leq T_0} - \bm \gamma_1 \right) } = \bm 0\\
+%         \expec{\bm P(\bm I_{p}, \bm F(\bm \theta)_{t \leq T_0}) \tilde{\bm y}_{i, t \leq T_0} - \bm \gamma} = \bm 0
+%     \end{gather*}
+
+%     \begin{block}{Theorem 4.2}
+%         If $\bm \gamma_0 = \bm \gamma_1 = \bm \gamma$, TWFE is sufficient for estimating $\bm \tau$.
+%     \end{block}
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Simulations}
+    $y_{it} = \tau_{it}*d_{it} + \theta_t + \mu_i + t* \gamma_i +u_{it}$
+\begin{itemize}
+    \item $N = 200$, $T = 8$, $T_0 = 5$.
+    \item $\theta_t, u_{it} \sim AR(1)$, $\rho = 0.75$.
+    \item $\mu_i \sim N(0,4)$.
+    \item $\gamma_i \sim N(\mu_i, 1)$.
+    \item $\tau_{it} = \mu_i * \tau_t / 4$.
+    \begin{itemize}
+        \item $\tau_{T_0 + s} = s$. 
+    \end{itemize}
+    \item Treated probability: $\pi_i = 0.5 + \gamma_i / ( \max_i \gamma_i - \min_i \gamma_i )$.
+    \item External instrument: $w_i = \gamma_i + N(0,1)$.
+    \begin{itemize}
+        \item See paper for varried signal-to-noise ratio.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Simulations: TWFE Model Holds}
+
+\begin{table}
+\def\arraystretch{1.25}
+\label{tab:monte_results_pt}
+
+\begin{adjustbox}{width=\textwidth}
+\begin{threeparttable}
+\begin{tabular}{@{} >{\RaggedRight}p{3.2cm} @{\extracolsep{4pt}}cccccc @{}} 
+    % Head
+    \toprule \addlinespace[3mm]
+  
+    \multicolumn{7}{@{}l}{
+        \textbf{Panel A:} TWFE Model.
+    } \\
+    \midrule \addlinespace[3mm]
+    
+    & $\text{Bias}\ \big(\hat{\tau}_6 \big)$ & $\text{MSE}\ \big(\hat{\tau}_6\big)$
+    & $\text{Bias}\ \big(\hat{\tau}_7 \big)$ & $\text{MSE}\ \big(\hat{\tau}_7\big)$
+    & $\text{Bias}\ \big(\hat{\tau}_8 \big)$ & $\text{MSE}\ \big(\hat{\tau}_8\big)$ 
+    \\
+    \cmidrule{2-7}
+    
+    TWFE & 0.00 & 0.01 & -0.00 & 0.02 & 0.00 & 0.02 \\ 
+    TWFE Imputation & 0.01 & 0.01 & 0.00 & 0.02 & 0.01 & 0.02 \\ 
+    Factor Imputation & -0.00 & 0.04 & -0.01 & 0.11 & -0.01 & 0.24 \\ 
+
+
+    
+    
+    
+    \bottomrule
+\end{tabular}
+    
+% Notes 
+\begin{tablenotes}[flushleft] \footnotesize
+    \item \textit{Notes.} This table presents a set of simulations with 10000 simulations. Each panel contains one of three data-generating processes described in the text. Each row in a panel consists of one of the four treatment effect estimators as described in the text. The columns report average bias and  mean-squared error for the three post-treatment treatment effects. 
+\end{tablenotes}
+\end{threeparttable}
+\end{adjustbox}
+
+\end{table}
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Simulations: Factor Model, TWFE is Consistent}
+
+\begin{table}
+\def\arraystretch{1.25}
+\label{tab:monte_results_pt}
+
+\begin{adjustbox}{width=\textwidth}
+\begin{threeparttable}
+\begin{tabular}{@{} >{\RaggedRight}p{3.2cm} @{\extracolsep{4pt}}cccccc @{}} 
+    % Head
+
+
+    \midrule \addlinespace[3mm]
+    \multicolumn{7}{@{}l}{
+        \textbf{Panel B:} Factor Model. Parallel Trends Hold
+    } \\
+    \midrule \addlinespace[3mm]
+    
+    & $\text{Bias}\ \big(\hat{\tau}_6 \big)$ & $\text{MSE}\ \big(\hat{\tau}_6\big)$
+    & $\text{Bias}\ \big(\hat{\tau}_7 \big)$ & $\text{MSE}\ \big(\hat{\tau}_7\big)$ 
+    & $\text{Bias}\ \big(\hat{\tau}_8 \big)$ & $\text{MSE}\ \big(\hat{\tau}_8\big)$ 
+    \\
+    \cmidrule{2-7}
+    
+    TWFE & 0.00 & 0.11 & 0.00 & 0.43 & 0.01 & 0.95 \\ 
+    TWFE Imputation & 0.00 & 0.94 & 0.00 & 1.67 & 0.01 & 2.60 \\ 
+    Factor Imputation & -0.00 & 0.02 & -0.00 & 0.03 & 0.00 & 0.05 \\ 
+
+    
+    
+    
+    \bottomrule
+\end{tabular}
+    
+% Notes 
+\begin{tablenotes}[flushleft] \footnotesize
+    \item \textit{Notes.} This table presents a set of simulations with 10000 simulations. Each panel contains one of three data-generating processes described in the text. Each row in a panel consists of one of the four treatment effect estimators as described in the text. The columns report average bias and  mean-squared error for the three post-treatment treatment effects. 
+\end{tablenotes}
+\end{threeparttable}
+\end{adjustbox}
+
+\end{table}
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Simulations: Factor Model, TWFE is Inconsistent}
+
+\begin{table}
+\def\arraystretch{1.25}
+\label{tab:monte_results_pt}
+
+\begin{adjustbox}{width=\textwidth}
+\begin{threeparttable}
+\begin{tabular}{@{} >{\RaggedRight}p{3.2cm} @{\extracolsep{4pt}}cccccc @{}} 
+    % Head
+
+    \midrule \addlinespace[3mm]
+    \multicolumn{7}{@{}l}{
+        \textbf{Panel C:} Factor Model. Parallel Trends Do Not Hold
+    } \\
+    \midrule \addlinespace[3mm]
+    
+    & $\text{Bias}\ \big(\hat{\tau}_6 \big)$ & $\text{MSE}\ \big(\hat{\tau}_6\big)$
+    & $\text{Bias}\ \big(\hat{\tau}_7 \big)$ & $\text{MSE}\ \big(\hat{\tau}_7\big)$ 
+    & $\text{Bias}\ \big(\hat{\tau}_8 \big)$ & $\text{MSE}\ \big(\hat{\tau}_8\big)$ 
+    \\
+    \cmidrule{2-7}
+    
+    TWFE & -1.63 & 2.77 & -3.27 & 11.05 & -4.90 & 24.84 \\ 
+    TWFE Imputation & -4.90 & 24.81 & -6.53 & 44.12 & -8.16 & 68.93 \\  
+    Factor Imputation & 0.01 & 0.03 & 0.01 & 0.05 & 0.02 & 0.09 \\ 
+    
+    
+    \bottomrule
+\end{tabular}
+    
+% Notes 
+\begin{tablenotes}[flushleft] \footnotesize
+    \item \textit{Notes.} This table presents a set of simulations with 10000 simulations. Each panel contains one of three data-generating processes described in the text. Each row in a panel consists of one of the four treatment effect estimators as described in the text. The columns report average bias and  mean-squared error for the three post-treatment treatment effects. 
+\end{tablenotes}
+\end{threeparttable}
+\end{adjustbox}
+
+\end{table}
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Application Overview}
+    We reevaluate Walmart openings on local labor markets. 
+
+    \vspace{.5cm}
+
+    \textbf{Volpe and Boland (2022):} Mixed results in empirical literature.
+    \begin{itemize}
+        \item \textbf{Basker (2005):} Small positive effect on retail employment.
+        \item \textbf{Neumark et al. (2008):} Small negative effect on employment. 
+    \end{itemize}
+
+    \vspace{.5cm}
+
+    Newmark et al. (2008) suggests Walmart opens stores based on local economic trajectories.
+    \begin{itemize}
+        \item Our assumption: trajectories are decomposed as local exposures to macro shocks (i.e. factor model).
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Sample}
+    County Business Patterns data set from 1977-1999. 
+    \begin{itemize}
+        \item We drop units treated at or before 1985.
+        \begin{itemize}
+            \item $T_0 = 9$.
+        \end{itemize}
+        \item Keep counties with $\geq 1500$ employees in 1964 and positive employment growth between 1964 and 1977.
+        \item $d_{it} = 1$ if county $i$ has a Walmart in year $t$.
+        \begin{itemize}
+            \item Treatment group $g$ is first year county received a Walmart. 
+            \item 82.4\% of counties receive $\leq 1$ Walmarts. 10.4\% receive $2$ Walmarts. 
+        \end{itemize}
+        \item $N = 1274$.
+        \begin{itemize}
+            \item Smaller than Basker (2005) by $500$ counties.
+        \end{itemize}
+        \item Interested in effects on retail and non-retail employment.
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Estimation}
+    TWFE imputation:
+    \begin{equation}
+        \log(y_{it}) = \mu_i + \theta_t + \sum_{\ell = -22}^{13} \tau^\ell d_{it}^\ell + e_{it}
+    \end{equation}
+    \begin{itemize}
+        \item Wooldridge (2021), Borusyak et al. (2022). 
+    \end{itemize}
+
+    \vspace{.5cm}
+
+    Factor model:
+    \begin{itemize}
+        \item Instruments: we use 1980 baseline shares of the population.
+        \begin{itemize}
+            \item Manufacturing employment, above/below poverty line, government employment, private sector employment. 
+        \end{itemize}
+        \item Set $p = 2$. 
+        \begin{itemize}
+            \item Justified via overidentifying restrictions test. 
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Results}
+    \begin{figure}
+\caption*{Effect of Walmart on County $\log$ Retail Employment}
+\label{fig:walmart_retail}
+
+\begin{subfigure}[b]{0.45\textwidth}
+    \caption{TWFE Imputation Estimator}
+    \begin{adjustbox}{width=\textwidth, center}
+        \input{figures/did2s_retail_bootstrap_1000}
+    \end{adjustbox}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.45\textwidth}
+    \caption{Factor Imputation Estimator}
+    \begin{adjustbox}{width=\textwidth, center}
+        \input{figures/factor_retail_p_2_bootstrap_1000}
+    \end{adjustbox}
+\end{subfigure}
+\end{figure}
+\begin{itemize}
+    \item Average coefficient estimate of $6\%$ in post-treatment periods. 
+    \begin{itemize}
+        \item Consistent with Basker (2005) and Stapp (2014). 
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Results}
+    \begin{figure}
+\caption*{Effect of Walmart on County $\log$ Wholesale Retail Employment}
+\label{fig:walmart_wholesale}
+
+\begin{subfigure}[b]{0.45\textwidth}
+    \caption{TWFE Imputation Estimator}
+    \begin{adjustbox}{width=\textwidth, center}
+        \input{figures/did2s_wholesale_bootstrap_1000}
+    \end{adjustbox}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.45\textwidth}
+    \caption{Generalized Imputation Estimator}
+    \begin{adjustbox}{width=\textwidth, center}
+        \input{figures/factor_wholesale_p_1_bootstrap_1000}
+    \end{adjustbox}
+\end{subfigure}
+\end{figure}
+\begin{itemize}
+    \item Average coefficient estimate of $-6\%$. 
+    \begin{itemize}
+        \item Very noisy.
+        \item Also in line with Basker (2005). 
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Results}
+    \begin{figure}
+\caption*{Synthetic Control Style Plot of the Effect of Walmart on County Employment}
+\label{fig:synthetic_control_plot}
+
+\begin{subfigure}[b]{0.45\textwidth}
+    \caption{$\log$ Retail Employment}
+    \begin{adjustbox}{width=\textwidth, center}
+        \input{figures/synthetic_retail_p_2}
+    \end{adjustbox}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.45\textwidth}
+    \caption{$\log$ Wholesale Retail Employment}
+    \begin{adjustbox}{width=\textwidth, center}
+        \input{figures/synthetic_wholesale_p_1}
+    \end{adjustbox}
+\end{subfigure}
+\end{figure}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Results}
+    \begin{figure}
+\caption*{Generalized Imputation Estimator for Effect of Walmart on County Employment with Naive Standard Errors}
+\label{fig:walmart_naive_se}
+
+\begin{subfigure}[b]{0.45\textwidth}
+    \caption{$\log$ Retail Employment}
+    \begin{adjustbox}{width=\textwidth, center}
+        \input{figures/factor_retail_p_2_naive_se}
+    \end{adjustbox}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.45\textwidth}
+    \caption{$\log$ Wholesale Retail Employment}
+    \begin{adjustbox}{width=\textwidth, center}
+        \input{figures/factor_wholesale_p_1_naive_se}
+    \end{adjustbox}
+\end{subfigure}
+\end{figure}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Conclusions}
+    Provide general identification results for ATTs under linear factor models. 
+    \begin{itemize}
+        \item Let $T$ be fixed or grow.
+        \item Can use multiple estimators for the factor space. 
+        \begin{itemize}
+            \item Brown et al. (2022) for CCE.
+        \end{itemize}
+        \item Results nest TWFE. 
+        \begin{itemize}
+            \item Give sufficient condition for consistency of TWFE: no systemic heterogeneity.
+        \end{itemize}
+    \end{itemize}
+
+    Implement quasi-long-differencing estimator. 
+    \begin{itemize}
+        \item GMM estimator makes inference easy. 
+        \item Can test basic features of the model. 
+    \end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Proof of Lemma 2.3}
+\label{Lemma 2.3 proof}
+Let $\bm A^*$ be the $p \times p$ rotation that generates the Ahn et al. (2013) normalization for $\tilde{\bm F}$.
+
+\begin{align*}
+        \bm P (\tilde{\bm F}_{t > T_0}, \tilde{\bm F}_{t \leq T_0}) 
+        &= \tilde{\bm F}_{t > T_0} (\tilde{\bm F}_{t \leq T_0}' \tilde{\bm F}_{t \leq T_0})^{-1} \tilde{\bm F}_{t \leq T_0}' \\
+        &= \tilde{\bm F}_{t > T_0} \bm A^* (\bm A^{*'} \tilde{\bm F}_{t \leq T_0}' \tilde{\bm F}_{t \leq T_0} \bm A^*)^{-1} \bm A^{*'} \tilde{\bm F}_{t \leq T_0}' \\
+        &= \tilde{\bm F}( \bm \theta)_{t > T_0} (\tilde{\bm F}(\bm \theta)_{t \leq T_0}' \tilde{\bm F}(\bm \theta)_{t \leq T_0})^{-1} \tilde{\bm F}(\bm \theta)_{t \leq T_0}' \\
+        &= \bm P(\tilde{\bm F}( \bm \theta)_{t > T_0}, \tilde{\bm F}(\bm \theta)_{t \leq T_0})
+    \end{align*}
+
+    \hyperlink{Lemma 2.3 proof back}{\beamerbutton{Back.}}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Proof of Theorem 2.1}
+\label{Theorem 2.1 proof}
+
+\begin{equation*}
+    \condexpec{\tilde{y}_{it}}{D_i = 1} = \condexpec{\tilde{y}_{it}(1)}{D_i = 1} 
+\end{equation*}
+
+and
+
+\begin{align*}
+    &\condexpec{ \bm P(\tilde{\bm f}_{t}', \tilde{\bm F}_{t \leq T_0}) \tilde{\bm y}_{i,t \leq T_0} }{D_i = 1} \\
+    =& \condexpec{ \tilde{\bm f}_{t}' (\tilde{\bm F}_{t \leq T_0}' \tilde{\bm F}_{t \leq T_0})^{-1} \tilde{\bm F}_{t \leq T_0}' \tilde{\bm y}_{i,t \leq T_0} }{D_i = 1} \\
+    =& \condexpec{ \tilde{\bm f}_{t}' (\tilde{\bm F}_{t \leq T_0}' \tilde{\bm F}_{t \leq T_0})^{-1} \tilde{\bm F}_{t \leq T_0}' \big[ \tilde{\bm F}_{t \leq T_0} \tilde{\bm \gamma}_i  \big] }{D_i = 1} \\
+    =& \condexpec{ \tilde{\bm f}_{t}' \tilde{\bm \gamma}_i}{D_i = 1} \\
+    =& \condexpec{ \tilde{y}_{it}(0) }{D_i = 1} 
+\end{align*}
+
+\hyperlink{Theorem 2.1 proof back}{\beamerbutton{Back.}}
+\end{frame}
+
+
+
+
+\end{document}

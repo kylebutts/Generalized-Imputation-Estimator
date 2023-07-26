@@ -2,6 +2,7 @@ library(tidyverse)
 library(data.table)
 library(glue)
 library(here)
+library(sf)
 
 # https://www2.census.gov/programs-surveys/cbp/datasets/
 
@@ -44,7 +45,10 @@ cbp <- cbp |>
       # Following Basker
       manufacturing = naics2 %in% c("31"),
       wholesale = naics2 %in% c("42"),
-      construction = naics2 %in% c("23")
+      construction = naics2 %in% c("23"),
+      agriculture = naics2 %in% c("11"),
+      healthcare = naics2 %in% c("62"),
+      accomodations = naics2 %in% c("72")
     )
   ) |> 
   DT(county_fips != 999, )
@@ -185,6 +189,108 @@ construction |>
   DT(is.na(nonconstruction_emp), nonconstruction_emp := 0)
 
 
+## Agriculture --------------------------------------------------––-------------
+
+agriculture = cbp |>
+  DT(,
+    .(emp = sum(emp, na.rm = T)),
+    by = .(state_fips, county_fips, year, agriculture)
+  )
+
+# Make balanced panel
+agriculture <- agriculture |>
+  expand(nesting(state_fips, county_fips), year) |>
+  left_join(agriculture, by = c("state_fips", "county_fips", "year")) |>
+  setDT()
+
+agriculture[is.na(emp), emp := 0]
+agriculture = agriculture[!is.na(agriculture), ]
+
+# Pivot wider
+agriculture |>
+  DT(, agriculture := ifelse(agriculture, "agriculture", "nonagriculture")) 
+
+agriculture = pivot_wider(
+  agriculture,
+  id_cols = c("state_fips", "county_fips", "year"),
+  names_from = "agriculture",
+  names_glue = "{agriculture}_{.value}",
+  values_from = c("emp")
+)
+
+agriculture |> 
+  DT(is.na(agriculture_emp), agriculture_emp := 0) |>
+  DT(is.na(nonagriculture_emp), nonagriculture_emp := 0)
+
+
+
+## Health Care --------------------------------------------------––-------------
+
+healthcare = cbp |>
+  DT(,
+    .(emp = sum(emp, na.rm = T)),
+    by = .(state_fips, county_fips, year, healthcare)
+  )
+
+# Make balanced panel
+healthcare <- healthcare |>
+  expand(nesting(state_fips, county_fips), year) |>
+  left_join(healthcare, by = c("state_fips", "county_fips", "year")) |>
+  setDT()
+
+healthcare[is.na(emp), emp := 0]
+healthcare = healthcare[!is.na(healthcare), ]
+
+# Pivot wider
+healthcare |>
+  DT(, healthcare := ifelse(healthcare, "healthcare", "nonhealthcare")) 
+
+healthcare = pivot_wider(
+  healthcare,
+  id_cols = c("state_fips", "county_fips", "year"),
+  names_from = "healthcare",
+  names_glue = "{healthcare}_{.value}",
+  values_from = c("emp")
+)
+
+healthcare |> 
+  DT(is.na(healthcare_emp), healthcare_emp := 0) |>
+  DT(is.na(nonhealthcare_emp), nonhealthcare_emp := 0)
+
+## Accomodations ------------------------------------------------––-------------
+
+accomodations = cbp |>
+  DT(,
+    .(emp = sum(emp, na.rm = T)),
+    by = .(state_fips, county_fips, year, accomodations)
+  )
+
+# Make balanced panel
+accomodations <- accomodations |>
+  expand(nesting(state_fips, county_fips), year) |>
+  left_join(accomodations, by = c("state_fips", "county_fips", "year")) |>
+  setDT()
+
+accomodations[is.na(emp), emp := 0]
+accomodations = accomodations[!is.na(accomodations), ]
+
+# Pivot wider
+accomodations |>
+  DT(, accomodations := ifelse(accomodations, "accomodations", "nonaccomodations")) 
+
+accomodations = pivot_wider(
+  accomodations,
+  id_cols = c("state_fips", "county_fips", "year"),
+  names_from = "accomodations",
+  names_glue = "{accomodations}_{.value}",
+  values_from = c("emp")
+)
+
+accomodations |> 
+  DT(is.na(accomodations_emp), accomodations_emp := 0) |>
+  DT(is.na(nonaccomodations_emp), nonaccomodations_emp := 0)
+
+
 ## Merge together datasets -----------------------------------------------------
 
 retail = retail |>
@@ -198,6 +304,18 @@ retail = retail |>
   ) |>
   merge(
     construction |> select(-nonconstruction_emp), 
+    by = c("state_fips", "county_fips", "year")
+  ) |>
+  merge(
+    agriculture |> select(-nonagriculture_emp), 
+    by = c("state_fips", "county_fips", "year")
+  ) |>
+  merge(
+    healthcare |> select(-nonhealthcare_emp), 
+    by = c("state_fips", "county_fips", "year")
+  ) |>
+  merge(
+    accomodations |> select(-nonaccomodations_emp), 
     by = c("state_fips", "county_fips", "year")
   ) |>
   setDT()
@@ -282,17 +400,19 @@ counties_panel <- counties |>
   left_join(counties, by = c("state_fips", "county_fips")) |>
   setDT()
 
+# Many-to-many is okay! Multiple openings in a county
 openings_panel <- left_join(
   counties_panel, openings,
   by = c("state_fips", "county_fips")
 )
 
-
-
-openings_panel <- openings_panel[, .(
-  any_open = any(year >= store_open_year, na.rm = T),
-  n_open = sum(year >= store_open_year, na.rm = T)
-), by = .(state_fips, county_fips, year)]
+openings_panel <- openings_panel[, 
+  .(
+    any_open = any(year >= store_open_year, na.rm = T),
+    n_open = sum(year >= store_open_year, na.rm = T)
+  ), 
+  by = .(state_fips, county_fips, year)
+]
 
 # Remove Alaska, Hawaii, and US Terrirotries
 openings_panel <- openings_panel |>
@@ -318,10 +438,13 @@ retail <- retail |>
     str_pad(county_fips, 3, side = "left", pad = "0")
   )) |>
   DT(,
-    g := year[min(which(any_open))] |> as.numeric(),
+    g := ifelse(
+      any(any_open), 
+      year[min(which(any_open))] |> as.numeric(), 
+      Inf
+    ),
     by = fips
   ) |>
-  DT(is.na(g), g := Inf) |>
   DT(, g_anticipation_2 := g - 2) |> 
   DT(,
     rel_year := ifelse(g == Inf, -Inf, year - g)
@@ -336,7 +459,10 @@ retail |>
   DT(, log_nonretail_emp := log(nonretail_emp + 1)) |>
   DT(, log_construction_emp := log(construction_emp + 1)) |>
   DT(, log_wholesale_emp := log(wholesale_emp + 1)) |>
-  DT(, log_manufacturing_emp := log(manufacturing_emp + 1)) 
+  DT(, log_manufacturing_emp := log(manufacturing_emp + 1)) |>
+  DT(, log_agriculture_emp := log(agriculture_emp + 1)) |>
+  DT(, log_healthcare_emp := log(healthcare_emp + 1)) |>
+  DT(, log_accomodations_emp := log(accomodations_emp + 1)) 
 
 
 # Generate instrument: 1975 baseline retail and non-retail share
@@ -572,8 +698,37 @@ fwrite(
 
 
 
+data = data.table::fread("data.csv")
+setup = synthdid::panel.matrices(
+  data, 
+  unit = "id", time = "t", 
+  outcome = "y", treatment = "treat"
+)
+est = synthdid::synthdid_estimate(
+  Y = setup$Y, N0 = setup$N0, T0 = setup$T0
+)
+
+data = data[order(ever_treated, id, t), ]
+T = 8; N = 200
+N0 = data[data$t == 1, ]$ever_treated |> sum()
+Y = matrix(NA, nrow = N, ncol = T)
+for(unit in 1:N) {
+  idx = ((unit-1)*T+1):(unit*T)
+  Y[unit, ] = data[idx, ]$y
+}
+
+est = synthdid::synthdid_estimate(
+  Y = Y, N0 = N0, T0 = 5
+)
 
 
+est = gsynth::gsynth(
+  y ~ treat, data = data, 
+  index = c("id","t"), force = "two-way",
+  se = FALSE, r = c(0, 3), CV = TRUE
+)
+
+mean(est$att[6:8])
 
 
 

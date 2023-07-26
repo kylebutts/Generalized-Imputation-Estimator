@@ -187,6 +187,22 @@ for est in ests
   savefig(did2s_plot, "figures/did2s_$(outcome)_bootstrap_$(B).pdf")
   savefig(factor_plot, "figures/factor_$(outcome)_p_$(p)_bootstrap_$(B).pdf")
 
+  # Export for slides .tex
+  did2s_plot_slide = plot(did2s_plot)
+  ylabel!("")
+  savefig(
+    plot(did2s_plot_slide, size=(475,300)), 
+    "figures/did2s_$(outcome)_bootstrap_$(B)_slides.tex"
+  )
+  factor_plot_slide = plot(factor_plot)
+  ylabel!("")
+  savefig(
+    plot(factor_plot_slide, size=(475,300)), 
+    "figures/factor_$(outcome)_p_$(p)_bootstrap_$(B)_slides.tex"
+  )
+
+  # savefig(factor_plot, "figures/factor_$(outcome)_p_$(p)_bootstrap_$(B).tex")
+
 
   # --------
 

@@ -1,0 +1,53 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  This bbl file is created by aea.bst ver.3.1.1
+%  The latest aea.bst is available at
+%  <https://github.com/ShiroTakeda/econ-bst>
+
+\begin{thebibliography}{xxx}
+
+\harvarditem[Abadir and Magnus]{Abadir and Magnus}{2005}{Abadir_Magnus_2005}
+\textbf{Abadir, Karim~M., and Jan~R. Magnus.} 2005.  \textit{Matrix Algebra}.
+  Volume 1. Cambridge University Press, .
+  \href{http://dx.doi.org/10.1017/cbo9780511810800}{\urlstyle{rm}
+  \nolinkurl{10.1017/cbo9780511810800}}.
+
+\harvarditem[Ahn et~al.]{Ahn, Lee, and Schmidt}{2013}{Ahn_Lee_Schmidt_2013}
+\textbf{Ahn, Seung~C, Young~H Lee, and Peter Schmidt.} 2013. ``Panel data
+  models with multiple time-varying individual effects.'' \textit{Journal of
+  econometrics} 174 (1):   1--14.
+  \href{http://dx.doi.org/10.1016/j.jeconom.2012.12.002}{\urlstyle{rm}
+  \nolinkurl{10.1016/j.jeconom.2012.12.002}}.
+
+\harvarditem[Brown et~al.]{Brown, Butts, and
+  Westerlund}{2023}{Brown_Butts_Westerlund_2023}
+\textbf{Brown, Nicholas, Kyle Butts, and Joakim Westerlund.} 2023.
+  ``Difference-in-Differences via Common Correlated Effects.'' \textit{arXiv
+  preprint arXiv:2301.11358}, \url{https://arxiv.org/abs/2301.11358}.
+
+\harvarditem[Callaway and Sant'Anna]{Callaway and
+  Sant'Anna}{2021}{Callaway_Santanna_2021}
+\textbf{Callaway, Brantly, and Pedro~HC Sant'Anna.} 2021.
+  ``Difference-in-differences with multiple time periods.'' \textit{Journal of
+  Econometrics} 225 (2):   200--230.
+  \href{http://dx.doi.org/10.1016/j.jeconom.2020.12.001}{\urlstyle{rm}
+  \nolinkurl{10.1016/j.jeconom.2020.12.001}}.
+
+\harvarditem[Chan and Kwok]{Chan and Kwok}{2022}{Chan_and_Kwok_2022}
+\textbf{Chan, Marc~K, and Simon~S Kwok.} 2022. ``The PCDID approach:
+  difference-in-differences when trends are potentially unparallel and
+  stochastic.'' \textit{Journal of Business \& Economic Statistics} 40 (3):
+  1216--1233.
+  \href{http://dx.doi.org/10.1080/07350015.2021.1914636}{\urlstyle{rm}
+  \nolinkurl{10.1080/07350015.2021.1914636}}.
+
+\harvarditem[Hansen]{Hansen}{1982}{Hansen_1982}
+\textbf{Hansen, Lars~Peter.} 1982. ``Large Sample Properties of Generalized
+  Method of Moments Estimators.'' \textit{Econometrica} 50  1029--1054.
+  \href{http://dx.doi.org/10.2307/1912775}{\urlstyle{rm}
+  \nolinkurl{10.2307/1912775}}.
+
+\harvarditem[Wooldridge]{Wooldridge}{2010}{Wooldridge_2010}
+\textbf{Wooldridge, Jeffrey~M.} 2010.  \textit{Econometric analysis of cross
+  section and panel data}. MIT press.
+
+\end{thebibliography}

@@ -13,8 +13,10 @@ YEARS = collect(1977:1999)
 T0 = 1985
 file = "data/sample_basker_YEARS_$(minimum(YEARS))_$(maximum(YEARS))_T0_$(T0).csv"
 T = length(YEARS)
-p = 1
-outcome = "wholesale"
+# p = 1
+# outcome = "wholesale"
+p = 3
+outcome = "retail"
 outcome_var = "log_$(outcome)_emp"
 
 
@@ -29,7 +31,7 @@ sample[sample.year .== 1977, :wholesale_emp] |> median
 
 
 # Estimate Factor Model Imputation TE function ---------------------------------
-function est_te(sample)
+function est_te(sample; return_se = false)
   # Within Transformation ------------------------------------------------------
 
   # never-treated cross-sectional averages of y
@@ -147,7 +149,9 @@ function est_te(sample)
   if p > 0
     optres = optimize(
       x -> obj_theta(x, weight, sample.ytilde, Matrix(sample[:, instruments]), sample.g, p), parms, 
-      LBFGS(); autodiff = :forward
+      SimulatedAnnealing(),
+      Optim.Options(iterations=100000)
+      # LBFGS(); autodiff = :forward
     )
 
     parms_hat = Optim.minimizer(optres)
@@ -164,8 +168,11 @@ function est_te(sample)
   if p > 0
     optres_opt = optimize(
       x -> obj_theta(x, Ωinv_theta, sample.ytilde, Matrix(sample[:, instruments]), sample.g, p), parms_hat, 
-      BFGS(; linesearch = BackTracking()), Optim.Options(iterations=10000); 
-      autodiff = :forward
+      SimulatedAnnealing(),
+      Optim.Options(iterations=100000)
+      # BFGS(; linesearch = BackTracking()), 
+      # Optim.Options(iterations=10000); 
+      # autodiff = :forward
     )
 
     parms_hat_opt = Optim.minimizer(optres_opt)
@@ -220,17 +227,31 @@ function est_te(sample)
     sample[sample.g .< Inf, :]
   )
 
-
-  return coef(lm_tau)
+  if return_se
+    return coef(lm_tau), stderror(lm_tau)
+  else
+    return coef(lm_tau)
+  end
 end
 
 
-tau_hat = est_te(sample)
+tau_hat = est_te(sample, return_se = true)
+
+est_naive_se = DataFrame(
+  rel_year = collect(-22:13),
+  estimate = tau_hat[1],
+  std_error = tau_hat[2]
+)
+CSV.write(
+  "data/factor_est_$(outcome)_p_$(p)_naive_se.csv", 
+  est_naive_se
+)
+
 
 B = 1000
 ids = sample[:, :fips] |> unique
 ests = zeros(B, 36)
-ests[1, :] = tau_hat
+ests[1, :] = tau_hat[1]
 
 # Starting at 2 to not write over point estimate
 for i in 2:B

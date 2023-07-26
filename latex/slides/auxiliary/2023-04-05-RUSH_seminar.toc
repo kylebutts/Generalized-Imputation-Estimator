@@ -1,0 +1,2 @@
+\beamer@sectionintoc {1}{Theory}{10}{0}{1}
+\beamer@sectionintoc {2}{Empirical Example}{30}{0}{2}

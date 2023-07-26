@@ -1,0 +1,384 @@
+\documentclass[aspectratio=43,t]{beamer}
+% \documentclass[aspectratio=169]{beamer}
+
+% Title --------------------------------------------
+\title{Generalized Imputation Estimators for Factor Models}
+\date{\today}
+\author{
+Nicholas Brown and Kyle Butts
+}
+
+\input{preamble_slides.tex}
+% \graphicspath{../../figures/}
+
+% Set-up Bibliography ------------------------------
+\addbibresource{references.bib}
+\usepackage{bm}
+\usepackage{adjustbox}
+
+\begin{document}
+
+% ------------------------------------------------------------------------------
+\begin{frame}
+\maketitle
+
+% \vspace{2.5mm}
+% {}
+\end{frame}
+% ------------------------------------------------------------------------------
+
+\begin{frame}{Introduction}
+    We are interested in effects of a treatment/intervention. 
+
+    \vspace{.5cm}
+
+    \textbf{Notation:}
+
+    Observed outcomes have two potential states:
+    \begin{itemize}
+        \item Treated potential outcomes $y_{it}(1)$.
+        \item Untreated potential outcomes $y_{it}(0)$.
+    \end{itemize}
+
+
+    \bigskip   
+    The \textbf{treatment effect}, at time $t$ is 
+    \begin{equation}
+        \tau_{it} = y_{it}(1) - \coral{y_{it}(0)}
+    \end{equation}
+
+    
+\end{frame}
+
+\begin{frame}{Introduction}
+      We aim to estimate average treatment effects on the treated, e.g. overall effect and event-study effects
+      \begin{itemize}
+        \item A particular form of \textbf{impulse response} with a binary treatment \citep{jorda2005estimation}
+      \end{itemize}
+
+      Our goal is to `impute' $\coral{y_{it}(0)}$; that is, estimate what the treated units outcomes would have been without treatment.
+\end{frame}
+
+\begin{frame}{TWFE and Parallel Trends}
+    $$
+    \coral{y_{it}(0)} = \mu_i + \theta_t + u_{it}
+    $$
+    
+    \bigskip
+    Under this model, we need a parallel trends assumption that the time shocks are experienced commonly between the control units and the treated units ($\theta_t$ is constant)
+    
+    \bigskip\pause
+    This is often undesirable, units select into treatment based on their economic trends all the time!
+\end{frame}
+
+\begin{frame}{Example:}
+    Walmart choses where to open new stores in the 90s.
+    \begin{itemize}
+        \item Interested on the labor market impacts
+    \end{itemize}
+
+    \vspace{.5cm} \pause
+
+    \textbf{Untreated Model 1:} $\text{employment}_{it}(0) = \text{macro}_t + \text{county}_i + u_{it}$.
+    \begin{itemize}
+        \item We would need to assume that treated counties and control counties are on the same trend
+    \end{itemize}
+
+    \vspace{.5 cm}\pause 
+
+    \textbf{Untreated Model 2:} $\text{employment}_{it}(0) = \text{macro}_t * \text{county}_i + u_{it}$.
+    \begin{itemize}
+        \item Under this model, we can allow treated counties to have differential exposure to the macro shocks (e.g. manufacturing share)
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Empirical Macro}
+  \textbf{Large policy changes}: 
+  \begin{itemize}
+    \item \citet{ramey2016macroeconomic} gives examples of technological shocks, monetary policy shocks, and fiscal shocks
+    \item e.g. \citet{leblebiciouglu2020credit} look at banking deregulation on the labor share using an event-study regression
+  \end{itemize}
+
+  \smallskip
+  \textbf{Abnormal returns}: 
+  \begin{itemize}
+    \item \citet{kothari2007econometrics} review estimation difficulties
+    \item Our method works in short-panels; helps with problems of structural breaks in long time-series
+    \item Synthetic control fails even in reasonably long panels if there are highly autocorrelated errors
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Empirical Macro}
+  \textbf{Marginal propensity to consume}:
+  \begin{itemize}
+    \item \citet{broda2014economic} and \citet{parker2013consumer} estimate event-study analysis of 2008 stimulus payments.
+    
+    \item Estimation is complicated if payments are targeted based on economic status
+  \end{itemize}
+
+  \smallskip
+  \textbf{Fiscal multipliers}:
+  \begin{itemize}
+    \item Estimated via impulse response: \citet{ilzetzki2013big} and \citet{brinca2016fiscal}
+    \item Again, targeting of fiscal stimulus is non-random
+  \end{itemize}
+\end{frame}
+
+\section{Generalized Imputation Estimators}
+
+\begin{frame}{Model}
+    $N$ individuals observed for $T$ times periods.
+    \begin{itemize}
+        \item Treatment begins \textbf{after} period $T_0$ (ignoring staggered treatment timing for this presentation).
+        \item $N_1$ treated individuals, $N_0$ untreated individuals.
+    \end{itemize}
+    
+    \pause
+    \bigskip
+    Untreated potential outcomes are given by a \textbf{factor model}:
+    \begin{equation}
+        y_{it}(0) = \mu_i + \theta_t + \bm f_t' \bm \gamma_i + u_{it}
+    \end{equation}
+    
+    \vspace{-3mm}
+    \begin{itemize}
+        \item $\bm f_t$: $p \times 1$ vector of common factors.
+        \item $\bm \gamma_i$: $p \times 1$ vector of individual factor loadings.
+        \item Nests the common TWFE model ($\bm \gamma_i = 0$). 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Assumptions}
+    \textbf{Arbitrary Treatment Effects:}
+    \begin{equation}
+        y_{it}(1) = y_{it}(0) + \tau_{it}
+    \end{equation}
+
+
+    \bigskip\pause
+    \textbf{No Anticipation:}
+    $$
+      y_{it}(0) = y_{it} \ \text{if}\  d_{it} = 0
+    $$
+
+    \begin{itemize}
+        \item Treated units do not change their behavior before treatment.
+        \item Can estimate and test for limited anticipation effects in our framework. 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Assumptions}
+    \textbf{Selection into Treatment:}
+    \begin{equation*}
+        \condexpec{u_{it}}{\mu_i, \bm \gamma_i, D_i} = 0
+    \end{equation*}
+    
+    \begin{itemize}
+        \item \textbf{Mean Model:} $\condexpec{y_{it}(0)}{\mu_i, \bm \gamma_i, D_i} = \mu_i + \theta_t + \bm f_t' \condexpec{\bm \gamma_i}{D_i}$.
+
+        \item Allows selection into treatment based on level and interactive fixed effects, but not idiosyncratic shocks
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Selection into Treatment and Parallel Trends}
+    In the two period case ($t = 1, 0$) consider the difference-in-differences estimand:
+    \begin{align*}
+        &\condexpec{y_{i1}(1) - y_{i0}(0)}{D_i = 1} - \condexpec{y_{i1}(0) - y_{i0}(0)}{D_i = 0} \\ \pause
+        &= \condexpec{\tau_{it}}{D_i = 1} + \bm f_t' \big( \condexpec{\bm \gamma_i}{D_i = 1} - \condexpec{\bm \gamma_i}{D_i = 0} \big) 
+    \end{align*}
+    
+    \bigskip \pause
+    This last term makes parallel trends not hold! That is, differential exposure to macroeconomic shocks violates parallel trends!
+\end{frame}
+
+\begin{frame}{Identification under a factor model}
+    There are many estimators for treatment effects under factor models:
+    \begin{enumerate}
+        \item Synthetic control \begin{citecolor}\citep{Abadie_2021}\end{citecolor}
+        \item Matrix Completion \begin{citecolor}\citep{Athey_et_al_2021}\end{citecolor}
+        \item Imputation Estimators \begin{citecolor}\citep{Gobillon_Magnac_2016, Xu_2017}\end{citecolor}
+    \end{enumerate}
+
+    \bigskip
+    \emph{None of these are valid in short-$T$ settings.} Our paper introduces a general method that is valid in short-$T$ settings.
+\end{frame}
+
+\begin{frame}{ATT Identification}
+
+Treated sample:
+\begin{equation}
+    \condexpec{y_{it}(0)}{D_i = 1} = \theta_t + \condexpec{\mu_i}{D_i = 1} + \bm f_t' \condexpec{\bm \gamma_i}{D_i = 1}
+\end{equation}
+\begin{itemize} 
+    \item \textbf{Insight:} Do not need to know $\bm \gamma_i$ which would require large-$T$
+    \begin{itemize}
+        \item Only $\condexpec{\bm \gamma_i}{D_i = 1}$.
+    \end{itemize}
+\end{itemize}
+    
+\end{frame}
+
+\begin{frame}{ATT Identification}
+
+Remove the additive fixed effects with a modified within-transformation:
+\begin{gather*}
+    \overline{y}_{0 , t} = \frac{1}{N_{0}} \sum_{i = 1}^N (1 - D_i) y_{it} \\
+    \overline{y}_{i,t\leq T_0} = \frac{1}{T_0} \sum_{t = 1}^{T_0} y_{it} \\
+    \overline{y}_{0, t < T_0} = \frac{1}{N_{0} T_0} \sum_{i = 1}^N \sum_{t = 1}^{T_0} (1 - D_i) y_{it}
+\end{gather*}
+
+
+\begin{itemize}
+    \item $\overline{y}_{0,t}$: never-treated cross-sectional averages.
+    \item $\overline{y}_{i,t \leq T_0}$: pre-treated time averages.
+    \item $\overline{y}_{0, t \leq T_0}$: overall never-treated pre-treated average. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Removing additive effects}
+    We consider the residuals after within-transforming 
+    
+    $$
+      \tilde{y}_{it} = y_{it} - \overline{y}_{0,t} - \overline{y}_{i,t \leq T_0} + \overline{y}_{0, t \leq T_0}
+    $$
+
+    \pause\bigskip
+    After performing our transformation, we have: 
+    $$\condexpec{\tilde{y}_{it}}{D_i = 1} = \condexpec{d_{it} \tau_{it} + \tilde{\bm f}_t' \tilde{\bm \gamma}_i }{D_i = 1}$$ 
+    where $\tilde{\bm f}_t$ are the pre-treatment demeaned factors and $\tilde{\bm \gamma}_i$ are the never-treated demeaned loadings.
+    
+    \begin{itemize}
+        \item \textbf{General result:} Our transformation removes $(\mu_i, \theta_t)$ but preserves a common factor structure.
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{When is TWFE sufficient?}
+    If $\condexpec{\bm \gamma_i}{D_i} = \expec{\bm \gamma_i}$, the ATTs are identified by the modified TWFE transformation.
+    
+    \begin{equation}
+        \condexpec{\tilde{y}_{it}}{D_i = 1} = \condexpec{\tau_{it}}{D_i = 1} = \tau_t
+    \end{equation}
+    for $t > T_0$.
+    
+    \pause
+    \begin{itemize}
+        \item Says TWFE is sufficient even if there are factors, so long as exposure to these factors are the same between treated and control group.
+        \item In the paper, we provide tests for this condition.
+    \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{ATT Identification}
+    Okay, now to our cool result. If we know our factors, $\tilde{\bm F}$, Then for $t > T_0$,
+    
+    \begin{equation}
+        \text{ATT}_t = \condexpec{ \tilde{y}_{it} - \tilde{\bm f}_t (\tilde{\bm F}_{t \leq T_0}' \tilde{\bm F}_{t \leq T_0})^{-1} \tilde{\bm F}_{t \leq T_0}' \bm y_{i, t \leq T_0}) }{D_i = 1}
+    \end{equation}
+    
+    \bigskip\pause
+    What's happening here:
+    $$
+    \tilde{\bm f}_t \underbrace{(\tilde{\bm F}_{t \leq T_0}' \tilde{\bm F}_{t \leq T_0})^{-1} \tilde{\bm F}_{t \leq T_0}' \bm y_{i, t \leq T_0})}_{\to^p \ \condexpec{\bm \gamma_i}{D_i = 1}}
+    $$
+    
+    \pause
+    This is a general imputation procedure that only requires estimation of $\tilde{\bm F}_t$. This brings in a large literature on factor model estimation to causal-inference methods.
+\end{frame}
+
+
+
+\begin{frame}{Factor Identification}
+We consider instrumental-variables based identification of \citet{Ahn_Lee_Schmidt_2013}.
+\begin{itemize}
+    \item Allows fixed-$T$ analysis.
+    \item Provides moment conditions; inference is easy.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Factor Identification}
+  Intuitively, we need a set of instruments that we thing:
+
+  \begin{enumerate}
+    \item Are correlated with the factor-loadings $\gamma_i$.
+    \item Satisfy an exclusion restriction on $u_{it}$. We can't pick up on $(i,t)$ shocks that are correlated with treatment
+  \end{enumerate}
+
+  \bigskip
+  We think the best IV strategy would entail using time-invariant characteristics that we think are correlated with $\gamma_i$ as instruments. 
+\end{frame}
+
+\section{Empirical Example}
+
+\begin{frame}{Example}
+  For example, consider our Walmart example. Since Walmart is likely targeting growing economies, we think that parallel trends would fail.
+
+  \begin{enumerate}
+    \item Plausibly, Walmart is not targetting a specific location based on local shocks, that is based on $u_{it}$. 
+    
+    \item More so, targetting places that are doing well due to national economic conditions, that is based on $\bm{f}_t \bm{\gamma}_i$.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Data}
+  We construct a dataset following the description in \citet{basker2005job}. 
+  
+  \begin{itemize}
+    \item In particular, we use the County Business Patterns dataset from 1964 and 1977-1999
+    \item Subset to counties that (i) had more than 1500 employees overall in 1964 and (ii) had non-negative aggregate employment growth between 1964 and 1977
+  \end{itemize}
+
+  \smallskip\pause
+  We use a geocoded dataset of Walmart openings from \citet{arcidiacono2020competitive}
+
+  \begin{itemize}
+    \item Treatment dummy is equal to one if the county has any Walmart in that year and our group variable denotes the year of entrance for the \emph{first} Walmart in the county.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{TWFE Estimator}
+  \begin{figure}
+    \caption{Effect of Walmart on County $\log$ Retail Employment}
+    \includegraphics[width = 0.9\textwidth]{../../figures/did2s_retail_bootstrap_1000.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Factor Model}
+  Turning to our factor model estimator, we use the following variables at their 1980 baseline values as instruments:
+  \begin{itemize}
+    \item share of population employed in manufacturing 
+    \item shares of population below and above the poverty line
+    \item shares of population employed in the private-sector and by the government 
+    \item shares of population with high-school and college degrees
+  \end{itemize}
+
+  \smallskip\pause
+  Think that these are predictive of the kinds of economic trends Walmart may be targeting
+  \begin{itemize}
+    \item Using baseline values helps us avoid picking up on concurrent shocks that are correlated with walmart opening
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Generalized Imputation Estimator}
+  \begin{figure}
+    \caption{Effect of Walmart on County $\log$ Retail Employment}
+    \includegraphics[width = 0.9\textwidth]{../../figures/factor_retail_p_2_bootstrap_1000.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Conclusion}
+  \begin{itemize}
+    \item Present a fixed-T imputation procedure to identify treatment effects under a factor-model (nesting the TWFE model)
+    
+    \item Our estimator allows for valid identification of treatment effects when treatment is targeted based on a unit's economic trends.
+    
+    \item More work to be done on thinking through more explicit connections to VAR and local projection methods \citep{dube2022local,plagborg2021local}
+  \end{itemize}
+\end{frame}
+
+
+
+\end{document}
