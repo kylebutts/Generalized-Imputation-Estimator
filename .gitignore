@@ -1,0 +1,29 @@
+.DS_Store
+
+submissions/
+
+# Large datasets
+raw-data/County_Business_Patterns/efsy_panel_naics.csv
+data/County_Business_Patterns/
+
+# auxiliary latex files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.run.xml
+*.synctex.gz
+*.nav
+*.snm

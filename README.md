@@ -1,4 +1,4 @@
-# Generalized Imputation Estimators for Factor Models
+# Dynamic Treatment Effect Estimation with Interactive Fixed Effects and Short Panels
 
 [Nicholas Brown](https://sites.google.com/msu.edu/nicholasbrown)<sup>1</sup> and
 [Kyle Butts](https://www.kylebutts.com/)<sup>2</sup>
@@ -19,7 +19,6 @@ This result can apply to data sets with either many or few pre-treatment time pe
 the robustness of two-way fixed effects imputation to certain parallel trends violations and provide a 
 test for its consistency. A quasi-long differencing estimator is proposed and implemented to estimate the 
 effect of Walmart openings on local economic conditions.
-
 
 ## Replication
 
