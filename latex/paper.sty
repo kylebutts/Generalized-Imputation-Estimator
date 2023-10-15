@@ -66,33 +66,6 @@
 \newtheorem{remark}{Remark}
 \newcommand{\remarkautorefname}{Remark}
 
-% Appendix ---------------------------------------------------------------------
-\AfterEndEnvironment{thebibliography}{
-  \setcounter{theorem}{0}
-  \setcounter{proposition}{0} 
-  \setcounter{lemma}{0}
-  \setcounter{corollary}{0}
-  \setcounter{definition}{0}
-  \setcounter{assumption}{0}
-  \setcounter{remark}{0}
-  \setcounter{table}{0}
-  \setcounter{figure}{0}
-  \setcounter{equation}{0} 
-  \numberwithin{equation}{section}
-  \numberwithin{figure}{section}
-  \numberwithin{table}{section}
-  \renewcommand{\thetheorem}{\Alph{section}\arabic{theorem}}
-  \renewcommand{\theproposition}{\Alph{section}\arabic{proposition}}
-  \renewcommand{\thelemma}{\Alph{section}\arabic{lemma}}
-  \renewcommand{\thecorollary}{\Alph{section}\arabic{corollary}}
-  \renewcommand{\thedefinition}{\Alph{section}\arabic{definition}}
-  \renewcommand{\theassumption}{\Alph{section}\arabic{assumption}}
-  \renewcommand{\theremark}{\Alph{section}\arabic{remark}}
-  \renewcommand{\thetable}{\Alph{section}\arabic{table}}
-  \renewcommand{\thefigure}{\Alph{section}\arabic{figure}}
-  \renewcommand{\theequation}{\Alph{section}\arabic{equation}}
-}
-
 % Color Palette ----------------------------------------------------------------
 \usepackage{xcolor}
 
@@ -125,19 +98,6 @@
 \newcommand\slate[1]{{\color{slate}#1}}
 \newcommand\jet[1]{{\color{jet}#1}}
 \newcommand\asher[1]{{\color{asher}#1}}
-
-% Zinc from Tailwind Colors
-\definecolor{zinc50}{HTML}{fafafa}
-\definecolor{zinc100}{HTML}{f4f4f5}
-\definecolor{zinc200}{HTML}{e4e4e7}
-\definecolor{zinc300}{HTML}{d4d4d8}
-\definecolor{zinc400}{HTML}{a1a1aa}
-\definecolor{zinc500}{HTML}{71717a}
-\definecolor{zinc600}{HTML}{52525b}
-\definecolor{zinc700}{HTML}{3f3f46}
-\definecolor{zinc800}{HTML}{27272a}
-\definecolor{zinc900}{HTML}{18181b}
-\definecolor{zinc950}{HTML}{09090b}
 
 % Hyperlinks -------------------------------------------------------------------
 \usepackage[breaklinks=true]{hyperref}
@@ -172,6 +132,34 @@
   {1em}
   {#1}
 
+% Appendix ---------------------------------------------------------------------
+
+\AfterEndEnvironment{thebibliography}{
+  \setcounter{theorem}{0}
+  \setcounter{proposition}{0} 
+  \setcounter{lemma}{0}
+  \setcounter{corollary}{0}
+  \setcounter{definition}{0}
+  \setcounter{assumption}{0}
+  \setcounter{remark}{0}
+  \setcounter{table}{0}
+  \setcounter{figure}{0}
+  \setcounter{equation}{0} 
+  \numberwithin{equation}{section}
+  \numberwithin{figure}{section}
+  \numberwithin{table}{section}
+  \renewcommand{\thetheorem}{\Alph{section}\arabic{theorem}}
+  \renewcommand{\theproposition}{\Alph{section}\arabic{proposition}}
+  \renewcommand{\thelemma}{\Alph{section}\arabic{lemma}}
+  \renewcommand{\thecorollary}{\Alph{section}\arabic{corollary}}
+  \renewcommand{\thedefinition}{\Alph{section}\arabic{definition}}
+  \renewcommand{\theassumption}{\Alph{section}\arabic{assumption}}
+  \renewcommand{\theremark}{\Alph{section}\arabic{remark}}
+  \renewcommand{\thetable}{\Alph{section}\arabic{table}}
+  \renewcommand{\thefigure}{\Alph{section}\arabic{figure}}
+  \renewcommand{\theequation}{\Alph{section}\arabic{equation}}
+}
+
 % Latex Programming tools ------------------------------------------------------
 % \AtBeginEnvironment
 % https://tex.stackexchange.com/questions/33576/conditional-typesetting-build
@@ -181,6 +169,16 @@
 % Remove annoying over-full box warnings
 \vfuzz=2pt 
 \hfuzz=2pt
+
+% Coauthors comments that you can hide -----------------------------------------
+% Define in the main document:
+% \booltrue{INCLUDECOMMENTS}
+% \newcommand{\kyle}[1]{\comment[Kyle]{#1}}
+\newbool{INCLUDECOMMENTS}
+\NewDocumentCommand{\coauthorComment}{O{NAME} +m}{%
+    \ifbool{INCLUDECOMMENTS}{{\color{cranberry}\textbf{#1:} #2}}{}
+}
+
 
 % Titlepage --------------------------------------------------------------------
 % \maketitle
@@ -233,13 +231,8 @@
 
 % Enumerate/Itemize ------------------------------------------------------------
 \usepackage[shortlabels]{enumitem}
-% \setitemize{labelindent=0.5em,labelsep=0.25cm,leftmargin=*}
-% \setenumerate{labelindent=0.5em,labelsep=0.25cm,leftmargin=*}
-\setlist{nosep}
-\setlist[itemize,1]{leftmargin=\parindent,label=\color{zinc600}{\upshape\textbullet}}
-\setlist[itemize,2]{leftmargin=2\parindent,label=\color{zinc600}{\upshape\textendash}}
-\setlist[enumerate,1]{leftmargin=\parindent,label=\color{zinc600}{\upshape\arabic*.}}
-\setlist[enumerate,2]{leftmargin=2\parindent,label=\color{zinc600}{\upshape\roman*.}}
+\setitemize{labelindent=0.5em,labelsep=0.25cm,leftmargin=*}
+\setenumerate{labelindent=0.5em,labelsep=0.25cm,leftmargin=*}
 
 % tikz support -----------------------------------------------------------------
 \usepackage{tikz}
@@ -283,16 +276,10 @@
 \usepackage{adjustbox}
 
 % Table notes with \notes{...} or \notes[Source:]{...} command
-\NewDocumentCommand{\note}{O{Notes.} m g}{%
-  \IfNoValueTF{#3}{%
-    {\footnotesize\vspace*{\medskipamount}%
-      \noindent\emph{#1} #2
-    }%
-  }{%
-    \parbox{#2}{\footnotesize\vspace*{\medskipamount}%
-      \noindent\emph{#1} #3
-    }%
-  }
+\NewDocumentCommand{\note}{O{Notes.} m}{%
+  \parbox{\textwidth}{\small\vspace*{\medskipamount}%
+    \noindent\IfValueT{#1}{\emph{#1} }#2
+  }%
 }
 
 % \toprule, \cmidrule, \bottomrule

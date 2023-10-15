@@ -1,3 +1,4 @@
+% Lightly modified from: https://pascalmichaillat.org/d3/
 \usepackage{xparse}
 
 % --- Brackets ---
@@ -21,12 +22,124 @@
 \let\oldexp\exp
 \RenewDocumentCommand{\exp}{g}{\IfNoValueTF{#1}{\oldexp}{\,{\oldexp}{\bp{#1}}}}
 
+% Maximum / Supremum / Limit Supremum
+\let\oldmax\max
+\RenewDocumentCommand{\max}{o g}{%
+\IfNoValueTF{#2}{\oldmax\IfValueT{#1}{_{#1}}}%
+{\,{\oldmax\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
+
+\let\oldsup\sup
+\RenewDocumentCommand{\sup}{o g}{%
+\IfNoValueTF{#2}{\oldsup\IfValueT{#1}{_{#1}}}%
+{\,{\oldsup\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
+
+\let\oldlimsup\limsup
+\RenewDocumentCommand{\limsup}{o g}{%
+\IfNoValueTF{#2}{\oldlimsup\IfValueT{#1}{_{#1}}}%
+{\,{\oldlimsup\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
+
+% Argmax
+\DeclareMathOperator*{\argmax}{argmax}
+
+% Minimum / Infimum / Limit Infimum
+\let\oldmin\min
+\RenewDocumentCommand{\min}{o g}{%
+\IfNoValueTF{#2}{\oldmin\IfValueT{#1}{_{#1}}}%
+{\,{\oldmin\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
+
+\let\oldinf\inf
+\RenewDocumentCommand{\inf}{o g}{%
+\IfNoValueTF{#2}{\oldinf\IfValueT{#1}{_{#1}}}%
+{\,{\oldinf\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
+
+\let\oldliminf\liminf
+\RenewDocumentCommand{\liminf}{o g}{%
+\IfNoValueTF{#2}{\oldliminf\IfValueT{#1}{_{#1}}}%
+{\,{\oldliminf\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
+
+% Argmin
+\DeclareMathOperator*{\argmin}{argmin}
+
+% Expectation
+\NewDocumentCommand{\E}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\mathbb{E}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bp{#2}}
+    }{%
+      \,\mathbb{E}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
+\NewDocumentCommand{\expec}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\mathbb{E}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bp{#2}}
+    }{%
+      \,\mathbb{E}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
+
+% Probability
+\RenewDocumentCommand{\P}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
+    }{%
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
+\NewDocumentCommand{\prob}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
+    }{%
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
+
+% Variance
+\NewDocumentCommand{\var}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\operatorname{var}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\operatorname{var}\IfValueT{#1}{_{#1}}{\bp{#2}}
+    }{%
+      \,\operatorname{var}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
+
+% Covariance
+\NewDocumentCommand{\cov}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\operatorname{cov}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\operatorname{cov}\IfValueT{#1}{_{#1}}{\bp{#2}}
+    }{%
+      \,\operatorname{cov}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+    }
+  }
+}
+
 % Indicator
 \NewDocumentCommand{\one}{g}{%
   \IfNoValueTF{#1}{
     \operatorname{\mathbb{1}}
   }{%
-  \,\mathbb{1}{\bp{#1}}}
+  \,\mathbb{1}{\bs{#1}}}
 }
 
 % Trace
@@ -49,98 +162,6 @@
 \IfNoValueTF{#1}{\operatorname{se}}%
 {\,{\operatorname{se}}{\bp{#1}}}}
 
-% Maximum
-\let\oldmax\max
-\RenewDocumentCommand{\max}{o g}{%
-\IfNoValueTF{#2}{\oldmax\IfValueT{#1}{_{#1}}}%
-{\,{\oldmax\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
-
-% Argmax
-\DeclareMathOperator*{\argmax}{argmax}
-
-% Minimum
-\let\oldmin\min
-\RenewDocumentCommand{\min}{o g}{%
-\IfNoValueTF{#2}{\oldmin\IfValueT{#1}{_{#1}}}%
-{\,{\oldmin\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
-
-% Argmin
-\DeclareMathOperator*{\argmin}{argmin}
-
-% Expectation
-\NewDocumentCommand{\E}{o g g}{%
-  \IfNoValueTF{#2}{%
-    \operatorname{\mathbb{E}}\IfValueT{#1}{_{#1}}%
-  }{%
-    \IfNoValueTF{#3}{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{ #2 }}
-    }{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{ #2 \ |\ #3 }}
-    }
-  }
-}
-\NewDocumentCommand{\expec}{o g g}{%
-  \IfNoValueTF{#2}{%
-    \operatorname{\mathbb{E}}\IfValueT{#1}{_{#1}}%
-  }{%
-    \IfNoValueTF{#3}{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{ #2 }}
-    }{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{ #2 \ |\ #3 }}
-    }
-  }
-}
-
-% Probability
-\RenewDocumentCommand{\P}{o g g}{%
-  \IfNoValueTF{#2}{%
-    \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
-  }{%
-    \IfNoValueTF{#3}{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
-    }{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2 \ |\ #3}}
-    }
-  }
-}
-\NewDocumentCommand{\prob}{o g g}{%
-  \IfNoValueTF{#2}{%
-    \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
-  }{%
-    \IfNoValueTF{#3}{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
-    }{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2 \ |\ #3}}
-    }
-  }
-}
-
-% Variance
-\NewDocumentCommand{\var}{o g g}{%
-  \IfNoValueTF{#2}{%
-    \operatorname{\operatorname{Var}}\IfValueT{#1}{_{#1}}%
-  }{%
-    \IfNoValueTF{#3}{%
-      \,\operatorname{Var}\IfValueT{#1}{_{#1}}{\bp{#2}}
-    }{%
-      \,\operatorname{Var}\IfValueT{#1}{_{#1}}{\bp{#2 \ |\ #3}}
-    }
-  }
-}
-
-% Covariance
-\NewDocumentCommand{\cov}{o g g}{%
-  \IfNoValueTF{#2}{%
-    \operatorname{\operatorname{Cov}}\IfValueT{#1}{_{#1}}%
-  }{%
-    \IfNoValueTF{#3}{%
-      \,\operatorname{Cov}\IfValueT{#1}{_{#1}}{\bp{#2}}
-    }{%
-      \,\operatorname{Cov}\IfValueT{#1}{_{#1}}{\bp{#2 \ |\ #3}}
-    }
-  }
-}
-
 % Distributed iid
 \newcommand{\iid}{\mathbin{\overset{iid}{\sim}}}
 
@@ -148,4 +169,15 @@
 \newcommand{\aslim}{\mathbin{\overset{as}{\to}}}
 \newcommand{\convd}{\mathbin{\overset{d}{\to}}}
 \newcommand{\plim}{\mathbin{\overset{p}{\to}}}
+
+% Paper-specific commands
+\usepackage{ragged2e}
+\def\pre{\text{pre}}
+\def\post{\text{post}}
+\def\ATT{\text{ATT}}
+\def\Rank{\text{Rank}}
+\def\bigO{\mathcal{O}}
+\def\littleO{\mathcal{o}}
+
+
 
