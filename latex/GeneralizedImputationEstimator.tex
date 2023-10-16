@@ -1,9 +1,6 @@
 \documentclass[12pt]{article}
 \usepackage{paper, math}
 
-\def\acknowledgements{
-  We would like to thank Stephane Bonhomme, Brantly Callaway, Brian Cadena, Peter Hull, and Jeffrey Wooldridge, as well as seminar participants from the University of Georgia, Florida State University, Queen's University, the 2022 Midwest Econometrics Group, the CU Boulder Econometrics Brownbag, the 2023 CEA Annual Meeting, and the 2023 IAAE Annual Conference for their insightful questions and comments.
-}
 \title{%
   Dynamic Treatment Effect Estimation with Interactive Fixed Effects and Short Panels\thanks{\acknowledgements}
 }
@@ -13,6 +10,9 @@
   \href{https://kylebutts.com/}{Kyle Butts}\thanks{University of Colorado Boulder, Economics Department (\href{mailto:kyle.butts@colorado.edu}{kyle.butts@colorado.edu})}
 }
 \date{\textsc{\today}}
+\def\acknowledgements{
+  We would like to thank Stephane Bonhomme, Brantly Callaway, Brian Cadena, Peter Hull, and Jeffrey Wooldridge, as well as seminar participants from the University of Georgia, Florida State University, Queen's University, the 2022 Midwest Econometrics Group, the CU Boulder Econometrics Brownbag, the 2023 CEA Annual Meeting, and the 2023 IAAE Annual Conference for their insightful questions and comments.
+}
 
 % Conditionally display thoughts (hide by switching to `\boolfalse`)
 \boolfalse{INCLUDECOMMENTS}
@@ -44,9 +44,9 @@
 \section{Introduction}
 % ------------------------------------------------------------------------------
 
-There are two common approaches for estimating the dynamic effects of a binary treatment in linear panel data models. Difference-in-differences estimators are one of the most popular causal inference tools and computationally simple but rely on strong parallel-trends assumptions. In many empirical settings, treatment is assigned non-randomly based on trends in economic variables, rendering this method unusable. For example, in urban economics, place-based policies target places with worsening labor markets \citep{neumark2015place}, new apartments are built in appreciating neighborhoods \citep{asquith2021local,pennington2021does}, and firms opening new stores in growing economies \citep{basker2005job,neumark2008effects}. Estimation of treatment effects in this setting is confounded by the pre-existing economic trends. It is common that the causes of these trends are due to larger economic forces and not location-specific shocks. Continuing our examples, the national decline of manufacturing caused targeted manufacturing hubs to be declining, consumer trends for walkable neighborhoods cause certain neighborhoods to become increasingly demanded, and national changes to employment rates benefit certain counties. 
+For estimating the dynamic effects of a binary treatment in linear panel data models, difference-in-differences estimators are one of the most popular causal inference tools. In many empirical settings, treatment is assigned non-randomly based on trends in economic variables, and the parallel trends assumption required by difference-in-differences is not plausible. For example, in urban economics, place-based policies target places with worsening labor markets \citep{neumark2015place}, new apartments are built in appreciating neighborhoods \citep{asquith2021local,pennington2021does}, and firms opening new stores in growing economies \citep{basker2005job,neumark2008effects}. Estimation of treatment effects in this setting is confounded by the pre-existing economic trends. In many settings, though, it is reasonable to assume that the causes of these trends are due to larger economic forces and not location-specific shocks. Continuing our examples, the national decline of manufacturing caused targeted manufacturing hubs to be declining, consumer trends for walkable neighborhoods cause certain neighborhoods to become increasingly demanded, and national industry growth rates impact counties differentially. 
 
-A recent growing literature models these kind of parallel trends deviations using an interactive fixed effects, but requires long panels for consistent estimation. While interactive fixed effects relax the parallel trends assumptions relied on by difference-in-differences, estimators requiring long panels are often impractical because of (i) lack of data for many years of outcomes, (ii) strong assumptions like serially uncorrelated outcomes, or (iii) the presence of structural breaks, e.g. recessions or structural changes to the macroeconomy, rendering previous time periods uninformative about the current economy. This paper proposes a treatment effect estimator under the more general interactive fixed effect model that is robust to certain violations of parallel trends while remaining consistent in short panels and under heterogeneous treatment effects. 
+A recent growing literature models these kind of parallel trends deviations using an interactive fixed effects where there are common national shocks, but the exposure to the shock vary across locations. While interactive fixed effects relax the parallel trends assumptions relied on by difference-in-differences, the current literature requires long panels to estimate effects. Requiring long panels for estimation is often impractical because of (i) lack of data for many years of outcomes, (ii) strong assumptions like serially uncorrelated outcomes, or (iii) the presence of structural breaks, e.g. recessions or structural changes to the macroeconomy, rendering previous time periods uninformative about the current economy. This paper proposes a treatment effect estimator under the more general interactive fixed effect model that is robust to certain violations of parallel trends while remaining consistent in short panels and under heterogeneous treatment effects. 
 
 We model untreated potential outcomes, $y_{it}(\infty)$, as an interactive fixed effect model
 \begin{equation}\label{eq:untreated_po}
