@@ -66,7 +66,8 @@ sim2_points = rbind(
   theme(
     legend.text = element_text(size = rel(1)),
     legend.title = element_text(size = rel(1.2)),
-    legend.position = c(0.8, 0.2),
+    legend.position = "inside",
+    legend.position.inside = c(0.8, 0.2),
     legend.spacing.y = unit(10, "pt"),
     legend.background = element_rect(colour = "black", linewidth = 0.5),
     legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
