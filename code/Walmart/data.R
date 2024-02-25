@@ -15,12 +15,12 @@ library(sf)
 # 1964 CBP ---------------------------------------------------------------------
 # From https://www.fpeckert.me/elmmss/
 cbp1964 = fread(here("raw-data/County_Business_Patterns/CBP1964.csv")) |> 
-  DT(sic == "----", .(emp1964 = emp), by = .(fipstate, fipscty)) |>
+  _[sic == "----", .(emp1964 = emp), by = .(fipstate, fipscty)] |>
   setnames(
     old = c("fipstate", "fipscty"), 
     new = c("state_fips", "county_fips")
   ) |>
-  DT(county_fips != "999", )
+  _[county_fips != "999", ]
 
 # CBP Imputed employment counts ------------------------------------------------
 # Info: http://fpeckert.me/cbp/Imputed%20Files/efsy_readme_panel.txt
@@ -37,7 +37,7 @@ setnames(cbp, old = c("fipstate", "fipscty"), new = c("state_fips", "county_fips
 # NAICS 2-digit codes 44 and 45 are "Retail Trade"
 # Note that Eckert et. al. change the data so that all the naics industries (2-digit, 4-digit, etc. are mutually exclusive), so summing across does not double count.
 cbp <- cbp |>
-  DT(,
+  _[,
     let(
       retail = naics2 %in% c("44", "45"),
       # Following Basker
@@ -48,28 +48,28 @@ cbp <- cbp |>
       healthcare = naics2 %in% c("62"),
       accomodations = naics2 %in% c("72")
     )
-  ) |> 
-  DT(county_fips != 999, )
+   ] |> 
+  _[county_fips != 999, ]
 
 ## Retail -------------------------------------------------------––-------------
 retail = cbp |>
-  DT(,
+  _[,
     .(emp = sum(emp, na.rm = T)),
     by = .(state_fips, county_fips, year, retail)
-  )
+  ]
 
 # Make balanced panel
 retail <- retail |>
   expand(nesting(state_fips, county_fips), year) |>
   left_join(retail, by = c("state_fips", "county_fips", "year")) |>
-  setDT()
+  as.data.table()
 
 retail[is.na(emp), emp := 0]
 retail = retail[!is.na(retail), ]
 
 # Pivot wider
 retail |>
-  DT(, retail := ifelse(retail, "retail", "nonretail")) 
+  _[, retail := ifelse(retail, "retail", "nonretail")] 
 
 retail = pivot_wider(
   retail,
@@ -80,28 +80,29 @@ retail = pivot_wider(
 )
 
 retail |> 
-  DT(is.na(retail_emp), retail_emp := 0) |>
-  DT(is.na(nonretail_emp), nonretail_emp := 0)
+  as.data.table() |> 
+  _[is.na(retail_emp), retail_emp := 0] |>
+  _[is.na(nonretail_emp), nonretail_emp := 0]
 
 ## Wholesale ----------------------------------------------------––-------------
 wholesale = cbp |>
-  DT(,
+  _[,
     .(emp = sum(emp, na.rm = T)),
     by = .(state_fips, county_fips, year, wholesale)
-  )
+  ]
 
 # Make balanced panel
 wholesale <- wholesale |>
   expand(nesting(state_fips, county_fips), year) |>
   left_join(wholesale, by = c("state_fips", "county_fips", "year")) |>
-  setDT()
+  as.data.table()
 
 wholesale[is.na(emp), emp := 0]
 wholesale = wholesale[!is.na(wholesale), ]
 
 # Pivot wider
 wholesale |>
-  DT(, wholesale := ifelse(wholesale, "wholesale", "nonwholesale")) 
+  _[, wholesale := ifelse(wholesale, "wholesale", "nonwholesale")] 
 
 wholesale = pivot_wider(
   wholesale,
@@ -112,28 +113,29 @@ wholesale = pivot_wider(
 )
 
 wholesale |> 
-  DT(is.na(wholesale_emp), wholesale_emp := 0) |>
-  DT(is.na(nonwholesale_emp), nonwholesale_emp := 0)
+  as.data.table() |> 
+  _[is.na(wholesale_emp), wholesale_emp := 0] |>
+  _[is.na(nonwholesale_emp), nonwholesale_emp := 0]
 
 ## Manufacturing ------------------------------------------------––-------------
 manufacturing = cbp |>
-  DT(,
+  _[,
     .(emp = sum(emp, na.rm = T)),
     by = .(state_fips, county_fips, year, manufacturing)
-  )
+  ]
 
 # Make balanced panel
 manufacturing <- manufacturing |>
   expand(nesting(state_fips, county_fips), year) |>
   left_join(manufacturing, by = c("state_fips", "county_fips", "year")) |>
-  setDT()
+  as.data.table()
 
 manufacturing[is.na(emp), emp := 0]
 manufacturing = manufacturing[!is.na(manufacturing), ]
 
 # Pivot wider
 manufacturing |>
-  DT(, manufacturing := ifelse(manufacturing, "manufacturing", "nonmanufacturing")) 
+  _[, manufacturing := ifelse(manufacturing, "manufacturing", "nonmanufacturing")] 
 
 manufacturing = pivot_wider(
   manufacturing,
@@ -144,28 +146,29 @@ manufacturing = pivot_wider(
 )
 
 manufacturing |> 
-  DT(is.na(manufacturing_emp), manufacturing_emp := 0) |>
-  DT(is.na(nonmanufacturing_emp), nonmanufacturing_emp := 0)
+  as.data.table() |> 
+  _[is.na(manufacturing_emp), manufacturing_emp := 0] |>
+  _[is.na(nonmanufacturing_emp), nonmanufacturing_emp := 0]
 
 ## Construction -------------------------------------------------––-------------
 construction = cbp |>
-  DT(,
+  _[,
     .(emp = sum(emp, na.rm = T)),
     by = .(state_fips, county_fips, year, construction)
-  )
+  ]
 
 # Make balanced panel
 construction <- construction |>
   expand(nesting(state_fips, county_fips), year) |>
   left_join(construction, by = c("state_fips", "county_fips", "year")) |>
-  setDT()
+  as.data.table()
 
 construction[is.na(emp), emp := 0]
 construction = construction[!is.na(construction), ]
 
 # Pivot wider
 construction |>
-  DT(, construction := ifelse(construction, "construction", "nonconstruction")) 
+  _[, construction := ifelse(construction, "construction", "nonconstruction")] 
 
 construction = pivot_wider(
   construction,
@@ -176,28 +179,29 @@ construction = pivot_wider(
 )
 
 construction |> 
-  DT(is.na(construction_emp), construction_emp := 0) |>
-  DT(is.na(nonconstruction_emp), nonconstruction_emp := 0)
+  as.data.table() |> 
+  _[is.na(construction_emp), construction_emp := 0] |>
+  _[is.na(nonconstruction_emp), nonconstruction_emp := 0]
 
 ## Agriculture --------------------------------------------------––-------------
 agriculture = cbp |>
-  DT(,
+  _[,
     .(emp = sum(emp, na.rm = T)),
     by = .(state_fips, county_fips, year, agriculture)
-  )
+  ]
 
 # Make balanced panel
 agriculture <- agriculture |>
   expand(nesting(state_fips, county_fips), year) |>
   left_join(agriculture, by = c("state_fips", "county_fips", "year")) |>
-  setDT()
+  as.data.table()
 
 agriculture[is.na(emp), emp := 0]
 agriculture = agriculture[!is.na(agriculture), ]
 
 # Pivot wider
 agriculture |>
-  DT(, agriculture := ifelse(agriculture, "agriculture", "nonagriculture")) 
+  _[, agriculture := ifelse(agriculture, "agriculture", "nonagriculture")] 
 
 agriculture = pivot_wider(
   agriculture,
@@ -208,28 +212,29 @@ agriculture = pivot_wider(
 )
 
 agriculture |> 
-  DT(is.na(agriculture_emp), agriculture_emp := 0) |>
-  DT(is.na(nonagriculture_emp), nonagriculture_emp := 0)
+  as.data.table() |> 
+  _[is.na(agriculture_emp), agriculture_emp := 0] |>
+  _[is.na(nonagriculture_emp), nonagriculture_emp := 0]
 
 ## Health Care --------------------------------------------------––-------------
 healthcare = cbp |>
-  DT(,
+  _[,
     .(emp = sum(emp, na.rm = T)),
     by = .(state_fips, county_fips, year, healthcare)
-  )
+  ]
 
 # Make balanced panel
 healthcare <- healthcare |>
   expand(nesting(state_fips, county_fips), year) |>
   left_join(healthcare, by = c("state_fips", "county_fips", "year")) |>
-  setDT()
+  as.data.table()
 
 healthcare[is.na(emp), emp := 0]
 healthcare = healthcare[!is.na(healthcare), ]
 
 # Pivot wider
 healthcare |>
-  DT(, healthcare := ifelse(healthcare, "healthcare", "nonhealthcare")) 
+  _[, healthcare := ifelse(healthcare, "healthcare", "nonhealthcare")] 
 
 healthcare = pivot_wider(
   healthcare,
@@ -240,28 +245,29 @@ healthcare = pivot_wider(
 )
 
 healthcare |> 
-  DT(is.na(healthcare_emp), healthcare_emp := 0) |>
-  DT(is.na(nonhealthcare_emp), nonhealthcare_emp := 0)
+  as.data.table() |> 
+  _[is.na(healthcare_emp), healthcare_emp := 0] |>
+  _[is.na(nonhealthcare_emp), nonhealthcare_emp := 0]
 
 ## Accomodations ------------------------------------------------––-------------
 accomodations = cbp |>
-  DT(,
+  _[,
     .(emp = sum(emp, na.rm = T)),
     by = .(state_fips, county_fips, year, accomodations)
-  )
+  ]
 
 # Make balanced panel
 accomodations <- accomodations |>
   expand(nesting(state_fips, county_fips), year) |>
   left_join(accomodations, by = c("state_fips", "county_fips", "year")) |>
-  setDT()
+  as.data.table()
 
 accomodations[is.na(emp), emp := 0]
 accomodations = accomodations[!is.na(accomodations), ]
 
 # Pivot wider
 accomodations |>
-  DT(, accomodations := ifelse(accomodations, "accomodations", "nonaccomodations")) 
+  _[, accomodations := ifelse(accomodations, "accomodations", "nonaccomodations")] 
 
 accomodations = pivot_wider(
   accomodations,
@@ -272,8 +278,9 @@ accomodations = pivot_wider(
 )
 
 accomodations |> 
-  DT(is.na(accomodations_emp), accomodations_emp := 0) |>
-  DT(is.na(nonaccomodations_emp), nonaccomodations_emp := 0)
+  as.data.table() |> 
+  _[is.na(accomodations_emp), accomodations_emp := 0] |>
+  _[is.na(nonaccomodations_emp), nonaccomodations_emp := 0]
 
 ## Merge together datasets -----------------------------------------------------
 retail = retail |>
@@ -301,7 +308,7 @@ retail = retail |>
     accomodations |> select(-nonaccomodations_emp), 
     by = c("state_fips", "county_fips", "year")
   ) |>
-  setDT()
+  as.data.table()
 
 ## Merge in 1964 cbp -----------------------------------------------------------
 retail = merge(retail, cbp1964, by = c("state_fips", "county_fips"))
@@ -309,10 +316,10 @@ setorder(retail, "state_fips", "county_fips", "year")
 
 retail = retail |>
   as.data.table() |>
-  DT(, 
+  _[, 
     emp1977 := retail_emp[year == 1977] + nonretail_emp[year == 1977], 
     by = c("state_fips", "county_fips")
-  )
+  ]
 
 # Load Walmart openings --------------------------------------------------------
 openings <- here("raw-data/Walmart_openings/opening_dates.csv") |>
@@ -321,17 +328,17 @@ openings <- here("raw-data/Walmart_openings/opening_dates.csv") |>
   subset(!(BuildingStateProv %in% c("AK", "PR", "HI"))) |>
   st_as_sf(coords = c("Longitude", "Latitude"), crs = st_crs(4326)) |>
   st_transform(st_crs(2163)) |>
-  setDT()
+  as.data.table()
 
 ## Place openings within counties ----------------------------------------------
 
 counties <- tigris::counties(cb = TRUE) |>
   st_transform(st_crs(2163)) |>
-  setDT() |>
-  DT(, .(
+  as.data.table() |>
+  _[, .(
     state_fips = STATEFP, county_fips = COUNTYFP,
     GEOID, geometry
-  ))
+  )]
 
 # Sanity check: plot the points
 # openings |>
@@ -368,7 +375,7 @@ counties_panel <- counties |>
     year = 1975:2018
   ) |>
   left_join(counties, by = c("state_fips", "county_fips")) |>
-  setDT()
+  as.data.table()
 
 # Many-to-many is okay! Multiple openings in a county
 openings_panel <- left_join(
@@ -387,11 +394,11 @@ openings_panel <- openings_panel[,
 
 # Remove Alaska, Hawaii, and US Terrirotries
 openings_panel <- openings_panel |>
-  DT(, let(
+  _[, let(
     state_fips = as.numeric(state_fips),
     county_fips = as.numeric(county_fips)
-  )) |>
-  DT(!(state_fips %in% c(2, 15, 78, 72, 69, 66, 60)), )
+  )] |>
+  _[!(state_fips %in% c(2, 15, 78, 72, 69, 66, 60)), ]
 
 ## Merge with CBP data ---------------------------------------------------------
 retail <- inner_join(
@@ -401,57 +408,57 @@ retail <- inner_join(
 
 retail <- retail |>
   as.data.table() |>
-  DT(, fips := paste0(
+  _[, fips := paste0(
     str_pad(state_fips, 2, side = "left", pad = "0"),
     str_pad(county_fips, 3, side = "left", pad = "0")
-  )) |>
-  DT(,
+  )] |>
+  _[,
     g := ifelse(
       any(any_open), 
       year[min(which(any_open))] |> as.numeric(), 
       Inf
     ),
     by = fips
-  ) |>
-  DT(, g_anticipation_2 := g - 2) |> 
-  DT(,
+  ] |>
+  _[, g_anticipation_2 := g - 2] |> 
+  _[,
     rel_year := ifelse(g == Inf, -Inf, year - g)
-  ) |> 
-  DT(,
+  ] |> 
+  _[,
     rel_year_anticipation_2 := 
       ifelse(g_anticipation_2 == Inf, -Inf, year - g_anticipation_2)
-  )
+  ]
 
 retail |> 
-  DT(, log_retail_emp := log(retail_emp + 1)) |>
-  DT(, log_nonretail_emp := log(nonretail_emp + 1)) |>
-  DT(, log_construction_emp := log(construction_emp + 1)) |>
-  DT(, log_wholesale_emp := log(wholesale_emp + 1)) |>
-  DT(, log_manufacturing_emp := log(manufacturing_emp + 1)) |>
-  DT(, log_agriculture_emp := log(agriculture_emp + 1)) |>
-  DT(, log_healthcare_emp := log(healthcare_emp + 1)) |>
-  DT(, log_accomodations_emp := log(accomodations_emp + 1)) 
+  _[, log_retail_emp := log(retail_emp + 1)] |>
+  _[, log_nonretail_emp := log(nonretail_emp + 1)] |>
+  _[, log_construction_emp := log(construction_emp + 1)] |>
+  _[, log_wholesale_emp := log(wholesale_emp + 1)] |>
+  _[, log_manufacturing_emp := log(manufacturing_emp + 1)] |>
+  _[, log_agriculture_emp := log(agriculture_emp + 1)] |>
+  _[, log_healthcare_emp := log(healthcare_emp + 1)] |>
+  _[, log_accomodations_emp := log(accomodations_emp + 1)] 
 
 # Generate instrument: 1975 baseline retail and non-retail share
 retail |> 
-  DT(, 
+  _[, 
     retail_emp_share := 
       retail_emp[year == 1975] / 
       (retail_emp[year == 1975] + nonretail_emp[year == 1975]),
     by = "fips"
-  ) |> 
-  DT(
+  ] |> 
+  _[
     is.nan(retail_emp_share), retail_emp_share := 0
-  ) |> 
-  DT(, 
+  ] |> 
+  _[, 
     nonretail_emp_share := 
       nonretail_emp[year == 1975] / 
       (retail_emp[year == 1975] + nonretail_emp[year == 1975]),
     by = "fips"
-  ) |> 
-  DT(
+  ] |> 
+  _[
     is.nan(nonretail_emp_share), nonretail_emp_share := 0
-  )
+  ]
 
 # Merge with 1980 census data --------------------------------------------------
 # Merge 3 datasets
@@ -470,7 +477,6 @@ retail |>
     fips := paste0(str_pad(STATEA, 2, "left", "0"), str_pad(COUNTYA, 3, "left", "0"))
   ]
   vars =  c("GISJOIN", "YEAR", "FSTATUS", "REGIONA", "DIVISIONA", "STATE", "STATEA", "SMSAA", "COUNTY", "COUNTYA", "REGION", "DIVISION", "CTY_SUBA", "PLACEA", "TRACTA", "BLCK_GRPA", "BLOCKA", "EDINDA", "ENUMDISTA", "SCSAA", "URB_AREAA", "CDA", "AIANHHA", "MCDSEQNO", "SEA", "UATYPE", "PLACDESC", "CBD", "INDSUBR", "LONGITUD", "LATITUDE", "LANDAREA", "AREANAME", "SUPFLG01", "SUPFLG02", "SUPFLG03", "SUPFLG04", "SUPFLG05", "SUPFLG06", "SUPFLG07", "SUPFLG08", "SUPFLG09", "SUPFLG10", "SUPFLG11", "SUPFLG12", "SUPFLG13", "SUPFLG14", "SUPFLG15", "SUPFLG16", "SUPFLG17", "SUPFLG18", "SUPFLG19", "SUPFLG20", "SUPFLG21", "SUPFLG22", "SUPFLG23", "SUPFLG24", "SUPFLG25", "SUPFLG26", "SUPFLG27")
-  # "SUPFLG01", "SUPFLG02", "SUPFLG03", "SUPFLG04", "SUPFLG05", "SUPFLG06", "SUPFLG07", "SUPFLG08", "SUPFLG09", "SUPFLG10", "SUPFLG11", "SUPFLG12", "SUPFLG13", "SUPFLG14", "SUPFLG15", "SUPFLG16", "SUPFLG17", "SUPFLG18", "SUPFLG19", "SUPFLG20", "SUPFLG21", "SUPFLG22", "SUPFLG23", "SUPFLG24", "SUPFLG25", "SUPFLG26", "SUPFLG27"
   census1[, vars := NULL, env = list(vars = I(vars))]
   census2[, vars := NULL, env = list(vars = I(vars))]
   census3[, vars := NULL, env = list(vars = I(vars))]
@@ -554,7 +560,7 @@ census = census |>
   dplyr::select(tidyselect::all_of(names(col_convert)))
 
 census |> 
-  DT(, let(
+  _[, let(
     share_school_no_hs = n_school_no_hs / total_pop,
     share_school_some_hs = n_school_some_hs / total_pop,
     share_school_hs = n_school_hs / total_pop,
@@ -598,8 +604,8 @@ census |>
     share_pop_emp_government = n_pop_emp_government / total_pop,
     share_pop_emp_self_employed = n_pop_emp_self_employed / total_pop,
     share_pop_emp_unpaid_family = n_pop_emp_unpaid_family / total_pop
-  )) |>
-  DT(, share_pop_ind_manuf := share_pop_ind_manuf_durable + share_pop_ind_manuf_nondurable)
+  )] |>
+  _[, share_pop_ind_manuf := share_pop_ind_manuf_durable + share_pop_ind_manuf_nondurable]
 
 setcolorder(retail, c("fips"))
 retail = merge(retail, census, by = "fips")
@@ -613,25 +619,25 @@ YEARS <- 1977:1999
 T0 <- min(YEARS) + 8
 
 sample = retail |>
-  DT(year %in% YEARS, ) |>
-  DT(,
+  _[year %in% YEARS, ] |>
+  _[,
     balanced := (length(year) == length(YEARS)),
     by = .(fips)
-  ) |>
-  DT(balanced == TRUE, ) |>
-  DT(,
+  ] |>
+  _[balanced == TRUE, ] |>
+  _[,
     balanced := (sort(year) == YEARS),
     by = .(fips)
-  ) |>
-  DT(balanced == TRUE, ) |>
+  ] |>
+  _[balanced == TRUE, ] |>
   # Fix g for the panel
-  DT(g > max(YEARS), g := Inf) |>
-  DT(g > T0) |> 
-  DT(g == Inf, rel_year := -Inf) 
+  _[g > max(YEARS), g := Inf] |>
+  _[g > T0] |> 
+  _[g == Inf, rel_year := -Inf] 
 
 sample_basker = sample |>
-  DT(emp1964 >= 1500, ) |>
-  DT(emp1977 >= emp1964, )
+  _[emp1964 >= 1500, ] |>
+  _[emp1977 >= emp1964, ]
 
 # N counties
 sample_basker[, fips |> unique() |> length()]
