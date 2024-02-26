@@ -11,6 +11,7 @@ library(ggplot2)
 library(here)
 library(fixest)
 library(tikzDevice)
+options(readr.show_col_types = FALSE)
 
 source(here("figures/convert_tex_to_pdf.R"))
 
@@ -107,12 +108,13 @@ qld_wholesale_naive_se <-
 
 # %%
 #| label: "Load Synthetic Control Estimates"
+est_y0_qld = read_csv(here("estimates/est_y0_qld.csv"))
 synth_retail <- 
-  read_csv(here("estimates/est_y0_outcome_retail_qld_p_2.csv")) |>
+  est_y0_qld |>
   filter(g != Inf) |>
   summarize(
-    ytilde_mean = mean(ytilde, na.rm = TRUE),
-    ytilde_0hat_mean = mean(y0hat, na.rm = TRUE),
+    ytilde_mean = mean(log_retail_emp_tilde, na.rm = TRUE),
+    ytilde_0hat_mean = mean(log_retail_emp_tilde_0hat_qld_p_2, na.rm = TRUE),
     .by = c(rel_year)
   )
 synth_retail <- rbind(
@@ -125,11 +127,11 @@ synth_retail <- rbind(
 )
 
 synth_wholesale <- 
-  read_csv(here("estimates/est_y0_outcome_wholesale_qld_p_1.csv")) |>
+  est_y0_qld |>
   filter(g != Inf) |>
   summarize(
-    ytilde_mean = mean(ytilde, na.rm = TRUE),
-    ytilde_0hat_mean = mean(y0hat, na.rm = TRUE),
+    ytilde_mean = mean(log_wholesale_emp_tilde, na.rm = TRUE),
+    ytilde_0hat_mean = mean(log_wholesale_emp_tilde_0hat_qld_p_1, na.rm = TRUE),
     .by = c(rel_year)
   )
 synth_wholesale <- rbind(

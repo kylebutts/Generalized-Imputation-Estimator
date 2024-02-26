@@ -251,8 +251,25 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
   # Estimate τ^ℓ ---------------------------------------------------------------
   df.tau_hat = df.ytilde .- df.y0hat
   if export_y0 == true
-    outfile = "estimates/est_y0_outcome_$(outcome)_qld_p_$(p).csv"
-    CSV.write(outfile, df[:, [:fips, :year, :g, :rel_year, :ytilde, :y0hat, :tau_hat]])
+    @assert outcome != "" "Outcome needs to be specified with `export_y0`"
+
+    outfile = "estimates/est_y0_qld.csv"
+    out = DataFrame(CSV.File(outfile))
+
+    ytilde_name = Symbol(string(outcome_var) * "_tilde")
+    ytilde_0hat_name = Symbol(string(outcome_var) * "_tilde_0hat_qld_p_$(p)")
+
+    merge = select(df, :fips, :year, :ytilde => ytilde_name, :y0hat => ytilde_0hat_name)
+    if hasproperty(out, ytilde_name)
+      select!(merge, Not(ytilde_name))
+    end
+    if hasproperty(out, ytilde_0hat_name)
+      select!(out, Not(ytilde_0hat_name))
+    end
+
+    out = innerjoin(out, merge; on=[:fips, :year])
+
+    CSV.write(outfile, out)
   end
 
   # Factor Estimate

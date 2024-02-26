@@ -47,8 +47,15 @@ rel_years = df[df.rel_year .!== -Inf, :rel_year] |> unique |> sort
 median(df[df.year .== 1977, :retail_emp])
 median(df[df.year .== 1977, :wholesale_emp])
 
-# %% Estimate
 
+#' Create frame for export_y0
+outfile = "estimates/est_y0_qld.csv"
+if !isfile(outfile) 
+  CSV.write(outfile, df[:, [:fips, :year, :g, :rel_year, :log_retail_emp, :log_wholesale_emp]])
+end
+
+
+# %%
 tau_hat_retail_p_0 = est_te(
   df, 0, :log_retail_emp; export_y0=true, outcome="retail", quick_plot=true
 )
