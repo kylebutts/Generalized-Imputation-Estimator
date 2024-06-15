@@ -2,6 +2,8 @@
 **/.DS_Store
 
 submissions/
+Responses.tex
+response.sty
 
 # Large datasets
 raw-data/County_Business_Patterns/efsy_panel_naics.csv

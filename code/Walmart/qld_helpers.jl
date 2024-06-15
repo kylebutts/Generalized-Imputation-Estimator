@@ -1,6 +1,6 @@
 # Estimate Factor Model Imputation TE function ---------------------------------
 function m_thetas(
-  parms::AbstractVector,
+  params::AbstractVector,
   p::Int64,
   ytilde::Vector{Float64},
   idx_control::Vector{Int64},
@@ -16,7 +16,7 @@ function m_thetas(
 
   # H(Θ)
   if p > 0
-    theta = parms[1:((T - p) * p)]
+    theta = params[1:((T - p) * p)]
     HΘ = [sparse(I, T - p, T - p); reshape(theta, T - p, p)']
   else
     HΘ = sparse(I, T, T)
@@ -38,7 +38,7 @@ function m_thetas(
 end
 
 function m_theta_bar(
-  parms::AbstractVector,
+  params::AbstractVector,
   p::Int64,
   ytilde::Vector{Float64},
   idx_control::Vector{Int64},
@@ -56,7 +56,7 @@ function m_theta_bar(
 
   # H(Θ)
   if p > 0
-    theta = parms[1:((T - p) * p)]
+    theta = params[1:((T - p) * p)]
     HΘ = [I(T - p); reshape(theta, T - p, p)']
   else
     HΘ = Matrix(1.0 * I(T))
@@ -68,7 +68,7 @@ function m_theta_bar(
   i = idx_control[1]
   prod_i = HΘ' * view(ytilde, (1 + (i - 1) * T):(i * T))
   # prod_i = HΘ' * ytilde[(1 + (i-1)*T):(i*T)]
-  m_bar = kron(prod_i, W[:, i]) * P_D_inf
+  m_bar = kron(prod_i, W[:, i])
 
   # Units 2-n_\infty
   for i in idx_control[2:end]
@@ -78,12 +78,13 @@ function m_theta_bar(
     m = 1
     for j in axes(prod_i, 1)
       for k in 1:n_instruments
-        m_bar[m] += prod_i[j] * W[k, i] * P_D_inf
+        m_bar[m] += prod_i[j] * W[k, i]
         m += 1
       end
     end
   end
 
+  m_bar *= P_D_inf
   # Divide by N for average
   m_bar ./= n_units
 
@@ -91,7 +92,7 @@ function m_theta_bar(
 end
 
 function obj_theta(
-  parms::AbstractVector,
+  params::AbstractVector,
   p::Int64,
   weight::Matrix{Float64},
   ytilde::Vector{Float64},
@@ -100,7 +101,7 @@ function obj_theta(
   n_units::Int64,
   T::Int64,
 )
-  m_bar = m_theta_bar(parms, p, ytilde, idx_control, W, n_units, T)
+  m_bar = m_theta_bar(params, p, ytilde, idx_control, W, n_units, T)
   return n_units * (m_bar' * weight * m_bar)
 end
 
@@ -136,6 +137,7 @@ end
 
 # %% Function to estimate a treatment effect
 function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=false)
+  # Sort just in case
   sort!(df, [:fips, :year])
   ytilde = within_transform(df, outcome_var, :g, :year, T0)
   df.ytilde = ytilde
@@ -170,34 +172,34 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
 
   # Estimate theta -------------------------------------------------------------
   # Step 1. Initial estimate
-  parms = [ones((T - p) * p); zeros(length(rel_years))]
+  params = [ones((T - p) * p); zeros(length(rel_years))]
   weight = Matrix(1.0 * I((T - p) * n_instruments))
 
   # EDIT ----
-  # mean(m_thetas(parms,  p, ytilde, idx_control, W, n_units, T), dims = 1)
-  # m_theta_bar(parms, p, ytilde, idx_control, W, n_units, T)
+  # mean(m_thetas(params,  p, ytilde, idx_control, W, n_units, T), dims = 1)
+  # m_theta_bar(params, p, ytilde, idx_control, W, n_units, T)
   # obj_theta(
-  #   parms, p, weight, ytilde, idx_control, W, n_units, T,
+  #   params, p, weight, ytilde, idx_control, W, n_units, T,
   # )
   # END EDIT ----
 
   if p > 0
     optres = optimize(
       x -> obj_theta(x, p, weight, ytilde, idx_control, W, n_units, T),
-      parms,
+      params,
       BFGS(; linesearch=BackTracking()),
       Optim.Options(; g_abstol=eps(Float64));
       autodiff=:forward,
     )
 
-    parms_hat = Optim.minimizer(optres)
+    params_hat = Optim.minimizer(optres)
   else
-    parms_hat = parms
+    params_hat = params
   end
 
   # Step 2. Optimal weighting matrix 
-  ms = m_thetas(parms_hat, p, ytilde, idx_control, W, n_units, T)
-  Ωinv_theta = pinv(1 / n_units * (ms' * ms))
+  ms = m_thetas(params_hat, p, ytilde, idx_control, W, n_units, T)
+  Ωinv_theta = pinv((ms' * ms) / n_units)
 
   # Ωinv_theta = zeros(147, 147)
   # for i in 1:n_units
@@ -207,21 +209,20 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
 
   if p > 0
     # Having problems with numeric stability when doing all the 1/N_inf correctly
+    RESCALE = 15.266221542835233 * 83.84513366993183
     optres_opt = optimize(
-      x ->
-        1 / 15.266221542835233 *
-        obj_theta(x, p, Ωinv_theta / 83.84513366993183, ytilde, idx_control, W, n_units, T),
-      parms_hat,
+      x -> 1 / RESCALE * obj_theta(x, p, Ωinv_theta, ytilde, idx_control, W, n_units, T),
+      params_hat,
       BFGS(; linesearch=BackTracking()),
       Optim.Options(; iterations=10000);
       autodiff=:forward,
     )
 
-    parms_hat_opt = Optim.minimizer(optres_opt)
-    theta_hat_opt = parms_hat_opt[1:((T - p) * p)]
-    J = Optim.minimum(optres_opt) * 15.266221542835233 * 83.84513366993183
+    params_hat_opt = Optim.minimizer(optres_opt)
+    theta_hat_opt = params_hat_opt[1:((T - p) * p)]
+    J = Optim.minimum(optres_opt) * RESCALE
   else
-    J = obj_theta(parms_hat, p, Ωinv_theta, ytilde, idx_control, W, n_units, T)
+    J = obj_theta(params_hat, p, Ωinv_theta, ytilde, idx_control, W, n_units, T)
   end
 
   # Testing for $p$ following Ahn, Lee, and Schmidt (2013)
@@ -232,6 +233,7 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
 
   # Impute untreated potential outcomes
   df.y0hat = zeros(size(df, 1))
+
   if p > 0
     FΘ = [reshape(theta_hat_opt, T - p, p); (-1 * I(p))]
     FΘ = Matrix(FΘ)
@@ -249,7 +251,8 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
   end
 
   # Estimate τ^ℓ ---------------------------------------------------------------
-  df.tau_hat = df.ytilde .- df.y0hat
+  df.y_diff = df.ytilde .- df.y0hat
+
   if export_y0 == true
     @assert outcome != "" "Outcome needs to be specified with `export_y0`"
 
@@ -272,9 +275,8 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
     CSV.write(outfile, out)
   end
 
-  # Factor Estimate
   df.rel_year_cat = CategoricalArray(df.rel_year)
-  lm_tau = lm(@formula(tau_hat ~ 0 + rel_year_cat), df[df.g .< Inf, :])
+  lm_tau = lm(@formula(y_diff ~ 0 + rel_year_cat), df[df.g .< Inf, :])
 
   # Plot point estimates
   if quick_plot == true
