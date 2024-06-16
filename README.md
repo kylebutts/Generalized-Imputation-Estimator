@@ -3,7 +3,7 @@
 [Nicholas Brown](https://sites.google.com/msu.edu/nicholasbrown)<sup>1</sup> and
 [Kyle Butts](https://www.kylebutts.com/)<sup>2</sup>
 <br>
-<sup>2</sup>Queen's University, <sup>1</sup>University of Colorado: Boulder
+<sup>1</sup>Florida State University, <sup>2</sup>University of Arkansas
 
 #### [Paper](https://www.econ.queensu.ca/sites/econ.queensu.ca/files/wpaper/qed_wp_1495.pdf) | [Five-minute Summary](https://www.kylebutts.com/papers/generalized-imputation-estimators/)
 
