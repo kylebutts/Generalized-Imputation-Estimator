@@ -17,13 +17,36 @@ function estimate_tau_gt(
     PFhat = Fhat * ((Fhat_pre' * Fhat_pre) \ Fhat_pre')
     for i in curr_idx
       y_diff[:, i] = ymat[:, i] - PFhat * ymat[1:convert(Int64, curr_g), i]
-      tau_gt_hat[(1+((l-1)*T)):(l*T)] += y_diff[:, i]
-      N_tau_gt[(1+((l-1)*T)):(l*T)] .+= 1
+      tau_gt_hat[(1 + ((l - 1) * T)):(l * T)] += y_diff[:, i]
+      N_tau_gt[(1 + ((l - 1) * T)):(l * T)] .+= 1
     end
   end
 
   tau_gt_hat = tau_gt_hat ./ N_tau_gt
   return tau_gt_hat, N_tau_gt
+end
+
+function impute_y0(
+  theta::AbstractVector, p::Int, ymat::AbstractMatrix, g_shift::AbstractVector
+)
+  T = size(ymat, 1)
+  Fhat = [reshape(theta, T - p, p); -1.0 * I(p)]
+  uniq_g_shift = sort(unique(g_shift))
+  uniq_g_shift = filter(x -> x .!== Inf, uniq_g_shift)
+
+  # Impute y0_hat
+  y0_hat = zeros(size(ymat))
+
+  for (l, curr_g) in enumerate(uniq_g_shift)
+    curr_idx = findall(g_shift .== curr_g) # All units with this g
+    Fhat_pre = Fhat[1:convert(Int64, curr_g), :]
+    PFhat = Fhat * ((Fhat_pre' * Fhat_pre) \ Fhat_pre')
+    for i in curr_idx
+      y0_hat[:, i] = PFhat * ymat[1:convert(Int64, curr_g), i]
+    end
+  end
+
+  return y0_hat
 end
 
 function ms_tau_gt(
@@ -49,7 +72,7 @@ function ms_tau_gt(
     PFhat = Fhat * ((Fhat_pre' * Fhat_pre) \ Fhat_pre')
     for i in curr_idx
       y_diff[:, i] = ymat[:, i] - PFhat * ymat[1:curr_g, i]
-      gt_idx = (1+((l-1)*T)):(l*T)
+      gt_idx = (1 + ((l - 1) * T)):(l * T)
       ms[i, gt_idx] = y_diff[:, i] - tau_gt[gt_idx]
       N_tau_gt[gt_idx] .+= 1
     end
@@ -82,7 +105,7 @@ function m_tau_gt_bar(
     PFhat = Fhat * ((Fhat_pre' * Fhat_pre) \ Fhat_pre')
     for i in curr_idx
       y_diff[:, i] = ymat[:, i] - PFhat * ymat[1:curr_g, i]
-      gt_idx = (1+((l-1)*T)):(l*T)
+      gt_idx = (1 + ((l - 1) * T)):(l * T)
       m_bar[gt_idx] .+= y_diff[:, i]
       N_tau_gt[gt_idx] .+= 1
     end

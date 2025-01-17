@@ -8,6 +8,8 @@ function qld_imputation(
   do_within_transform::Bool,
   p::Union{Int64,Real},
   type::String="dynamic",
+  return_y0::Bool,
+  return_naive_se::Bool,
 )
   # y = :log_retail_emp
   # id = :fips
@@ -18,6 +20,9 @@ function qld_imputation(
   # Check if the panel is balanced (approximately)
   panel_counts = DataFrames.combine(DataFrames.groupby(df, [id]), DataFrames.nrow => :count)
   @assert length(unique(panel_counts.count)) == 1 "Panel is not balanced"
+  id_name = Symbol(id)
+  t_name = Symbol(t)
+  g_name = Symbol(g)
   y = df[!, y]
   id = df[!, id]
   t = df[!, t]
@@ -79,7 +84,7 @@ function qld_imputation(
       )
 
       # Note that if p == N_instruments, p_value will be returned as 1
-      if p_value_hansen_sargent >= 0.05
+      if p_value_hansen_sargent >= 0.10
         break
       end
       p += 1
@@ -126,6 +131,9 @@ function qld_imputation(
   vcov_tau_gt = g_tau' * g_tau + (IF_theta * IF_theta')
   vcov_tau_gt /= N_units^2
 
+  # Naive ses
+  vcov_tau_gt_naive = g_tau' * g_tau
+  vcov_tau_gt_naive /= N_units^2
 
   # vcov_tau_gt = (IF_tau' * IF_tau)
 
@@ -148,7 +156,31 @@ function qld_imputation(
     tau_es_hat = mat_agg_es * tau_gt_hat
     vcov_tau_es = mat_agg_es * vcov_tau_gt * mat_agg_es'
 
-    return uniq_rel_years, tau_es_hat, vcov_tau_es
+    vcov_tau_es_naive = mat_agg_es * vcov_tau_gt_naive * mat_agg_es'
+
+    if return_y0 == true
+
+      impute_df = df[:, [id_name, t_name, g_name]]
+      if do_within_transform == true
+        impute_df.ytilde0_hat = vec(impute_y0(theta_hat_opt, p, ymat, g_shift))
+        impute_df.ytilde = vec(ymat)
+      else
+        impute_df.y0_hat = vec(impute_y0(theta_hat_opt, p, ymat, g_shift))
+        impute_df.y = vec(ymat)
+      end
+
+      if return_naive_se == true
+        return uniq_rel_years, tau_es_hat, vcov_tau_es, impute_df, vcov_tau_es_naive
+      else
+        return uniq_rel_years, tau_es_hat, vcov_tau_es, impute_df
+      end
+    else
+      if return_naive_se == true
+        return uniq_rel_years, tau_es_hat, vcov_tau_es, vcov_tau_es_naive
+      else
+        return uniq_rel_years, tau_es_hat, vcov_tau_es
+      end
+    end
   elseif type == "overall"
     # aggte to overall ATT
     mat_agg_overall = zeros(1, length(tau_gt_hat))

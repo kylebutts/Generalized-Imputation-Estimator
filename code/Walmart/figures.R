@@ -11,67 +11,28 @@ library(ggplot2)
 library(here)
 options(readr.show_col_types = FALSE)
 
-se_julia <- c(0.018578801468750936, 0.012732375812836637, 0.009595520028581784, 0.009405681746361189, 0.007082810282766015, 0.005438849776952624, 0.004361275633296737, 0.0038684992493808724, 0.0031549044598110933, 0.0028444154088974965, 0.002456981508049289, 0.003123933925102055, 0.0027192760960000756, 0.002207961548888753, 0.002315269397441087, 0.0022828634548399183, 0.0023240276834920674, 0.0031167391800404837, 0.0026062426020645115, 0.0018408032428981925, 0.002011791755533185, 0.0032470575260301064, 0.0061797180312068295, 0.009907852370411698, 0.013128264573192177, 0.013934550970040226, 0.016020016625266816, 0.018807155057045194, 0.01722424420659511, 0.020534279474704483, 0.02506893327205581, 0.03512060679214689, 0.0423874728560897, 0.05942233080849399, 0.07484173914273268, 0.0692201782064223)
-se_boot <- qld_retail$std_error
-ggplot() + 
-  geom_point(aes(x = -22:13, y = se_julia, color = "Asymptotic")) + 
-  geom_point(aes(x = -22:13, y = se_boot, color = "Bootstrap")) + 
-  labs(color = NULL, y = NULL) +
-  kfbmisc::theme_kyle(base_size = 16) +
-  theme(
-    legend.text = element_text(size = rel(1)),
-    legend.title = element_text(size = rel(1.2)),
-    legend.position = "bottom",
-    legend.key.spacing.y = unit(4, "pt"),
-    legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
-  )
-
 # Load Estimates ---------------------------------------------------------------
 # %%
-#| label: "Load QLD"
-qld_retail <- read_csv(here("estimates/qld_p_2_est_retail_B_5000.csv"))
-qld_retail <- tibble(
-  rel_year = colnames(qld_retail) |> str_replace("tau", "") |> as.numeric(),
-  pre = rel_year < 0,
-  estimate = as.numeric(qld_retail[1, ]),
-  std_error = drop(apply(qld_retail, 2, sd)),
-  lower = drop(apply(qld_retail, 2, quantile, probs = 0.025)),
-  upper = drop(apply(qld_retail, 2, quantile, probs = 0.975)),
-  lower_normal = estimate - 1.96 * std_error,
-  upper_normal = estimate + 1.96 * std_error
-)
+# p = 2
+qld_retail <- read_csv(here("estimates/qld_est_retail.csv")) |> 
+  mutate(pre = rel_year < 0)
 
-qld_wholesale <- read_csv(here("estimates/qld_p_1_est_wholesale_B_5000.csv"))
-qld_wholesale <- tibble(
-  rel_year = colnames(qld_wholesale) |> str_replace("tau", "") |> as.numeric(),
-  pre = rel_year < 0,
-  estimate = as.numeric(qld_wholesale[1, ]),
-  std_error = drop(apply(qld_wholesale, 2, sd)),
-  lower = drop(apply(qld_wholesale, 2, quantile, probs = 0.025)),
-  upper = drop(apply(qld_wholesale, 2, quantile, probs = 0.975)),
-  lower_normal = estimate - 1.96 * std_error,
-  upper_normal = estimate + 1.96 * std_error
-)
+# p = 1
+qld_wholesale <- read_csv(here("estimates/qld_est_wholesale.csv")) |> 
+  mutate(pre = rel_year < 0)
 
 # %%
-#| label: "Load did2s"
-did2s_retail <- read_csv(here("estimates/did2s_est_retail_B_1000.csv"))
-did2s_retail$pre <- did2s_retail$rel_year < 0
+did2s_retail <- read_csv(here("estimates/did2s_est_retail.csv"))  |> 
+  mutate(pre = rel_year < 0)
+did2s_covs_retail <- read_csv(here("estimates/did2s_est_covs_retail.csv"))  |> 
+  mutate(pre = rel_year < 0)
 
-did2s_wholesale <- read_csv(here("estimates/did2s_est_wholesale_B_1000.csv"))
-did2s_wholesale$pre <- did2s_wholesale$rel_year < 0
-
-# %%
-#| label: "Load did2s (with QLD instr. as covs)"
-did2s_covs_retail <- read_csv(here("estimates/did2s_est_covs_retail.csv"))
-did2s_covs_retail$pre <- did2s_covs_retail$rel_year < 0
-
-did2s_covs_wholesale <- read_csv(here("estimates/did2s_est_covs_wholesale.csv"))
-did2s_covs_wholesale$pre <- did2s_covs_wholesale$rel_year < 0
+did2s_wholesale <- read_csv(here("estimates/did2s_est_wholesale.csv"))  |> 
+  mutate(pre = rel_year < 0)
+did2s_covs_wholesale <- read_csv(here("estimates/did2s_est_covs_wholesale.csv"))  |> 
+  mutate(pre = rel_year < 0)
 
 # %%
-#| label: "Load PCA"
 pca_retail <- read_csv(here("estimates/pca_est_retail.csv"))
 pca_retail <- tibble(
   rel_year = -22L:13L, estimate = as.numeric(pca_retail[1, ])
@@ -85,8 +46,6 @@ pca_wholesale <- tibble(
 pca_wholesale$pre <- pca_wholesale$rel_year < 0
 
 # %%
-#| label: "Load CCE"
-
 cce_retail <- read_csv(here("estimates/cce_est_retail.csv"))
 cce_retail <- tibble(
   rel_year = -22L:13L, estimate = as.numeric(cce_retail[1, ])
@@ -100,33 +59,13 @@ cce_wholesale <- tibble(
 cce_wholesale$pre <- cce_wholesale$rel_year < 0
 
 # %%
-#| label: "Load naive SEs"
-# Load Naive SEs
-qld_retail_naive_se <- 
-  read_csv(here("estimates/qld_p_2_est_retail_naive_se.csv")) |>
-  mutate(
-    pre = rel_year < 0,
-    lower = estimate - 1.96 * std_error,
-    upper = estimate + 1.96 * std_error
-  )
-
-qld_wholesale_naive_se <-   
-  read_csv(here("estimates/qld_p_1_est_wholesale_naive_se.csv")) |>
-  mutate(
-    pre = rel_year < 0,
-    lower = estimate - 1.96 * std_error,
-    upper = estimate + 1.96 * std_error
-  )
-
-# %%
-#| label: "Load Synthetic Control Estimates"
-est_y0_qld = read_csv(here("estimates/est_y0_qld.csv"))
-synth_retail <- 
-  est_y0_qld |>
+est_y0_qld = 
+synth_retail <- read_csv(here("estimates/est_y0_outcome_retail_qld.csv")) |>
   filter(g != Inf) |>
+  mutate(rel_year = year - g) |>
   summarize(
-    ytilde_mean = mean(log_retail_emp_tilde, na.rm = TRUE),
-    ytilde_0hat_mean = mean(log_retail_emp_tilde_0hat_qld_p_2, na.rm = TRUE),
+    ytilde_mean = mean(ytilde, na.rm = TRUE),
+    ytilde_0hat_mean = mean(ytilde0_hat, na.rm = TRUE),
     .by = c(rel_year)
   )
 synth_retail <- rbind(
@@ -138,12 +77,12 @@ synth_retail <- rbind(
     mutate(group = r'(Average of $\hat{\tilde{y}}_{it}(0)$)')
 )
 
-synth_wholesale <- 
-  est_y0_qld |>
+synth_wholesale <- read_csv(here("estimates/est_y0_outcome_wholesale_qld.csv")) |>
   filter(g != Inf) |>
+  mutate(rel_year = year - g) |>
   summarize(
-    ytilde_mean = mean(log_wholesale_emp_tilde, na.rm = TRUE),
-    ytilde_0hat_mean = mean(log_wholesale_emp_tilde_0hat_qld_p_1, na.rm = TRUE),
+    ytilde_mean = mean(ytilde, na.rm = TRUE),
+    ytilde_0hat_mean = mean(ytilde0_hat, na.rm = TRUE),
     .by = c(rel_year)
   )
 synth_wholesale <- rbind(
@@ -157,7 +96,6 @@ synth_wholesale <- rbind(
 
 # Figures ----------------------------------------------------------------------
 # %%
-#| label: "did2s retail"
 # Estimate pre-trend
 pre_did2s_retail <- coef(feols(
   estimate ~ rel_year, did2s_retail |> filter(rel_year < 0 & rel_year >= -15)
@@ -196,7 +134,6 @@ pre_did2s_retail <- coef(feols(
   theme(legend.text = element_text(size = rel(1))))
 
 # %%
-#| label: "did2s wholesale"
 pre_did2s_wholesale <- feols(
   estimate ~ rel_year, did2s_wholesale |> filter(rel_year < 0 & rel_year >= -15)
 ) |>
@@ -235,7 +172,6 @@ pre_did2s_wholesale <- feols(
   theme(legend.text = element_text(size = rel(1))))
 
 # %%
-#| label: "qld retail"
 # Estimate pre-trend
 pre_qld_retail <- coef(feols(
   estimate ~ rel_year, qld_retail |> filter(rel_year < 0 & rel_year >= -15)
@@ -276,7 +212,6 @@ pre_qld_retail <- coef(feols(
   ))
 
 # %%
-#| label: "qld wholesale"
 pre_qld_wholesale <- coef(feols(
   estimate ~ rel_year, qld_wholesale |> filter(rel_year < 0 & rel_year >= -15)
 ))
@@ -316,24 +251,17 @@ pre_qld_wholesale <- coef(feols(
   ))
 
 # %%
-#| label: "Many Estimators"
 cce_retail$group <- "Common Correlated Effects"
 pca_retail$group <- "Principal Components"
 qld_retail$group <- "Quasi-Long Differencing"
-retail_estimators <- data.table::rbindlist(
-  list(cce_retail, pca_retail, qld_retail),
-  fill = TRUE
-)
+retail_estimators <- bind_rows(cce_retail, pca_retail, qld_retail)
 
 cce_wholesale$group <- "Common Correlated Effects"
 pca_wholesale$group <- "Principal Components"
 qld_wholesale$group <- "Quasi-Long Differencing"
-wholesale_estimators <- data.table::rbindlist(
-  list(cce_wholesale, pca_wholesale, qld_wholesale),
-  fill = TRUE
-)
+wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
 
-# %%
+# %% 
 (plot_retail_many_estimators <- ggplot() +
   geom_abline(
     slope = 0, intercept = 0,
@@ -375,7 +303,7 @@ wholesale_estimators <- data.table::rbindlist(
     legend.margin = margin(t = 4, r = 8, b = 4, l = 8, unit = "pt")
   ))
 
-# %%
+# %% 
 (plot_wholesale_many_estimators <- ggplot() +
   geom_abline(
     slope = 0, intercept = 0,
@@ -418,7 +346,6 @@ wholesale_estimators <- data.table::rbindlist(
   ))
 
 # %%
-#| label: "QLD naive estimates"
 (plot_qld_retail_naive_se <- ggplot() +
   geom_abline(
     slope = 0, intercept = 0,
@@ -426,14 +353,14 @@ wholesale_estimators <- data.table::rbindlist(
   ) +
   geom_point(
     aes(x = rel_year, y = estimate, color = pre),
-    data = qld_retail_naive_se,
+    data = qld_retail,
     size = 3
   ) +
   geom_errorbar(
     aes(
-      x = rel_year, ymin = lower, ymax = upper, color = pre
+      x = rel_year, ymin = estimate - 1.96 * std_error_naive, ymax = estimate + 1.96 * std_error_naive, color = pre
     ),
-    data = qld_retail_naive_se,
+    data = qld_retail,
     width = 0.6, linewidth = 2
   ) +
   labs(
@@ -479,7 +406,6 @@ wholesale_estimators <- data.table::rbindlist(
   theme(legend.text = element_text(size = rel(1))))
 
 # %%
-#| label: "Synthetic Control QLD Plots"
 (plot_synth_retail <- ggplot() +
   geom_line(
     aes(x = rel_year, y = mean, color = group),
@@ -533,7 +459,6 @@ wholesale_estimators <- data.table::rbindlist(
   ))
 
 # %%
-#| label: "Covs. vs. QLD Plot"
 retail_covs_ests <- bind_rows(
   did2s_retail |> mutate(group = "TWFE Imputation"),
   did2s_covs_retail |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)")#,
@@ -609,105 +534,6 @@ wholesale_covs_ests <- bind_rows(
       "TWFE Imputation" = "grey80",
       "TWFE Imputation (with $w_i \\beta_t$)" = "grey50",
       "Quasi-Long Differencing" = "grey20"
-    ),
-    guide = guide_legend(
-      override.aes = list(size = 0, linewidth = 2.2),
-      byrow = TRUE
-    )
-  ) +
-  labs(
-    x = "Event Time", y = NULL, color = NULL
-  ) +
-  kfbmisc::theme_kyle(base_size = 16) +
-  theme(
-    legend.text = element_text(size = rel(1)),
-    legend.title = element_text(size = rel(1.2)),
-    legend.position = "inside",
-    legend.position.inside = c(0.25, 0.8),
-    legend.key.spacing.y = unit(4, "pt"),
-    legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
-  ))
-
-
-# %%
-cce_retail$group <- "Common Correlated Effects"
-pca_retail$group <- "Principal Components"
-qld_retail$group <- "Quasi-Long Differencing"
-retail_estimators <- data.table::rbindlist(
-  list(cce_retail, pca_retail, qld_retail),
-  fill = TRUE
-)
-cce_wholesale$group <- "Common Correlated Effects"
-pca_wholesale$group <- "Principal Components"
-qld_wholesale$group <- "Quasi-Long Differencing"
-wholesale_estimators <- data.table::rbindlist(
-  list(cce_wholesale, pca_wholesale, qld_wholesale),
-  fill = TRUE
-)
-
-(plot_retail_many_estimators <- ggplot() +
-  geom_abline(
-    slope = 0, intercept = 0,
-    linetype = "dashed", linewidth = 0.8
-  ) +
-  geom_point(
-    aes(x = rel_year, y = estimate, color = group),
-    data = retail_estimators,
-    size = 3
-  ) +
-  geom_line(
-    aes(x = rel_year, y = estimate, color = group, group = group),
-    data = retail_estimators,
-    linewidth = 2
-  ) +
-  scale_y_continuous(limits = c(-0.2, 0.18)) +
-  scale_color_manual(
-    values = c(
-      "Quasi-Long Differencing" = "grey80",
-      "Common Correlated Effects" = "grey20",
-      "Principal Components" = "grey50"
-    ),
-    guide = guide_legend(
-      override.aes = list(size = 0, linewidth = 2.2),
-      byrow = TRUE
-    )
-  ) +
-  labs(
-    x = "Event Time", y = NULL, color = NULL
-  ) +
-  kfbmisc::theme_kyle(base_size = 16) +
-  theme(
-    legend.text = element_text(size = rel(1)),
-    legend.title = element_text(size = rel(1.2)),
-    legend.position = "inside",
-    legend.position.inside = c(0.25, 0.8),
-    legend.key.spacing.y = unit(4, "pt"),
-    legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
-  ))
-
-(plot_wholesale_many_estimators <- ggplot() +
-  geom_abline(
-    slope = 0, intercept = 0,
-    linetype = "dashed", linewidth = 0.8
-  ) +
-  geom_point(
-    aes(x = rel_year, y = estimate, color = group),
-    data = wholesale_estimators,
-    size = 3
-  ) +
-  geom_line(
-    aes(x = rel_year, y = estimate, color = group, group = group),
-    data = wholesale_estimators,
-    linewidth = 2
-  ) +
-  scale_y_continuous(limits = c(-0.2, 0.18)) +
-  scale_color_manual(
-    values = c(
-      "Quasi-Long Differencing" = "grey80",
-      "Common Correlated Effects" = "grey20",
-      "Principal Components" = "grey50"
     ),
     guide = guide_legend(
       override.aes = list(size = 0, linewidth = 2.2),
