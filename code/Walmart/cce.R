@@ -11,9 +11,9 @@ sample <- fread(here("data/County_Business_Patterns/sample_basker_YEARS_1977_199
 
 sample$y <- sample[[glue("log_{outcome}_emp")]]
 sample$share_pop_ind_manuf <- sample$share_pop_ind_manuf_durable + sample$share_pop_ind_manuf_nondurable
-sample$any_open = as.numeric(sample$any_open)
+sample$any_open <- as.numeric(sample$any_open)
 
-xvars = c("log_manufacturing_emp", "log_construction_emp", "log_agriculture_emp", "log_healthcare_emp")
+xvars <- c("log_manufacturing_emp", "log_construction_emp", "log_agriculture_emp", "log_healthcare_emp")
 
 ## CCE pooled estimate of \beta hat --------------------------------------------
 
@@ -33,12 +33,12 @@ Fhat <- sample |>
   )
 
 # Add constant to Fhat
-Fhat = cbind(Fhat, rep(1, nrow(Fhat)))
+Fhat <- cbind(Fhat, rep(1, nrow(Fhat)))
 
 # CCEP estimator for \hat{\beta} using pre-treatment X's for all groups
 N_pre_T0 <- (T0 - min(sample$year) + 1)
 Fpre <- Fhat[1:N_pre_T0, ]
-tFpreFpreinv = MASS::ginv(crossprod(Fpre))
+tFpreFpreinv <- MASS::ginv(crossprod(Fpre))
 M_Fpre <- diag(N_pre_T0) - Fpre %*% tFpreFpreinv %*% t(Fpre)
 
 B <- matrix(0, nrow = length(xvars), ncol = length(xvars))
@@ -65,8 +65,7 @@ bhat <- MASS::ginv(B) %*% A
 
 ## Imputation of covariates and outcome ----------------------------------------
 for (fips_id in unique(sample[g < Inf, fips])) {
-
-  idx = sample$fips == fips_id
+  idx <- sample$fips == fips_id
 
   t <- sample[idx, ]$year
 
@@ -84,28 +83,28 @@ for (fips_id in unique(sample[g < Inf, fips])) {
   gi_hat <- tFpreFpreinv %*% t(Fpre) %*% (yi_pre - Xi_pre %*% bhat)
   y0hat <- (Xi %*% bhat) + (Fhat %*% gi_hat)
 
-  sample[idx, "y0hat"] = y0hat
+  sample[idx, "y0hat"] <- y0hat
 }
 
 # Difference variables: Z_{it} - \hat{Z}_{it}(0)
 sample$tau_hat <- sample$y - sample$y0hat
 
-est = feols(
-  tau_hat ~ 0 + i(rel_year), 
+est <- feols(
+  tau_hat ~ 0 + i(rel_year),
   sample[g < Inf, ]
-)  
+)
 coefplot(est)
 
 ## Export estimates ------------------------------------------------------------
 
 fwrite(
-  sample[, c("fips", "year", "y", "y0hat", "tau_hat")], 
+  sample[, c("fips", "year", "y", "y0hat", "tau_hat")],
   here(glue("estimates/est_y0_outcome_{outcome}_cce.csv"))
 )
 
 c(
   paste0(
-    names(coef(est)) |> gsub("rel_year::", "tau", x = _), 
+    names(coef(est)) |> gsub("rel_year::", "tau", x = _),
     collapse = ","
   ),
   "\n",
@@ -113,9 +112,3 @@ c(
 ) |>
   # cat()
   cat(file = here(paste0("estimates/cce_est_", outcome, ".csv")))
-
-
-
-
-
-

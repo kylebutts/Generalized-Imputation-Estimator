@@ -2,3 +2,4 @@ style = "blue"
 indent = 2
 whitespace_ops_in_indices = true
 pipe_to_function_call = false
+remove_extra_newlines = false

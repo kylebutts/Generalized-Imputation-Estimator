@@ -68,7 +68,7 @@
     \IfNoValueTF{#3}{%
       \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2}}
     }{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2 \ |\ #3}}
     }
   }
 }
@@ -79,7 +79,7 @@
     \IfNoValueTF{#3}{%
       \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2}}
     }{%
-      \,\mathbb{E}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2 \ |\ #3}}
     }
   }
 }
@@ -90,9 +90,9 @@
     \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bs{#2}}
     }{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bs{#2 \ |\ #3}}
     }
   }
 }
@@ -101,9 +101,9 @@
     \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bs{#2}}
     }{%
-      \,\mathbb{P}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bs{#2 \ |\ #3}}
     }
   }
 }
@@ -111,12 +111,12 @@
 % Variance
 \NewDocumentCommand{\var}{o g g}{%
   \IfNoValueTF{#2}{%
-    \operatorname{\operatorname{var}}\IfValueT{#1}{_{#1}}%
+    \operatorname{\operatorname{Var}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\operatorname{var}\IfValueT{#1}{_{#1}}{\bp{#2}}
+      \,\operatorname{Var}\IfValueT{#1}{_{#1}}{\bp{#2}}
     }{%
-      \,\operatorname{var}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \,\operatorname{Var}\IfValueT{#1}{_{#1}}{\bp{#2 \ |\ #3}}
     }
   }
 }
@@ -124,23 +124,28 @@
 % Covariance
 \NewDocumentCommand{\cov}{o g g}{%
   \IfNoValueTF{#2}{%
-    \operatorname{\operatorname{cov}}\IfValueT{#1}{_{#1}}%
+    \operatorname{\operatorname{Cov}}\IfValueT{#1}{_{#1}}%
   }{%
     \IfNoValueTF{#3}{%
-      \,\operatorname{cov}\IfValueT{#1}{_{#1}}{\bp{#2}}
+      \,\operatorname{Cov}\IfValueT{#1}{_{#1}}{\bp{#2}}
     }{%
-      \,\operatorname{cov}\IfValueT{#1}{_{#1}}{ \left( #2 \ |\ #3 \right)}
+      \,\operatorname{Cov}\IfValueT{#1}{_{#1}}{\bp{#2 \ |\ #3}}
     }
   }
 }
 
 % Indicator
+\usepackage{dsfont}
 \NewDocumentCommand{\one}{g}{%
   \IfNoValueTF{#1}{
-    \operatorname{\mathbb{1}}
+    \operatorname{1}
   }{%
-  \,\mathbb{1}{\bs{#1}}}
+    \,\operatorname{1}{\bs{#1}}
+  }
 }
+
+% Independence
+\newcommand{\indep}{\perp\!\!\!\perp} 
 
 % Trace
 \NewDocumentCommand{\tr}{g}{%
@@ -162,13 +167,26 @@
 \IfNoValueTF{#1}{\operatorname{se}}%
 {\,{\operatorname{se}}{\bp{#1}}}}
 
+% Diag
+\NewDocumentCommand{\diag}{g}{%
+\IfNoValueTF{#1}{\operatorname{diag}}%
+{\,{\operatorname{diag}}{\bp{#1}}}}
+
 % Distributed iid
 \newcommand{\iid}{\mathbin{\overset{iid}{\sim}}}
 
+% Integral d
+\newcommand*\dif{\mathop{}\!\mathrm{d}}
+
 % Limits
-\newcommand{\aslim}{\mathbin{\overset{as}{\to}}}
+% \newcommand{\convp}{\mathbin{\overset{p}{\to}}}
+% \newcommand{\convas}{\mathbin{\overset{p}{\to}}}
+\newcommand{\asto}{\mathbin{\overset{as}{\to}}}
 \newcommand{\convd}{\mathbin{\overset{d}{\to}}}
-\newcommand{\plim}{\mathbin{\overset{p}{\to}}}
+\newcommand{\dto}{\mathbin{\overset{d}{\to}}}
+\newcommand{\pto}{\mathbin{\overset{p}{\to}}}
+\newcommand{\plim}{\operatorname{plim}}
+
 
 % Paper-specific commands
 \usepackage{ragged2e}
@@ -178,6 +196,3 @@
 \def\Rank{\text{Rank}}
 \def\bigO{\mathcal{O}}
 \def\littleO{\mathcal{o}}
-
-
-

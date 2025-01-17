@@ -6,11 +6,26 @@
 # %% setup
 #| warning: false
 library(tidyverse)
-library(data.table)
+library(fixest)
 library(ggplot2)
 library(here)
 options(readr.show_col_types = FALSE)
 
+se_julia <- c(0.018578801468750936, 0.012732375812836637, 0.009595520028581784, 0.009405681746361189, 0.007082810282766015, 0.005438849776952624, 0.004361275633296737, 0.0038684992493808724, 0.0031549044598110933, 0.0028444154088974965, 0.002456981508049289, 0.003123933925102055, 0.0027192760960000756, 0.002207961548888753, 0.002315269397441087, 0.0022828634548399183, 0.0023240276834920674, 0.0031167391800404837, 0.0026062426020645115, 0.0018408032428981925, 0.002011791755533185, 0.0032470575260301064, 0.0061797180312068295, 0.009907852370411698, 0.013128264573192177, 0.013934550970040226, 0.016020016625266816, 0.018807155057045194, 0.01722424420659511, 0.020534279474704483, 0.02506893327205581, 0.03512060679214689, 0.0423874728560897, 0.05942233080849399, 0.07484173914273268, 0.0692201782064223)
+se_boot <- qld_retail$std_error
+ggplot() + 
+  geom_point(aes(x = -22:13, y = se_julia, color = "Asymptotic")) + 
+  geom_point(aes(x = -22:13, y = se_boot, color = "Bootstrap")) + 
+  labs(color = NULL, y = NULL) +
+  kfbmisc::theme_kyle(base_size = 16) +
+  theme(
+    legend.text = element_text(size = rel(1)),
+    legend.title = element_text(size = rel(1.2)),
+    legend.position = "bottom",
+    legend.key.spacing.y = unit(4, "pt"),
+    legend.background = element_rect(colour = "black", linewidth = 0.5),
+    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
+  )
 
 # Load Estimates ---------------------------------------------------------------
 # %%
@@ -347,7 +362,7 @@ wholesale_estimators <- data.table::rbindlist(
     )
   ) +
   labs(
-    x = "Event Time", y = NULL, color = NULL, linetype = NULL
+    x = "Event Time", y = NULL, color = NULL
   ) +
   kfbmisc::theme_kyle(base_size = 16) +
   theme(
@@ -355,9 +370,9 @@ wholesale_estimators <- data.table::rbindlist(
     legend.title = element_text(size = rel(1.2)),
     legend.position = "inside",
     legend.position.inside = c(0.25, 0.8),
-    legend.spacing.y = unit(10, "pt"),
+    legend.key.spacing.y = unit(4, "pt"),
     legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
+    legend.margin = margin(t = 4, r = 8, b = 4, l = 8, unit = "pt")
   ))
 
 # %%
@@ -389,7 +404,7 @@ wholesale_estimators <- data.table::rbindlist(
     )
   ) +
   labs(
-    x = "Event Time", y = NULL, color = NULL, linetype = NULL
+    x = "Event Time", y = NULL, color = NULL
   ) +
   kfbmisc::theme_kyle(base_size = 16) +
   theme(
@@ -397,9 +412,9 @@ wholesale_estimators <- data.table::rbindlist(
     legend.title = element_text(size = rel(1.2)),
     legend.position = "inside",
     legend.position.inside = c(0.25, 0.8),
-    legend.spacing.y = unit(10, "pt"),
+    legend.key.spacing.y = unit(4, "pt"),
     legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
+    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
   ))
 
 # %%
@@ -486,8 +501,8 @@ wholesale_estimators <- data.table::rbindlist(
     legend.position = "inside",
     legend.position.inside = c(0.2, 0.8),
     legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.spacing.y = unit(8, "pt"),
-    legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
+    legend.key.spacing.y = unit(4, "pt"),
+    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
   ))
 
 (plot_synth_wholesale <- ggplot() +
@@ -513,21 +528,21 @@ wholesale_estimators <- data.table::rbindlist(
     legend.background = element_rect(
       colour = "black", linewidth = 0.5
     ),
-    legend.spacing.y = unit(8, "pt"),
-    legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
+    legend.key.spacing.y = unit(4, "pt"),
+    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
   ))
 
 # %%
 #| label: "Covs. vs. QLD Plot"
 retail_covs_ests <- bind_rows(
   did2s_retail |> mutate(group = "TWFE Imputation"),
-  did2s_covs_retail |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)"),
-  qld_retail |> mutate(group = "Quasi-Long Differencing")
+  did2s_covs_retail |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)")#,
+  #qld_retail |> mutate(group = "Quasi-Long Differencing")
 )
 wholesale_covs_ests <- bind_rows(
   did2s_wholesale |> mutate(group = "TWFE Imputation"),
-  did2s_covs_wholesale |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)"),
-  qld_wholesale |> mutate(group = "Quasi-Long Differencing")
+  did2s_covs_wholesale |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)")#,
+  #qld_wholesale |> mutate(group = "Quasi-Long Differencing")
 )
 
 # %%
@@ -559,7 +574,7 @@ wholesale_covs_ests <- bind_rows(
     )
   ) +
   labs(
-    x = "Event Time", y = NULL, color = NULL, linetype = NULL
+    x = "Event Time", y = NULL, color = NULL
   ) +
   kfbmisc::theme_kyle(base_size = 16) +
   theme(
@@ -567,9 +582,9 @@ wholesale_covs_ests <- bind_rows(
     legend.title = element_text(size = rel(1.2)),
     legend.position = "inside",
     legend.position.inside = c(0.25, 0.8),
-    legend.spacing.y = unit(10, "pt"),
+    legend.key.spacing.y = unit(4, "pt"),
     legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
+    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
   ))
 
 # %%
@@ -601,7 +616,7 @@ wholesale_covs_ests <- bind_rows(
     )
   ) +
   labs(
-    x = "Event Time", y = NULL, color = NULL, linetype = NULL
+    x = "Event Time", y = NULL, color = NULL
   ) +
   kfbmisc::theme_kyle(base_size = 16) +
   theme(
@@ -609,9 +624,9 @@ wholesale_covs_ests <- bind_rows(
     legend.title = element_text(size = rel(1.2)),
     legend.position = "inside",
     legend.position.inside = c(0.25, 0.8),
-    legend.spacing.y = unit(10, "pt"),
+    legend.key.spacing.y = unit(4, "pt"),
     legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
+    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
   ))
 
 
@@ -659,7 +674,7 @@ wholesale_estimators <- data.table::rbindlist(
     )
   ) +
   labs(
-    x = "Event Time", y = NULL, color = NULL, linetype = NULL
+    x = "Event Time", y = NULL, color = NULL
   ) +
   kfbmisc::theme_kyle(base_size = 16) +
   theme(
@@ -667,9 +682,9 @@ wholesale_estimators <- data.table::rbindlist(
     legend.title = element_text(size = rel(1.2)),
     legend.position = "inside",
     legend.position.inside = c(0.25, 0.8),
-    legend.spacing.y = unit(10, "pt"),
+    legend.key.spacing.y = unit(4, "pt"),
     legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
+    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
   ))
 
 (plot_wholesale_many_estimators <- ggplot() +
@@ -700,7 +715,7 @@ wholesale_estimators <- data.table::rbindlist(
     )
   ) +
   labs(
-    x = "Event Time", y = NULL, color = NULL, linetype = NULL
+    x = "Event Time", y = NULL, color = NULL
   ) +
   kfbmisc::theme_kyle(base_size = 16) +
   theme(
@@ -708,9 +723,9 @@ wholesale_estimators <- data.table::rbindlist(
     legend.title = element_text(size = rel(1.2)),
     legend.position = "inside",
     legend.position.inside = c(0.25, 0.8),
-    legend.spacing.y = unit(10, "pt"),
+    legend.key.spacing.y = unit(4, "pt"),
     legend.background = element_rect(colour = "black", linewidth = 0.5),
-    legend.margin = margin(t = 2, r = 8, b = 8, l = 8, unit = "pt")
+    legend.margin = margin(t = 8, r = 8, b = 8, l = 8, unit = "pt")
   ))
 
 

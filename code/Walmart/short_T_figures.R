@@ -12,8 +12,6 @@ library(here)
 library(fixest)
 library(kfbmisc)
 
-source(here("figures/convert_tex_to_pdf.R"))
-
 
 # Load Estimates ---------------------------------------------------------------
 # %%
@@ -79,7 +77,7 @@ pre_short_t_qld_retail <- coef(feols(
 
 # %% 
 kfbmisc::tikzsave(
-  here("figures/short_t_qld_retail.pdf"),
+  here("out/figures/short_t_qld_retail.pdf"),
   plot_short_t_qld_retail, width = 10, height = 5
 )
 
@@ -148,6 +146,6 @@ pre_short_t_qld_wholesale <- coef(feols(
 
 # %% 
 kfbmisc::tikzsave(
-  here("figures/short_t_qld_wholesale.pdf"),
+  here("out/figures/short_t_qld_wholesale.pdf"),
   plot_short_t_qld_wholesale, width = 10, height = 5
 )

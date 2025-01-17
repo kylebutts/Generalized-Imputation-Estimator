@@ -25,7 +25,7 @@ using StatsBase
 
 here = @projectroot()
 cd(here)
-include("$here/code/Walmart/qld_helpers.jl")
+include("$here/code/qld_helpers.jl")
 
 # Set parameters
 YEARS = collect(1977:1999)

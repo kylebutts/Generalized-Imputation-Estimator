@@ -168,7 +168,6 @@ function est_theta_hat(
   # Χ^2((T - p_0) (q - p_0) - k)
   # Where T is the number of periods, p_0 is the number of factors under the null, q is the number of instruments, and k is the number of additional covariates = 0
   k = 0
-  # TODO: Check with Nick; but must stop at p = 2
   if p == n_instruments
     p_value_hansen_sargent = 10
   else
@@ -181,17 +180,12 @@ end
 
 # %% Function to estimate a treatment effect
 function est_F_qld(df; T0, p=-1)
-  T = maximum(df.t)
 
   ## GMM estimate factor -------------------------------------------------------
   y = df.y
   id = df.id
   t = df.t
-  df.treat = (df.treated .== true) .& (df.t .> T0)
-
-  # df.rel_year = (-10 .* (1 .- df.treated)) + ((df.t .- (T0 + 1)) .* (1 * df.treated))
-  # rel_years = unique(df.rel_year)
-  # rel_years = rel_years[rel_years .!= -10]
+  T = maximum(df.t)
 
   # Find untreated units
   n_units = length(unique(df.id))
@@ -210,7 +204,6 @@ function est_F_qld(df; T0, p=-1)
   if p == -1
     p_star = -1
 
-    # TODO: Check with nick about p == n_instruments
     for curr_p in 1:n_instruments
       # print("$(curr_p)")
       res = est_theta_hat(curr_p, y, idx_control, W, n_units, T)
@@ -229,33 +222,4 @@ function est_F_qld(df; T0, p=-1)
   theta_hat_opt = res.params_hat_opt
   FΘ = [reshape(theta_hat_opt, T - p, p); (-1 * I(p))]
   return FΘ
-
-  #   # -------------------------------------------------------------------------------------------
-  #   # Impute untreated potential outcomes
-  #   df.y0hat = zeros(size(df, 1))
-  #   if p > 0
-  #     FΘ = [reshape(theta_hat_opt, T - p, p); (-1 * I(p))]
-  #     FΘ = Matrix(FΘ)
-  # 
-  #     treated_ids = unique(df[df.treated .== true, :id])
-  #     for id in treated_ids
-  #       unit = df[(df.id .== id), :]
-  # 
-  #       y_pre = unit[(unit.t .<= T0), :y]
-  #       FΘ_pre = FΘ[1:T0, :]
-  #       df[(df.id .== id), :y0hat] = FΘ * ((FΘ_pre' * FΘ_pre) \ (FΘ_pre' * y_pre))
-  #     end
-  #   end
-  # 
-  #   # Estimate τ^ℓ ---------------------------------------------------------------
-  #   df.y_diff = df.y .- df.y0hat
-  #   te_hat = @chain df begin
-  #     _[_.treated .== true, :]
-  #     _[_.t .> T0, :]
-  #     groupby(_, :t)
-  #     transform(_, :y_diff => mean => :te_hat)
-  #     _.te_hat[1:3]
-  #   end
-  # 
-  #   return te_hat
 end

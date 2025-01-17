@@ -1,63 +1,59 @@
 # Estimate Factor Model Imputation TE function ---------------------------------
-function m_thetas(
-  params::AbstractVector,
+function old_m_thetas(
+  parameters::AbstractVector,
   p::Int64,
   ytilde::Vector{Float64},
   idx_control::Vector{Int64},
   W::Matrix{Float64},
-  n_units::Int64,
+  N_units::Int64,
   T::Int64,
 )
-
-  # Since I transposed W for quicker indexing
-  n_instruments = size(W, 1)
+  N_instruments = size(W, 1)
   N_inf = length(idx_control)
-  P_D_inf = (N_inf / n_units)
+  P_D_inf = (N_inf / N_units)
 
   # H(Θ)
   if p > 0
-    theta = params[1:((T - p) * p)]
-    HΘ = [sparse(I, T - p, T - p); reshape(theta, T - p, p)']
+    theta = parameters[1:((T - p) * p)]
+    HΘ = [I(T - p) reshape(theta, T - p, p)]
   else
-    HΘ = sparse(I, T, T)
+    HΘ = Matrix(1.0 * I(T))
   end
 
   # Initialize ms
-  ms = zeros(Float64, n_units, (T - p) * n_instruments)
+  ms = zeros(Float64, N_units, (T - p) * N_instruments)
 
   # This code assumes balanced panel that is sorted by [:fips, :year] 
   # This gives a huge speedup
   for i in idx_control
-    HΘytilde_i = (HΘ' * ytilde[(1 + (i - 1) * T):(i * T)])
-    W_i = W[:, i]
-
-    ms[i, :] = kron(HΘytilde_i, W_i) * P_D_inf
+    prod_i = (HΘ * ytilde[(1 + (i - 1) * T):(i * T)])
+    ms[i, :] = (kron(prod_i, W[:, i]))'
   end
-
+  ms *= P_D_inf
   return ms
 end
 
-function m_theta_bar(
-  params::AbstractVector,
+function old_m_theta_bar(
+  parameters::AbstractVector,
   p::Int64,
   ytilde::Vector{Float64},
   idx_control::Vector{Int64},
   W::Matrix{Float64},
-  n_units::Int64,
+  N_units::Int64,
   T::Int64,
 )
 
   # Since I transposed W for quicker indexing
-  n_instruments = size(W, 1)
+  N_instruments = size(W, 1)
 
   # P(D_\infty = 1)
   N_inf = length(idx_control)
-  P_D_inf = (N_inf / n_units)
+  P_D_inf = (N_inf / N_units)
 
   # H(Θ)
   if p > 0
-    theta = params[1:((T - p) * p)]
-    HΘ = [I(T - p); reshape(theta, T - p, p)']
+    theta = parameters[1:((T - p) * p)]
+    HΘ = [I(T - p) reshape(theta, T - p, p)]
   else
     HΘ = Matrix(1.0 * I(T))
   end
@@ -66,18 +62,18 @@ function m_theta_bar(
   # This gives a huge speedup
   # Do first loop manually
   i = idx_control[1]
-  prod_i = HΘ' * view(ytilde, (1 + (i - 1) * T):(i * T))
+  prod_i = HΘ * view(ytilde, (1 + (i - 1) * T):(i * T))
   # prod_i = HΘ' * ytilde[(1 + (i-1)*T):(i*T)]
   m_bar = kron(prod_i, W[:, i])
 
   # Units 2-n_\infty
   for i in idx_control[2:end]
     # Hand do the += kron
-    mul!(prod_i, HΘ', view(ytilde, (1 + (i - 1) * T):(i * T)))
+    mul!(prod_i, HΘ, view(ytilde, (1 + (i - 1) * T):(i * T)))
 
     m = 1
     for j in axes(prod_i, 1)
-      for k in 1:n_instruments
+      for k in 1:N_instruments
         m_bar[m] += prod_i[j] * W[k, i]
         m += 1
       end
@@ -86,23 +82,23 @@ function m_theta_bar(
 
   m_bar *= P_D_inf
   # Divide by N for average
-  m_bar ./= n_units
+  m_bar ./= N_units
 
   return m_bar
 end
 
 function obj_theta(
-  params::AbstractVector,
+  parameters::AbstractVector,
   p::Int64,
   weight::Matrix{Float64},
   ytilde::Vector{Float64},
   idx_control::Vector{Int64},
   W::Matrix{Float64},
-  n_units::Int64,
+  N_units::Int64,
   T::Int64,
 )
-  m_bar = m_theta_bar(params, p, ytilde, idx_control, W, n_units, T)
-  return n_units * (m_bar' * weight * m_bar)
+  m_bar = old_m_theta_bar(parameters, p, ytilde, idx_control, W, N_units, T)
+  return N_units * (m_bar' * weight * m_bar)
 end
 
 # %% Brown and Butts - Within transformation
@@ -136,13 +132,24 @@ function within_transform(df, outcome_var, g_var, t_var, T0)
 end
 
 # %% Function to estimate a treatment effect
-function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=false)
+function old_est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=false)
+
   # Sort just in case
   sort!(df, [:fips, :year])
   ytilde = within_transform(df, outcome_var, :g, :year, T0)
   df.ytilde = ytilde
 
   ## GMM estimate factor -------------------------------------------------------
+  fips = df.fips
+  year = df.year
+  rel_years = sort(unique(df[(df.g .!= Inf), :rel_year]))
+
+  # Find untreated units
+  N_units = length(unique(fips))
+  idx_control = findall(df.g[year .== 1977] .== Inf)
+  N_inf = length(idx_control)
+
+  # Number of instruments
   instruments = [
     :share_pop_ind_manuf,
     :share_pop_poverty_78_below,
@@ -152,18 +159,7 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
     :share_school_col,
     :share_school_hs,
   ]
-  ytilde = df.ytilde
-  fips = df.fips
-  year = df.year
-  rel_years = sort(unique(df[(df.g .!= Inf), :rel_year]))
-
-  # Find untreated units
-  n_units = length(unique(fips))
-  idx_control = findall(df.g[year .== 1977] .== Inf)
-  N_inf = length(idx_control)
-
-  # Number of instruments
-  n_instruments = length(instruments)
+  N_instruments = length(instruments)
   W = Matrix(df[year .== 1977, instruments])
   W = Matrix(transpose(W))
 
@@ -172,63 +168,48 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
 
   # Estimate theta -------------------------------------------------------------
   # Step 1. Initial estimate
-  params = [ones((T - p) * p); zeros(length(rel_years))]
-  weight = Matrix(1.0 * I((T - p) * n_instruments))
-
-  # EDIT ----
-  # mean(m_thetas(params,  p, ytilde, idx_control, W, n_units, T), dims = 1)
-  # m_theta_bar(params, p, ytilde, idx_control, W, n_units, T)
-  # obj_theta(
-  #   params, p, weight, ytilde, idx_control, W, n_units, T,
-  # )
-  # END EDIT ----
+  parameters = [ones((T - p) * p); zeros(length(rel_years))]
+  weight = Matrix(1.0 * I((T - p) * N_instruments))
 
   if p > 0
     optres = optimize(
-      x -> obj_theta(x, p, weight, ytilde, idx_control, W, n_units, T),
-      params,
+      x -> obj_theta(x, p, weight, ytilde, idx_control, W, N_units, T),
+      parameters,
       BFGS(; linesearch=BackTracking()),
       Optim.Options(; g_abstol=eps(Float64));
       autodiff=:forward,
     )
 
-    params_hat = Optim.minimizer(optres)
+    parameters_hat = Optim.minimizer(optres)
   else
-    params_hat = params
+    parameters_hat = parameters
   end
 
   # Step 2. Optimal weighting matrix 
-  ms = m_thetas(params_hat, p, ytilde, idx_control, W, n_units, T)
-  Ωinv_theta = pinv((ms' * ms) / n_units)
-
-  # Ωinv_theta = zeros(147, 147)
-  # for i in 1:n_units
-  #   Ωinv_theta += ms[i, :] * ms[i, :]'
-  # end
-  # Ωinv_theta = 1 / n_units * Ωinv_theta
+  ms = old_m_thetas(parameters_hat, p, ytilde, idx_control, W, N_units, T)
+  Ωinv_theta = pinv((ms' * ms) / N_units)
 
   if p > 0
     # Having problems with numeric stability when doing all the 1/N_inf correctly
     RESCALE = 15.266221542835233 * 83.84513366993183
     optres_opt = optimize(
-      x -> 1 / RESCALE * obj_theta(x, p, Ωinv_theta, ytilde, idx_control, W, n_units, T),
-      params_hat,
+      x -> 1 / RESCALE * obj_theta(x, p, Ωinv_theta, ytilde, idx_control, W, N_units, T),
+      parameters_hat,
       BFGS(; linesearch=BackTracking()),
       Optim.Options(; iterations=10000);
       autodiff=:forward,
     )
-
-    params_hat_opt = Optim.minimizer(optres_opt)
-    theta_hat_opt = params_hat_opt[1:((T - p) * p)]
+    parameters_hat_opt = Optim.minimizer(optres_opt)
+    theta_hat_opt = parameters_hat_opt[1:((T - p) * p)]
     J = Optim.minimum(optres_opt) * RESCALE
   else
-    J = obj_theta(params_hat, p, Ωinv_theta, ytilde, idx_control, W, n_units, T)
+    J = obj_theta(parameters_hat, p, Ωinv_theta, ytilde, idx_control, W, N_units, T)
   end
 
   # Testing for $p$ following Ahn, Lee, and Schmidt (2013)
   # Χ^2((T - p_0) (q - p_0) - k)
   # Where T is the number of periods, p_0 is the number of factors under the null, q is the number of instruments, and k is the number of covariates
-  dist_hansen_sargent = Chisq((T - p) * (n_instruments - p) - k)
+  dist_hansen_sargent = Chisq((T - p) * (N_instruments - p) - k)
   p_value_hansen_sargent = 1 - cdf(dist_hansen_sargent, J)
 
   # Impute untreated potential outcomes
@@ -244,7 +225,7 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
       g_id = Int(unit.g[1])
 
       y_pre = unit[(unit.year .< g_id), :ytilde]
-      FΘ_pre = FΘ[1:(g_id - minimum(YEARS)), :]
+      FΘ_pre = FΘ[1:(g_id - minimum(df.year)), :]
 
       df[(df.fips .== id), :y0hat] = FΘ * ((FΘ_pre' * FΘ_pre) \ (FΘ_pre' * y_pre))
     end
@@ -282,6 +263,8 @@ function est_te(df, p, outcome_var; export_y0=false, outcome="", quick_plot=fals
   if quick_plot == true
     plot(sort(rel_years), coef(lm_tau); marker=:circle)
   end
+
+  return coef(lm_tau), stderror(lm_tau)
 
   return (
     est=[coef(lm_tau), stderror(lm_tau)],

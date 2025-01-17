@@ -1,25 +1,21 @@
 # %%
 library(tidyverse)
-library(collapse)
 library(fixest)
-library(arrow)
 library(here)
 library(fs)
-library(yaml)
-library(glue)
-library(stringmagic)
 library(furrr)
+library(glue)
 
 library(tinytable)
 options(tinytable_print_output = "markdown")
 
-dir_create(here("data/Simulations"))
-dir_create(here("out/tables/simulation-1/"))
+fs::dir_create(here("data/Simulations"))
+fs::dir_create(here("out/tables/simulation-1/"))
 source(here("code/Simulation/dgp.R"))
 source(here("code/Simulation/estimators.R"))
 source(here("code/Simulation/helpers.R"))
 
-RUN_SIMULATION <- FALSE
+RUN_SIMULATION <- TRUE
 
 # %%
 estimators <- tibble(
@@ -30,11 +26,11 @@ estimators <- tibble(
     function(df) {
       est_twfe_covs(df)
     },
-    function(df) {
-      est_synth(df)
-    },
-    function(df) {
-      est_augsynth(df)
+    # function(df, do_inference = FALSE) {
+    #   est_synth(df, do_inference)
+    # },
+    function(df, do_inference = FALSE) {
+      est_augsynth(df, do_inference)
     },
     function(df) {
       est_gsynth(df, p = 2L)
@@ -43,19 +39,19 @@ estimators <- tibble(
       est_gsynth(df, p = c(0L, 3L))
     },
     function(df) {
-      est_qld_F_known(df, within_transform = FALSE)
+      est_qld_F_known(df, do_within_transform = FALSE)
     },
     function(df) {
-      est_qld(df, within_transform = FALSE, p = 2)
+      est_qld(df, do_within_transform = FALSE, p = 2)
     },
     function(df) {
-      est_qld(df, within_transform = FALSE, p = -1)
+      est_qld(df, do_within_transform = FALSE, p = -1)
     }
   ),
   estimator = c(
     "TWFE",
-    "TWFE with $\\bm{W}_i \\beta_t$",
-    "Synthetic Control",
+    "TWFE with $\\bm{w}_i \\beta_t$",
+    # "Synthetic Control",
     "Augmented Synthetic Control",
     "Generalized Synth ($p$ known)",
     "Generalized Synth ($p$ estimated)",
@@ -66,7 +62,7 @@ estimators <- tibble(
   estimator_short = c(
     "twfe",
     "twfe_covs",
-    "synth",
+    # "synth",
     "augsynth",
     "gsynth_p_known",
     "gsynth",
@@ -93,20 +89,19 @@ B <- 2500
 # %% 
 if (RUN_SIMULATION == TRUE) {
   tictoc::tic()
-  ests <- run_simulation(B, dgps, estimators, cores = 8, seed = 20240518)
+  # profvis::profvis({
+    ests <- run_simulation(B, dgps, estimators, cores = 8, seed = 20250110)
+  # })
   tictoc::toc()
   
   write_csv(ests, here("data/Simulations/simulation_1_ests.csv"))
 }
 
+
 #' ## Report on simulation
 # %%
 ests <- read_csv(here("data/Simulations/simulation_1_ests.csv"), show_col_types = FALSE)
 
-ests <- ests |>
-  left_join(
-    estimators |> select(estimator, estimator_short)
-  )
 
 for (curr_dgp_num in dgps$dgp_num) {
   out = here(glue("out/tables/simulation-1/dgp{curr_dgp_num}.tex"))
@@ -116,6 +111,7 @@ for (curr_dgp_num in dgps$dgp_num) {
     # print() |>
     extract_tt_latex_body() |>
     cat(file = out)
+    # cat()
 }
 
 cat("\n\n\n")
