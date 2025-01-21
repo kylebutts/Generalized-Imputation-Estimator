@@ -23,8 +23,7 @@ function m_theta_bar_fast(
   # H(Θ)
   if p > 0
     # Note that the I just takes the first T-p rows, to simplify mat mult
-    qld_ymat_W =
-      ymat_W[1:(T-p), :] + reshape(theta, T - p, p) * ymat_W[(T-p+1):T, :]
+    qld_ymat_W = ymat_W[1:(T - p), :] + reshape(theta, T - p, p) * ymat_W[(T - p + 1):T, :]
   else
     qld_ymat_W = ymat_W
   end
@@ -34,10 +33,7 @@ end
 
 # This function is written more idiomatically and is mainly used to test the fast implementation
 function m_theta_bar_idiomatic(
-  theta::AbstractVector,
-  p::Int64,
-  ymat::AbstractMatrix,
-  W::AbstractMatrix,
+  theta::AbstractVector, p::Int64, ymat::AbstractMatrix, W::AbstractMatrix
 )
   # Since I transposed W for quicker indexing
   N_units, N_instruments = size(W)
@@ -71,12 +67,7 @@ end
 
 
 # Matrix of m(z_i, θ)
-function ms_theta(
-  theta::AbstractVector,
-  p::Int64,
-  ymat::AbstractMatrix,
-  W::AbstractMatrix,
-)
+function ms_theta(theta::AbstractVector, p::Int64, ymat::AbstractMatrix, W::AbstractMatrix)
   # Since I transposed W for quicker indexing
   N_units, N_instruments = size(W)
   T = size(ymat, 1)

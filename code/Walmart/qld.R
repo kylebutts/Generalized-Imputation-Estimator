@@ -28,7 +28,7 @@ tidy.qld_dynamic <- function(x, conf.int = FALSE, conf.level = 0.95, ...) {
     rel_year = x[[1]],
     estimate = x[[2]],
     std_error = sqrt(diag(x[[3]])),
-    std_error_naive = sqrt(diag(x[[5]]))
+    std_error_naive = sqrt(diag(x[[6]]))
   )
   if (isTRUE(conf.int)) {
     moe <- abs(qnorm((1 - conf.level) / 2))
@@ -87,15 +87,17 @@ res_wholesale <- julia_call("qld_imputation",
 class(res_wholesale) <- c("qld_dynamic", "qld", "list")
 tidy_wholesale <- broom::tidy(res_wholesale, conf.int = TRUE, conf.level = 0.95)
 
+# %% 
+# Check thinks look right
 ggplot() + 
   geom_hline(yintercept = 0) +
   geom_point(
     aes(x = rel_year, y = estimate),
-    data = tidy_wholesale
+    data = tidy_retail
   )+ 
   geom_errorbar(
     aes(x = rel_year, ymin = lower, ymax = upper),
-    data = tidy_wholesale
+    data = tidy_retail
   )
 
 # %% 
@@ -108,11 +110,11 @@ write_csv(
   here("estimates/qld_est_wholesale.csv")
 )
 write_csv(
-  res_retail[[4]], 
+  res_retail[[5]], 
   here("estimates/est_y0_outcome_retail_qld.csv")
 )
 write_csv(
-  res_wholesale[[4]], 
+  res_wholesale[[5]], 
   here("estimates/est_y0_outcome_wholesale_qld.csv")
 )
 

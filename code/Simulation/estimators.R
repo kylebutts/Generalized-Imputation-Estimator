@@ -125,7 +125,8 @@ est_synth <- function(df, do_inference = FALSE) {
     )
   })
 
-  summ <- summary(synth_est, inf = do_inference)$att
+  # summ <- summary(synth_est, inf = do_inference, inf_type = "conformal")$att
+  summ <- summary(synth_est, inf = do_inference, inf_type = "jackknife+")$att
   if (do_inference == TRUE) {
     est <- summ |>
       as_tibble() |> 
@@ -157,7 +158,9 @@ est_augsynth <- function(df, do_inference = FALSE) {
     )
   })
 
-  summ <- summary(augsynth_est, inf = do_inference)$att
+  # summ <- summary(augsynth_est, inf = do_inference, inf_type = "conformal")$att
+  summ <- summary(augsynth_est, inf = do_inference, inf_type = "jackknife+")$att
+
   if (do_inference == TRUE) {
     est <- summ |>
       as_tibble() |> 
@@ -234,10 +237,11 @@ est_gsynth <- function(df, force = "none", p = c(0L, 3L)) {
     as_tibble(rownames = "rel_year") |> 
     mutate(rel_year = as.numeric(rel_year) - 1) |> # "1" is year of treatment
     filter(rel_year >= 0) |>
-    select(rel_year, estimate = ATT, std.error = `S.E.`, ci_lower = `CI.lower`, ci_upper = `CI.upper`)
+    mutate(selected_p = gsynth_est$r.cv) |>
+    select(rel_year, estimate = ATT, std.error = `S.E.`, ci_lower = `CI.lower`, ci_upper = `CI.upper`, selected_p) 
   
   return(est)
-  }
+}
 
 
 # %%
@@ -325,7 +329,8 @@ est_qld <- function(df, do_within_transform = FALSE, p = -1L) {
       ci_lower = estimate - 1.96 * std.error,
       ci_upper = estimate + 1.96 * std.error
     ) |> 
-    select(rel_year, estimate, std.error, ci_lower, ci_upper)
+    mutate(selected_p = qld_est[[4]]) |>
+    select(rel_year, estimate, std.error, ci_lower, ci_upper, selected_p)
 
   return(est)
 }

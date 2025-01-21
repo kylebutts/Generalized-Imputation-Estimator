@@ -8,8 +8,8 @@ function qld_imputation(
   do_within_transform::Bool,
   p::Union{Int64,Real},
   type::String="dynamic",
-  return_y0::Bool,
-  return_naive_se::Bool,
+  return_y0::Bool=false,
+  return_naive_se::Bool=false,
 )
   # y = :log_retail_emp
   # id = :fips
@@ -170,15 +170,15 @@ function qld_imputation(
       end
 
       if return_naive_se == true
-        return uniq_rel_years, tau_es_hat, vcov_tau_es, impute_df, vcov_tau_es_naive
+        return uniq_rel_years, tau_es_hat, vcov_tau_es, p, impute_df, vcov_tau_es_naive
       else
-        return uniq_rel_years, tau_es_hat, vcov_tau_es, impute_df
+        return uniq_rel_years, tau_es_hat, vcov_tau_es, p, impute_df
       end
     else
       if return_naive_se == true
-        return uniq_rel_years, tau_es_hat, vcov_tau_es, vcov_tau_es_naive
+        return uniq_rel_years, tau_es_hat, vcov_tau_es, p, vcov_tau_es_naive
       else
-        return uniq_rel_years, tau_es_hat, vcov_tau_es
+        return uniq_rel_years, tau_es_hat, vcov_tau_es, p
       end
     end
   elseif type == "overall"

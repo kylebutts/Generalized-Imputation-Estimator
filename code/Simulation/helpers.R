@@ -14,7 +14,7 @@ each_row <- function(data) {
   )
 }
 
-run_simulation <- function(B, dgps, estimators, cores = 8, seed = NULL) {
+run_simulation <- function(B, dgps, estimators, do_inference = FALSE, cores = 8, seed = NULL) {
   # plan(multicore, workers = cores)
   set.seed(seed)
   # ests <- future_map(
@@ -37,15 +37,21 @@ run_simulation <- function(B, dgps, estimators, cores = 8, seed = NULL) {
 
       rel_year <- (1:length(true_te)) - 1
 
-      list_rbind(map(1:B, function(b) {
+      cat("Simulation progress (`.` = 10): \n")
+      res <- list_rbind(map(1:B, function(b) {
+        if (b %% 10 == 0) {
+          if (b %% 200 == 0) {
+            cat(".\n")
+          } else {
+            cat(".")
+          }
+        }
+
         df_b <- gen_b(
           df = df_base, T0 = dgp$T0, F = F,
           twfe = dgp$twfe, parallel_trends = dgp$parallel_trends,
           ar_error_term = dgp$ar_error_term, instrument_noise = dgp$instrument_noise
         )
-        
-        # Standard errors on augsynth is slow, so do only the first 2500
-        do_inference = b <= 2500
 
         estimates <- list_rbind(map(
           each_row(estimators), 
@@ -54,11 +60,21 @@ run_simulation <- function(B, dgps, estimators, cores = 8, seed = NULL) {
 
             if (estimator$estimator_short %in% c("synth", "augsynth")) { 
               res <- purrr::possibly(
-                est_function, otherwise = NULL, quiet = FALSE
+                est_function, otherwise = NULL, quiet = TRUE
               )(df_b, do_inference)
+            } else if (estimator$estimator_short == "qld") {
+              res <- purrr::possibly(
+                est_function, otherwise = NULL, quiet = TRUE
+              )(df_b)
+
+              # if (res$selected_p[1] == 0) {
+              #   message("FOUND ONE")
+              #   write_csv(df_b, here("data/Simulations/df_selected_p_0.csv"))
+              # }
+              
             } else {
               res <- purrr::possibly(
-                est_function, otherwise = NULL, quiet = FALSE
+                est_function, otherwise = NULL, quiet = TRUE
               )(df_b)
             }
             if (is.null(res)) {
@@ -80,9 +96,13 @@ run_simulation <- function(B, dgps, estimators, cores = 8, seed = NULL) {
           mutate(
             b = .env$b, 
             dgp_num = dgp$dgp_num, 
+            T_0 = dgp$T0,
             .before = 1
           )
       }))
+      cat("\n")
+
+      return(res)
     }
     # },
     # .options = furrr_options(seed = seed)
@@ -92,9 +112,9 @@ run_simulation <- function(B, dgps, estimators, cores = 8, seed = NULL) {
 }
 
 # %% 
-summarize_ests <- function(ests, dgps, dgp_num = 1) {
+summarize_ests <- function(ests, dgps, dgp_num = 1, T_0 = 4) {
   summary <- ests |>
-    filter(dgp_num == .env$dgp_num) |>
+    filter(dgp_num == .env$dgp_num, T_0 == .env$T_0) |>
     summarize(
       .by = c(dgp_num, estimator, rel_year),
       mean_estimate = mean(estimate),
@@ -143,59 +163,10 @@ summarize_ests <- function(ests, dgps, dgp_num = 1) {
 }
 
 # %%
-# summarize_ests <- function(ests, dgps, dgp_num = 1) {
-#   summary <- ests |>
-#     filter(dgp_num == .env$dgp_num) |>
-#     summarize(
-#       .by = c(dgp_num, estimator, rel_year),
-#       mean_estimate = mean(est),
-#       mean_bias = mean(est - true_te),
-#       mse = mean((est - true_te)^2),
-#       rmse = sqrt(mean((est - true_te)^2))
-#     ) |>
-#     pivot_wider(
-#       id_cols = c(dgp_num, estimator),
-#       names_from = rel_year,
-#       names_glue = "{.value}_{rel_year}",
-#       values_from = c(mean_estimate, mean_bias, rmse)
-#     )
-# 
-#   rel_years <- ests |>
-#     filter(dgp_num == .env$dgp_num) |>
-#     with(unique(rel_year))
-#   cols <- c("estimator")
-#   new_col_names <- c("Estimator")
-#   groups <- list()
-#   for (i in seq_along(rel_years)) {
-#     rel_year <- rel_years[i]
-#     cols <- c(cols, paste0("mean_bias_", rel_year), paste0("rmse_", rel_year))
-# 
-#     groups[[sprintf("$\\\\tau^{%s}$", rel_year)]] <- (2 * i):(2 * i + 1)
-# 
-#     new_col_names <- c(new_col_names, "Bias", "RMSE")
-#   }
-# 
-#   summary <- summary[, cols]
-#   colnames(summary) <- new_col_names
-# 
-#   caption <- sprintf("DGP %s", dgp_num)
-#   dgp_details <- dgps |> filter(dgp_num == .env$dgp_num)
-#   notes <- with(dgp_details, sprintf(
-#     "twfe = %s; parallel_trends = %s; ar_error_term = %s",
-#     twfe, parallel_trends, ar_error_term
-#   ))
-# 
-#   summary |>
-#     tt(caption = caption, notes = notes) |>
-#     group_tt(j = groups) |>
-#     format_tt(j = "(Bias|RMSE)", sprintf = "%0.2f")
-# }
-
-# %%
 summarize_ests_wide <- function(ests, which_rel_year = 0, latex_body = FALSE) {
   summary <- ests |>
     summarize(
-      .by = c(dgp_num, estimator, estimator_short,, rel_year),
+      .by = c(dgp_num, estimator, rel_year),
       mean_estimate = mean(estimate),
       bias = mean(estimate - true_te),
       mse = mean((estimate - true_te)^2),
