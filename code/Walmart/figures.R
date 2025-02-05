@@ -556,72 +556,72 @@ wholesale_covs_ests <- bind_rows(
 # %%
 ## did2s
 kfbmisc::tikzsave(
-  here("out/figures/did2s_retail.pdf"),
+  here("out/figures/Walmart/did2s_retail.pdf"),
   plot_did2s_retail,
   width = 10, height = 5
 )
 kfbmisc::tikzsave(
-  here("out/figures/did2s_wholesale.pdf"),
+  here("out/figures/Walmart/did2s_wholesale.pdf"),
   plot_did2s_wholesale,
   width = 10, height = 5
 )
 
 ## QLD
 kfbmisc::tikzsave(
-  here("out/figures/qld_retail.pdf"),
+  here("out/figures/Walmart/qld_retail.pdf"),
   plot_qld_retail,
   width = 10, height = 5
 )
 kfbmisc::tikzsave(
-  here("out/figures/qld_wholesale.pdf"),
+  here("out/figures/Walmart/qld_wholesale.pdf"),
   plot_qld_wholesale,
   width = 10, height = 5
 )
 
 ## Many Factor Estimators
 kfbmisc::tikzsave(
-  here("out/figures/retail_many_estimators.pdf"),
+  here("out/figures/Walmart/retail_many_estimators.pdf"),
   plot_retail_many_estimators,
   width = 10, height = 5
 )
 kfbmisc::tikzsave(
-  here("out/figures/wholesale_many_estimators.pdf"),
+  here("out/figures/Walmart/wholesale_many_estimators.pdf"),
   plot_wholesale_many_estimators,
   width = 10, height = 5
 )
 
 ## Covariates
 kfbmisc::tikzsave(
-  here("out/figures/retail_covs.pdf"),
+  here("out/figures/Walmart/retail_covs.pdf"),
   plot_retail_covs,
   width = 10, height = 5
 )
 kfbmisc::tikzsave(
-  here("out/figures/wholesale_covs.pdf"),
+  here("out/figures/Walmart/wholesale_covs.pdf"),
   plot_wholesale_covs,
   width = 10, height = 5
 )
 
 ## QLD Naive SEs
 kfbmisc::tikzsave(
-  here("out/figures/qld_retail_naive_se.pdf"),
+  here("out/figures/Walmart/qld_retail_naive_se.pdf"),
   plot_qld_retail_naive_se,
   width = 10, height = 5
 )
 kfbmisc::tikzsave(
-  here("out/figures/qld_wholesale_naive_se.pdf"),
+  here("out/figures/Walmart/qld_wholesale_naive_se.pdf"),
   plot_qld_wholesale_naive_se,
   width = 10, height = 5
 )
 
 ## Synthetic Control
 kfbmisc::tikzsave(
-  here("out/figures/synth_retail.pdf"),
+  here("out/figures/Walmart/synth_retail.pdf"),
   plot_synth_retail,
   width = 10, height = 5
 )
 kfbmisc::tikzsave(
-  here("out/figures/synth_wholesale.pdf"),
+  here("out/figures/Walmart/synth_wholesale.pdf"),
   plot_synth_wholesale,
   width = 10, height = 5
 )
