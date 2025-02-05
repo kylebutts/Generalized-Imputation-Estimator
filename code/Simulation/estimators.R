@@ -28,6 +28,25 @@ quietly <- function(code) {
   return(result)
 }
 
+# %% 
+est_dim <- function(df) { 
+  post_t <- df |> filter(rel_year == 0) |> pull(t) |> unique()
+  reg <- df |> 
+    filter(t == post_t) |>
+    feols(y ~ i(treated))
+
+  est <- broom::tidy(reg) |> 
+    filter(str_detect(term, "treated::")) |> 
+    mutate(rel_year = 0) |>
+    mutate(
+      ci_lower = estimate - 1.96 * std.error,
+      ci_upper = estimate + 1.96 * std.error
+    ) |> 
+    select(rel_year, estimate, std.error, ci_lower, ci_upper)
+  
+  return(est)
+}
+
 # %%
 library(did2s)
 est_twfe <- function(df) {
@@ -147,7 +166,7 @@ est_synth <- function(df, do_inference = FALSE) {
 
 # %%
 library(augsynth)
-est_augsynth <- function(df, do_inference = FALSE) {
+est_augsynth <- function(df) {
   T0 = df |> filter(post == FALSE) |> with(max(t))
 
   augsynth_est <- quietly({
@@ -159,22 +178,14 @@ est_augsynth <- function(df, do_inference = FALSE) {
   })
 
   # summ <- summary(augsynth_est, inf = do_inference, inf_type = "conformal")$att
-  summ <- summary(augsynth_est, inf = do_inference, inf_type = "jackknife+")$att
+  summ <- summary(augsynth_est, inf = TRUE, inf_type = "jackknife+")$att
 
-  if (do_inference == TRUE) {
-    est <- summ |>
-      as_tibble() |> 
-      mutate(rel_year = Time - (T0 + 1)) |>
-      filter(rel_year >= 0) |> 
-      select(rel_year, estimate = Estimate, ci_lower = lower_bound, ci_upper = upper_bound) |> 
-      mutate(std.error = (ci_upper - estimate) / 1.96, .after = "estimate")
-  } else {
-    est <- summ |>
-      as_tibble() |> 
-      mutate(rel_year = Time - (T0 + 1)) |>
-      filter(rel_year >= 0) |> 
-      select(rel_year, estimate = Estimate)
-  }
+  est <- summ |>
+    as_tibble() |> 
+    mutate(rel_year = Time - (T0 + 1)) |>
+    filter(rel_year >= 0) |> 
+    select(rel_year, estimate = Estimate, ci_lower = lower_bound, ci_upper = upper_bound) |> 
+    mutate(std.error = (ci_upper - estimate) / 1.96, .after = "estimate")
 
   return(est)
   }
@@ -226,9 +237,12 @@ est_gsynth <- function(df, force = "none", p = c(0L, 3L)) {
       Y = "y", D = "treat", index = c("id", "year"),
       data = df |> rename(year = t),
       force = force,
-      r = p, CV = ifelse(length(p) == 1, FALSE, TRUE),
-      se = TRUE, parallel = FALSE,
-      min.T0 = 3
+      r = p, 
+      CV = ifelse(length(p) == 1, FALSE, TRUE),
+      criterion = "pc",
+      se = TRUE, 
+      parallel = FALSE,
+      min.T0 = 2
     )
   })
   
@@ -258,14 +272,14 @@ compute_within_transform <- function(df) {
 
 # %%
 est_qld_F_known <- function(df, do_within_transform = FALSE) {
-  T0 = df |> filter(post == FALSE) |> with(max(t))
-
   if (do_within_transform == TRUE) {
-    df$y <- compute_within_transform(df, T0 = T0)
+    df$y <- compute_within_transform(df)
   }
 
+  T0 <- df |> filter(post == FALSE) |> pull(t) |> max()
+
   F <- with(df |> filter(id == 1), cbind(F1, F2))
-  Fpre <- F[1:T0, ]
+  Fpre <- with(df |> filter(id == 1, post == FALSE), cbind(F1, F2))
 
   imputation_mat <- F %*% solve(crossprod(Fpre), t(Fpre))
 
@@ -273,8 +287,8 @@ est_qld_F_known <- function(df, do_within_transform = FALSE) {
   df <- df |>
     arrange(id, t) |>
     mutate(
-      te_hat = y - as.numeric(.env$imputation_mat %*% y[t <= .env$T0]),
-      .by = id
+      .by = id,
+      te_hat = y - as.numeric(.env$imputation_mat %*% y[t <= .env$T0])
     )
 
   ss <- feols(
@@ -300,10 +314,9 @@ est_qld_F_known <- function(df, do_within_transform = FALSE) {
 library(JuliaCall)
 julia_setup()
 julia_source(here("code/qld/QLD.jl"))
-julia_source(here("code/qld/qld_imputation.jl"))
 julia_source(here("code/qld/attgt.jl"))
 julia_source(here("code/qld/gmm_qld.jl"))
-julia_source(here("code/qld/within_transform.jl"))
+julia_source(here("code/qld/qld_imputation.jl"))
 
 est_qld <- function(df, do_within_transform = FALSE, p = -1L) {
   p <- as.integer(p)
@@ -318,20 +331,19 @@ est_qld <- function(df, do_within_transform = FALSE, p = -1L) {
     p = p,
     type = "dynamic"
   )
-  
+
   est <- tibble(
-    rel_year = qld_est[[1]],
-    estimate = qld_est[[2]],
-    std.error = sqrt(diag(qld_est[[3]]))
+    rel_year = qld_est$rel_year,
+    estimate = qld_est$estimate,
+    std.error = sqrt(diag(qld_est$vcov))
   ) |> 
     filter(rel_year >= 0) |> 
     mutate(
       ci_lower = estimate - 1.96 * std.error,
       ci_upper = estimate + 1.96 * std.error
     ) |> 
-    mutate(selected_p = qld_est[[4]]) |>
+    mutate(selected_p = qld_est$selected_p) |>
     select(rel_year, estimate, std.error, ci_lower, ci_upper, selected_p)
 
   return(est)
 }
-

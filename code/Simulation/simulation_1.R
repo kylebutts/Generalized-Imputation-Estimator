@@ -13,22 +13,25 @@ fs::dir_create(here("data/Simulations"))
 fs::dir_create(here("out/tables/simulation-1/"))
 source(here("code/Simulation/dgp.R"))
 source(here("code/Simulation/estimators.R"))
-source(here("code/Simulation/helpers.R"))
+source(here("code/Simulation/run_simulation.R"))
+source(here("code/Simulation/summarize.R"))
 
-RUN_SIMULATION <- FALSE
-DO_INFERENCE <- TRUE
+RUN_SIMULATION <- TRUE
 
 # %%
 estimators <- tibble(
-  est_function = list(
+  est_function = rlang::list2(
+    function(df) {
+      est_dim(df)
+    },
     function(df) {
       est_twfe(df)
     },
     function(df) {
       est_twfe_covs(df)
     },
-    function(df, do_inference = FALSE) {
-      est_augsynth(df, do_inference)
+    function(df) {
+      est_augsynth(df)
     },
     function(df) {
       est_gsynth(df, force = "none", p = 2L)
@@ -47,6 +50,7 @@ estimators <- tibble(
     }
   ),
   estimator = c(
+    "Difference-in-means",
     "TWFE",
     "TWFE with $\\bm{w}_i \\beta_t$",
     "Augmented Synthetic Control",
@@ -57,6 +61,7 @@ estimators <- tibble(
     "QLD ($p$ estimated)"
   ),
   estimator_short = c(
+    "dim",
     "twfe",
     "twfe_covs",
     "augsynth",
@@ -69,42 +74,63 @@ estimators <- tibble(
 )
 
 dgps <- tribble(
-  ~dgp_num, ~N, ~T0, ~T, ~twfe, ~parallel_trends, ~ar_error_term, ~instrument_noise,
-  1, 200L, 4L, 7L, TRUE, TRUE, FALSE, 1,
-  2, 200L, 4L, 7L, FALSE, TRUE, FALSE, 1,
-  3, 200L, 4L, 7L, FALSE, FALSE, FALSE, 1,
-  4, 200L, 4L, 7L, FALSE, FALSE, TRUE, 1,
-  1, 200L, 12L, 15L, TRUE, TRUE, FALSE, 1,
-  2, 200L, 12L, 15L, FALSE, TRUE, FALSE, 1,
-  3, 200L, 12L, 15L, FALSE, FALSE, FALSE, 1,
-  4, 200L, 12L, 15L, FALSE, FALSE, TRUE, 1,
+  ~dgp_num, ~N, ~T0, ~twfe, ~parallel_trends, ~ar_error_term, ~instrument_noise,
+  01, 300L, 4L, TRUE, TRUE, FALSE, 1,
+  02, 300L, 4L, FALSE, TRUE, FALSE, 1,
+  03, 300L, 4L, FALSE, FALSE, FALSE, 1,
+  04, 300L, 4L, FALSE, FALSE, TRUE, 1,
+  01, 300L, 12L, TRUE, TRUE, FALSE, 1,
+  02, 300L, 12L, FALSE, TRUE, FALSE, 1,
+  03, 300L, 12L, FALSE, FALSE, FALSE, 1,
+  04, 300L, 12L, FALSE, FALSE, TRUE, 1,
 )
 
-B <- 1000
+B <- 2000
 
 # %%
 if (RUN_SIMULATION == TRUE) {
   tictoc::tic()
-  ests <- run_simulation(B, dgps, estimators, do_inference = DO_INFERENCE, seed = 20250121)
+  ests <- run_simulation(B, dgps, estimators, seed = 20250121)
   tictoc::toc()
 
-  if (DO_INFERENCE == FALSE) {
-    write_csv(ests, here("data/Simulations/simulation_1_ests_no_inference.csv"))
-  } else {
-    write_csv(ests, here("data/Simulations/simulation_1_ests.csv"))
-  }
+  write_csv(ests, here("data/Simulations/simulation_1_ests.csv"))
 }
 
-#' ## Report on simulation
+
 # %%
+## Report on simulation
 ests <- read_csv(here("data/Simulations/simulation_1_ests.csv"), show_col_types = FALSE)
-# ests <- read_csv(here("data/Simulations/simulation_1_ests_no_inference.csv"), show_col_types = FALSE)
 
+# %%
+# quick detailed sum
+ests |>
+  summarize(
+    .by = c(dgp_num, T0, estimator),
+    n = n(),
+    bias = mean(estimate - true_te, na.rm = TRUE),
+    rmse = sqrt(mean((estimate - true_te)^2)),
+    coverage = mean(true_te >= ci_lower & true_te <= ci_upper),
+    avg_std_error = mean(std.error, na.rm = TRUE),
+    avg_ci_length = mean(ci_upper - ci_lower, na.rm = TRUE),
+    avg_est = mean(estimate, na.rm = TRUE),
+    est_05th = quantile(estimate, 0.05),
+    est_50th = quantile(estimate, 0.50),
+    est_95th = quantile(estimate, 0.95),
+    pct_p_0 = mean(selected_p == 0, na.rm = TRUE),
+    pct_p_1 = mean(selected_p == 1, na.rm = TRUE),
+    pct_p_2 = mean(selected_p == 2, na.rm = TRUE),
+    pct_p_3 = mean(selected_p == 3, na.rm = TRUE),
+    mean_p = mean(selected_p, na.rm = TRUE)
+  ) |>
+  print(n = 100)
+
+# %%
 for (curr_dgp_num in dgps$dgp_num) {
-  for (curr_T_0 in c(4L, 12L)) {
-    out <- here(glue("out/tables/simulation-1/dgp{curr_dgp_num}_T0_{curr_T_0}.tex"))
-
-    summarize_ests(ests, dgps, dgp_num = curr_dgp_num, T_0 = curr_T_0) |>
+  for (curr_T0 in c(4L, 12L)) {
+    out <- here(glue("out/tables/simulation-1/dgp{curr_dgp_num}_T0_{curr_T0}.tex"))
+    ests |> 
+      filter(estimator != "Difference-in-means") |>
+      summarize_ests(dgps, dgp_num = curr_dgp_num, T0 = curr_T0) |>
       # print() |>
       extract_tt_latex_body() |>
       cat(file = out)
@@ -115,7 +141,8 @@ for (curr_dgp_num in dgps$dgp_num) {
 cat("\n\n\n")
 out <- here(glue("out/tables/simulation-1/T0_4.tex"))
 ests |>
-  filter(between(dgp_num, 1, 4), T_0 == 4) |>
+  filter(estimator != "Difference-in-means") |>
+  filter(between(dgp_num, 1, 4), T0 == 4) |>
   summarize_ests_wide(which_rel_year = 0) |>
   print() |>
   extract_tt_latex_body() |>
@@ -124,7 +151,8 @@ ests |>
 cat("\n\n\n")
 out <- here(glue("out/tables/simulation-1/T0_12.tex"))
 ests |>
-  filter(between(dgp_num, 1, 4), T_0 == 12) |>
+  filter(estimator != "Difference-in-means") |>
+  filter(between(dgp_num, 1, 4), T0 == 12) |>
   summarize_ests_wide(which_rel_year = 0) |>
   print() |>
   extract_tt_latex_body() |>

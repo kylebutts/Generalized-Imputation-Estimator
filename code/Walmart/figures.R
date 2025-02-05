@@ -14,22 +14,22 @@ options(readr.show_col_types = FALSE)
 # Load Estimates ---------------------------------------------------------------
 # %%
 # p = 2
-qld_retail <- read_csv(here("estimates/qld_est_retail.csv")) |> 
+qld_retail <- read_csv(here("estimates/qld_est_retail.csv")) |>
   mutate(pre = rel_year < 0)
 
 # p = 1
-qld_wholesale <- read_csv(here("estimates/qld_est_wholesale.csv")) |> 
+qld_wholesale <- read_csv(here("estimates/qld_est_wholesale.csv")) |>
   mutate(pre = rel_year < 0)
 
 # %%
-did2s_retail <- read_csv(here("estimates/did2s_est_retail.csv"))  |> 
+did2s_retail <- read_csv(here("estimates/did2s_est_retail.csv")) |>
   mutate(pre = rel_year < 0)
-did2s_covs_retail <- read_csv(here("estimates/did2s_est_covs_retail.csv"))  |> 
+did2s_covs_retail <- read_csv(here("estimates/did2s_est_covs_retail.csv")) |>
   mutate(pre = rel_year < 0)
 
-did2s_wholesale <- read_csv(here("estimates/did2s_est_wholesale.csv"))  |> 
+did2s_wholesale <- read_csv(here("estimates/did2s_est_wholesale.csv")) |>
   mutate(pre = rel_year < 0)
-did2s_covs_wholesale <- read_csv(here("estimates/did2s_est_covs_wholesale.csv"))  |> 
+did2s_covs_wholesale <- read_csv(here("estimates/did2s_est_covs_wholesale.csv")) |>
   mutate(pre = rel_year < 0)
 
 # %%
@@ -59,8 +59,8 @@ cce_wholesale <- tibble(
 cce_wholesale$pre <- cce_wholesale$rel_year < 0
 
 # %%
-est_y0_qld = 
-synth_retail <- read_csv(here("estimates/est_y0_outcome_retail_qld.csv")) |>
+est_y0_qld <-
+  synth_retail <- read_csv(here("estimates/est_y0_outcome_retail_qld.csv")) |>
   filter(g != Inf) |>
   mutate(rel_year = year - g) |>
   summarize(
@@ -261,7 +261,7 @@ pca_wholesale$group <- "Principal Components"
 qld_wholesale$group <- "Quasi-Long Differencing"
 wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
 
-# %% 
+# %%
 (plot_retail_many_estimators <- ggplot() +
   geom_abline(
     slope = 0, intercept = 0,
@@ -303,7 +303,7 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
     legend.margin = margin(t = 4, r = 8, b = 4, l = 8, unit = "pt")
   ))
 
-# %% 
+# %%
 (plot_wholesale_many_estimators <- ggplot() +
   geom_abline(
     slope = 0, intercept = 0,
@@ -386,12 +386,9 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
   ) +
   geom_errorbar(
     aes(
-      x = rel_year,
-      ymin = lower,
-      ymax = upper,
-      color = pre
+      x = rel_year, ymin = estimate - 1.96 * std_error_naive, ymax = estimate + 1.96 * std_error_naive, color = pre
     ),
-    data = qld_wholesale_naive_se,
+    data = qld_wholesale,
     width = 0.6, linewidth = 2
   ) +
   labs(
@@ -461,13 +458,13 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
 # %%
 retail_covs_ests <- bind_rows(
   did2s_retail |> mutate(group = "TWFE Imputation"),
-  did2s_covs_retail |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)")#,
-  #qld_retail |> mutate(group = "Quasi-Long Differencing")
+  did2s_covs_retail |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)") # ,
+  # qld_retail |> mutate(group = "Quasi-Long Differencing")
 )
 wholesale_covs_ests <- bind_rows(
   did2s_wholesale |> mutate(group = "TWFE Imputation"),
-  did2s_covs_wholesale |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)")#,
-  #qld_wholesale |> mutate(group = "Quasi-Long Differencing")
+  did2s_covs_wholesale |> mutate(group = "TWFE Imputation (with $w_i \\beta_t$)") # ,
+  # qld_wholesale |> mutate(group = "Quasi-Long Differencing")
 )
 
 # %%
