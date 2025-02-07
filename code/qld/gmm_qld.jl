@@ -4,8 +4,6 @@
 These are the quasi-long differencing moments
 1/N \\sum_i w_i ⊗ [H(Θ)' * y_i]
 
-Note you must call `vec(transpose(m_theta_bar_fast(...)))` to get the correct moment vector.
-
 # Details
 This uses some linear algebra tricks since we only care about the average of the unit moments.
 By multiplying the ``T x N`` matrix of ``Y_{it}`` by the ``N x L`` matrix ``W``, 
@@ -17,24 +15,23 @@ function mbar_theta(
   theta::AbstractVector,
   p::Int64, # Number of factors
   N::Int64,
-  N_inf::Int64,
-  ymat_W_inf::AbstractMatrix,
+  ymat_W::AbstractMatrix,
 )
   if p < 0 || !isa(p, Int)
     error("p must be a non-negative integer")
   end
-  T = size(ymat_W_inf, 1)
+  T = size(ymat_W, 1)
 
   if p > 0
     # \sum_i H(\Tilde) y_i ⊗ w_i
-    qld_ymat_W =
-      ymat_W_inf[1:(T - p), :] + reshape(theta, T - p, p) * ymat_W_inf[(T - p + 1):T, :]
+    qld_ymat_W = ymat_W[1:(T - p), :] + reshape(theta, T - p, p) * ymat_W[(T - p + 1):T, :]
   elseif p == 0
-    qld_ymat_W = ymat_W_inf
+    qld_ymat_W = ymat_W
   end
 
   # m_bar = 1 / N * 1 / (N_inf / N) * vec(transpose(qld_ymat_W))
-  m_bar = 1 / N_inf * vec(transpose(qld_ymat_W))
+  # m_bar = 1 / N_inf * vec(transpose(qld_ymat_W))
+  m_bar = 1 / N * vec(transpose(qld_ymat_W))
   return m_bar
 end
 
@@ -43,13 +40,12 @@ function obj_theta(
   weight::AbstractMatrix,
   p::Int64, # Number of factors
   N::Int64,
-  N_inf::Int64,
-  ymat_W_inf::AbstractMatrix,
+  ymat_W::AbstractMatrix,
 )
-  mbar = mbar_theta(theta, p, N, N_inf, ymat_W_inf)
+  mbar = mbar_theta(theta, p, N, ymat_W)
   # Multiply by N^2 for Sargan J-statistic
   # Doing 1/N because it helps with numeric stability
-  return 1 / N_inf * (mbar' * weight * mbar)
+  return 1 / N * (mbar' * weight * mbar)
 end
 
 # Matrix of m(z_i, θ)
@@ -67,7 +63,7 @@ function ms_theta(
   # Since I transposed W for quicker indexing
   N, N_instruments = size(W)
   T = size(ymat, 1)
-  N_inf = length(idx_control)
+  # N_inf = length(idx_control)
 
   # H(Θ)
   if p > 0
@@ -105,7 +101,6 @@ function gmm_qld_p_known(
   T, N = size(ymat)
   N_instruments = size(W, 2)
   N_inf = length(idx_control)
-
   ymat_W_inf = ymat[:, idx_control] * W[idx_control, :]
 
   ## First-stage initial consistent estimator ----
@@ -119,7 +114,7 @@ function gmm_qld_p_known(
     optres = nothing
     for method in gmm_methods
       optres = Optim.optimize(
-        x -> obj_theta(x, W_initial, p, N, N_inf, ymat_W_inf),
+        x -> obj_theta(x, W_initial, p, N_inf, ymat_W_inf),
         theta_initial,
         method,
         Optim.Options(; allow_f_increases=true, g_abstol=eps(Float64));
@@ -147,7 +142,7 @@ function gmm_qld_p_known(
     optres = nothing
     for method in gmm_methods
       optres = Optim.optimize(
-        x -> obj_theta(x, W_opt, p, N, N_inf, ymat_W_inf),
+        x -> obj_theta(x, W_opt, p, N_inf, ymat_W_inf),
         theta_hat,
         method,
         Optim.Options(; allow_f_increases=true, g_abstol=eps(Float64));
@@ -166,7 +161,7 @@ function gmm_qld_p_known(
     theta_hat_opt = theta_hat
   end
 
-  J = N_inf^2 * obj_theta(theta_hat_opt, W_opt, p, N, N_inf, ymat_W_inf)
+  J = N_inf^2 * obj_theta(theta_hat_opt, W_opt, p, N_inf, ymat_W_inf)
 
   # Testing for $p$ following Ahn, Lee, and Schmidt (2013)
   # Χ^2((T - p_0) (q - p_0) - k)
@@ -179,11 +174,15 @@ function gmm_qld_p_known(
     p_value_hansen_sargent = 1.0
   end
 
-  Mbar_theta = ForwardDiff.jacobian(
-    x -> mbar_theta(x, p, N, N_inf, ymat_W_inf), theta_hat_opt
-  )
-  Mbar_theta *= 1 / (1 / N_inf) * (1 / N) * (1 / (N_inf / N))
-  W_opt *= 1 / (1 / N_inf) * (1 / (N_inf / N)) * (1 / (N_inf / N))
+  Mbar_theta = ForwardDiff.jacobian(x -> mbar_theta(x, p, N_inf, ymat_W_inf), theta_hat_opt)
+
+  # # Switch from conditional to unconditional moments
+  # Mbar_theta *= 1 / (1 / N_inf) * (1 / N) * (1 / (N_inf / N))
+  # Mbar_theta *= 1 / (1 / N_inf) * (1 / N_inf)
+  # Mbar_theta *= 1
+
+  # # Switch from conditional to unconditional moments
+  # W_opt *= N / N_inf
 
   return theta_hat_opt, W_opt, Mbar_theta, J, p_value_hansen_sargent
 end

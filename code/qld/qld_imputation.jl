@@ -118,8 +118,8 @@ function qld_imputation(
 
   # Estimate VCOV of τ(g,t) 
   # ----
-  ms = ms_theta(theta_hat_opt, p, ymat, W, idx_control)
-  ms *= 1 / (N_inf / N)
+  # Multiply to make unconditional moments
+  ms = 1 / (N_inf / N) * ms_theta(theta_hat_opt, p, ymat, W, idx_control)
   gs = ms_tau_gt(theta_hat_opt, tau_gt_hat, p, ymat, g_shift)
 
   Gbar_theta = ForwardDiff.jacobian(
