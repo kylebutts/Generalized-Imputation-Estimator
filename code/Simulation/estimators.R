@@ -24,34 +24,34 @@ quietly <- function(code) {
     warning = wHandler,
     message = mHandler
   )
-  
+
   return(result)
 }
 
-# %% 
-est_dim <- function(df) { 
+# %%
+est_dim <- function(df) {
   post_t <- df |> filter(rel_year == 0) |> pull(t) |> unique()
-  reg <- df |> 
+  reg <- df |>
     filter(t == post_t) |>
     feols(y ~ i(treated))
 
-  est <- broom::tidy(reg) |> 
-    filter(str_detect(term, "treated::")) |> 
+  est <- broom::tidy(reg) |>
+    filter(str_detect(term, "treated::")) |>
     mutate(rel_year = 0) |>
     mutate(
       ci_lower = estimate - 1.96 * std.error,
       ci_upper = estimate + 1.96 * std.error
-    ) |> 
+    ) |>
     select(rel_year, estimate, std.error, ci_lower, ci_upper)
-  
+
   return(est)
 }
 
 # %%
 library(did2s)
 est_twfe <- function(df) {
-  # if (do_inference == TRUE) { 
-  #   
+  # if (do_inference == TRUE) {
+  #
   # } else {
   #   fs <- feols(
   #     y ~ 0 | id + t,
@@ -61,14 +61,14 @@ est_twfe <- function(df) {
   #   ss <- feols(
   #     ytilde ~ i(rel_year, ref = -10), df
   #   )
-  #   est <- broom::tidy(ss) |> 
-  #     filter(str_detect(term, "rel_year::")) |> 
+  #   est <- broom::tidy(ss) |>
+  #     filter(str_detect(term, "rel_year::")) |>
   #     mutate(rel_year = as.numeric(str_replace(term, "rel_year::", ""))) |>
-  #     filter(rel_year >= 0) 
+  #     filter(rel_year >= 0)
   #     select(rel_year, estimate)
   # }
   ss <- did2s::did2s(
-    data = df, 
+    data = df,
     yname = "y",
     first_stage = ~ 0 | id + t,
     second_stage = ~ i(rel_year, ref = -10),
@@ -76,23 +76,23 @@ est_twfe <- function(df) {
     cluster_var = "id",
     verbose = FALSE
   )
-  est <- broom::tidy(ss) |> 
-    filter(str_detect(term, "rel_year::")) |> 
+  est <- broom::tidy(ss) |>
+    filter(str_detect(term, "rel_year::")) |>
     mutate(rel_year = as.numeric(str_replace(term, "rel_year::", ""))) |>
-    filter(rel_year >= 0) |> 
+    filter(rel_year >= 0) |>
     mutate(
       ci_lower = estimate - 1.96 * std.error,
       ci_upper = estimate + 1.96 * std.error
-    ) |> 
+    ) |>
     select(rel_year, estimate, std.error, ci_lower, ci_upper)
-  
+
   return(est)
 }
 
 # %%
 est_twfe_covs <- function(df) {
-  # if (do_inference == TRUE) { 
-  #   
+  # if (do_inference == TRUE) {
+  #
   # } else {
   #   fs <- feols(
   #     y ~ 0 + i(t, W1) + i(t, W2) | id + t,
@@ -102,15 +102,15 @@ est_twfe_covs <- function(df) {
   #   df$ytilde <- df$y - predict(fs, newdata = df)
   #   ss <- feols(
   #     ytilde ~ i(rel_year, ref = -10), df
-  #   )  
-  #   est <- broom::tidy(ss) |> 
-  #     filter(str_detect(term, "rel_year::")) |> 
+  #   )
+  #   est <- broom::tidy(ss) |>
+  #     filter(str_detect(term, "rel_year::")) |>
   #     mutate(rel_year = as.numeric(str_replace(term, "rel_year::", ""))) |>
-  #     filter(rel_year >= 0) 
+  #     filter(rel_year >= 0)
   #     select(rel_year, estimate)
   # }
   ss <- did2s::did2s(
-    data = df, 
+    data = df,
     yname = "y",
     first_stage = ~ 0 + i(t, W1) + i(t, W2) | id + t,
     second_stage = ~ i(rel_year, ref = -10),
@@ -118,16 +118,16 @@ est_twfe_covs <- function(df) {
     cluster_var = "id",
     verbose = FALSE
   )
-  est <- broom::tidy(ss) |> 
-    filter(str_detect(term, "rel_year::")) |> 
+  est <- broom::tidy(ss) |>
+    filter(str_detect(term, "rel_year::")) |>
     mutate(rel_year = as.numeric(str_replace(term, "rel_year::", ""))) |>
-    filter(rel_year >= 0) |> 
+    filter(rel_year >= 0) |>
     mutate(
       ci_lower = estimate - 1.96 * std.error,
       ci_upper = estimate + 1.96 * std.error
-    ) |> 
+    ) |>
     select(rel_year, estimate, std.error, ci_lower, ci_upper)
-  
+
   return(est)
 }
 
@@ -139,8 +139,11 @@ est_synth <- function(df, do_inference = FALSE) {
   synth_est <- quietly({
     augsynth::augsynth(
       y ~ treat,
-      unit = id, time = t, data = df,
-      progfunc = "None", scm = T
+      unit = id,
+      time = t,
+      data = df,
+      progfunc = "None",
+      scm = T
     )
   })
 
@@ -148,21 +151,26 @@ est_synth <- function(df, do_inference = FALSE) {
   summ <- summary(synth_est, inf = do_inference, inf_type = "jackknife+")$att
   if (do_inference == TRUE) {
     est <- summ |>
-      as_tibble() |> 
+      as_tibble() |>
       mutate(rel_year = Time - (T0 + 1)) |>
-      filter(rel_year >= 0) |> 
-      select(rel_year, estimate = Estimate, ci_lower = lower_bound, ci_upper = upper_bound) |> 
+      filter(rel_year >= 0) |>
+      select(
+        rel_year,
+        estimate = Estimate,
+        ci_lower = lower_bound,
+        ci_upper = upper_bound
+      ) |>
       mutate(std.error = (ci_upper - estimate) / 1.96, .after = "estimate")
   } else {
     est <- summ |>
-      as_tibble() |> 
+      as_tibble() |>
       mutate(rel_year = Time - (T0 + 1)) |>
-      filter(rel_year >= 0) |> 
+      filter(rel_year >= 0) |>
       select(rel_year, estimate = Estimate)
   }
 
   return(est)
-  }
+}
 
 # %%
 library(augsynth)
@@ -172,7 +180,9 @@ est_augsynth <- function(df) {
   augsynth_est <- quietly({
     augsynth::augsynth(
       y ~ treat,
-      unit = id, time = t, data = df,
+      unit = id,
+      time = t,
+      data = df,
       progfunc = "Ridge"
     )
   })
@@ -181,16 +191,22 @@ est_augsynth <- function(df) {
   summ <- summary(augsynth_est, inf = TRUE, inf_type = "jackknife+")$att
 
   est <- summ |>
-    as_tibble() |> 
+    as_tibble() |>
     mutate(rel_year = Time - (T0 + 1)) |>
-    filter(rel_year >= 0) |> 
-    select(rel_year, estimate = Estimate, ci_lower = lower_bound, ci_upper = upper_bound) |> 
+    filter(rel_year >= 0) |>
+    select(
+      rel_year,
+      estimate = Estimate,
+      ci_lower = lower_bound,
+      ci_upper = upper_bound
+    ) |>
     mutate(std.error = (ci_upper - estimate) / 1.96, .after = "estimate")
 
   return(est)
-  }
+}
 
-# %% 
+
+# %%
 # WARNING: Very slow to conduct inference
 library(augsynth)
 est_matrix_completion <- function(df, do_inference = FALSE) {
@@ -199,7 +215,9 @@ est_matrix_completion <- function(df, do_inference = FALSE) {
   MCP_est <- quietly({
     augsynth::augsynth(
       y ~ treat,
-      unit = id, time = t, data = df,
+      unit = id,
+      time = t,
+      data = df,
       progfunc = "MCP"
     )
   })
@@ -207,16 +225,21 @@ est_matrix_completion <- function(df, do_inference = FALSE) {
   summ <- summary(MCP_est, inf = do_inference)$att
   if (do_inference == TRUE) {
     est <- summ |>
-      as_tibble() |> 
+      as_tibble() |>
       mutate(rel_year = Time - (T0 + 1)) |>
-      filter(rel_year >= 0) |> 
-      select(rel_year, estimate = Estimate, ci_lower = lower_bound, ci_upper = upper_bound) |> 
+      filter(rel_year >= 0) |>
+      select(
+        rel_year,
+        estimate = Estimate,
+        ci_lower = lower_bound,
+        ci_upper = upper_bound
+      ) |>
       mutate(std.error = (ci_upper - estimate) / 1.96, .after = "estimate")
   } else {
     est <- summ |>
-      as_tibble() |> 
+      as_tibble() |>
       mutate(rel_year = Time - (T0 + 1)) |>
-      filter(rel_year >= 0) |> 
+      filter(rel_year >= 0) |>
       select(rel_year, estimate = Estimate)
   }
 
@@ -234,26 +257,35 @@ est_gsynth <- function(df, force = "none", p = c(0L, 3L)) {
 
   gsynth_est <- quietly({
     patched_gsynth(
-      Y = "y", D = "treat", index = c("id", "year"),
+      Y = "y",
+      D = "treat",
+      index = c("id", "year"),
       data = df |> rename(year = t),
       force = force,
-      r = p, 
+      r = p,
       CV = ifelse(length(p) == 1, FALSE, TRUE),
       criterion = "pc",
-      se = TRUE, 
+      se = TRUE,
       parallel = FALSE,
       min.T0 = 2
     )
   })
-  
+
   est <- gsynth_est$est.att |>
     as.data.frame() |>
-    as_tibble(rownames = "rel_year") |> 
+    as_tibble(rownames = "rel_year") |>
     mutate(rel_year = as.numeric(rel_year) - 1) |> # "1" is year of treatment
     filter(rel_year >= 0) |>
     mutate(selected_p = gsynth_est$r.cv) |>
-    select(rel_year, estimate = ATT, std.error = `S.E.`, ci_lower = `CI.lower`, ci_upper = `CI.upper`, selected_p) 
-  
+    select(
+      rel_year,
+      estimate = ATT,
+      std.error = `S.E.`,
+      ci_lower = `CI.lower`,
+      ci_upper = `CI.upper`,
+      selected_p
+    )
+
   return(est)
 }
 
@@ -293,23 +325,24 @@ est_qld_F_known <- function(df, do_within_transform = FALSE) {
 
   ss <- feols(
     te_hat ~ i(rel_year, ref = -10),
-    data = df, cluster = ~id
+    data = df,
+    cluster = ~id
   )
-  
-  est <- broom::tidy(ss) |> 
-    filter(str_detect(term, "rel_year::")) |> 
+
+  est <- broom::tidy(ss) |>
+    filter(str_detect(term, "rel_year::")) |>
     mutate(rel_year = as.numeric(str_replace(term, "rel_year::", ""))) |>
-    filter(rel_year >= 0) |> 
+    filter(rel_year >= 0) |>
     mutate(
       ci_lower = estimate - 1.96 * std.error,
       ci_upper = estimate + 1.96 * std.error
-    ) |> 
+    ) |>
     select(rel_year, estimate, std.error, ci_lower, ci_upper)
-  
+
   return(est)
 }
 
-# %% 
+# %%
 # Estimate p with `p = NULL`, otherwise give int
 library(JuliaCall)
 julia_setup()
@@ -320,7 +353,8 @@ julia_source(here("code/qld/qld_imputation.jl"))
 
 est_qld <- function(df, do_within_transform = FALSE, p = -1L) {
   p <- as.integer(p)
-  qld_est <- julia_call("qld_imputation",
+  qld_est <- julia_call(
+    "qld_imputation",
     df,
     y = "y",
     id = "id",
@@ -336,12 +370,12 @@ est_qld <- function(df, do_within_transform = FALSE, p = -1L) {
     rel_year = qld_est$rel_year,
     estimate = qld_est$estimate,
     std.error = sqrt(diag(qld_est$vcov))
-  ) |> 
-    filter(rel_year >= 0) |> 
+  ) |>
+    filter(rel_year >= 0) |>
     mutate(
       ci_lower = estimate - 1.96 * std.error,
       ci_upper = estimate + 1.96 * std.error
-    ) |> 
+    ) |>
     mutate(selected_p = qld_est$selected_p) |>
     select(rel_year, estimate, std.error, ci_lower, ci_upper, selected_p)
 

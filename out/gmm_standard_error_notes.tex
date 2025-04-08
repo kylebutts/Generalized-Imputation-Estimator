@@ -1,0 +1,117 @@
+\documentclass[12pt]{article}
+\usepackage{paper, math}
+\begin{document}
+
+These notes follow more or less directly from the Newey and McFadden (1994) handbook chapter, but I am writing out notes to verify I have all the formula exactly correct (mostly $N$s). I'm trying to write out all the steps to end up with the IF given in (6.6)
+
+The first-stage QLD estimator can be written as a set of moments:
+\begin{equation}\label{eq:factor_moments}
+  \expec{
+    \frac{D_{i\infty}}{\prob{D_{i\infty} = 1}} \bm H(\bm{\theta}) \bm y_i \otimes \bm w_i
+  } = \bm 0,
+\end{equation}
+where $\theta$ is a vector of dimension $(T - p) * p$. 
+The ``quasi-long differencing'' matrix $\bm H(\bm{\theta})$ takes the form:
+\begin{equation}
+  \bm H(\bm{\theta}) = (\bm I_{T-p}, \bm \Theta).
+\end{equation}
+
+For computation efficiency, it is helpful to expand $\bm H(\bm{\theta}) \bm y_i$ to
+$$
+  \bm H(\bm{\theta}) \bm y_i = y_{i, 1:(T-p)} + \bm \Theta y_{i, (T-p+1):T}.
+$$
+For each instrument $w_{i,l}$, there are $(T-p)$ moments implied by (\ref{eq:factor_moments}). 
+
+We estimate the following  GMM problem using a two-stage estimation procedure:
+\begin{align*}
+  Q_{1,N} &= \bar{m}(\bm{\theta})' \tilde{\Omega}^{-1} \bar{m}(\bm{\theta}) \\
+  &= \left(\frac{1}{N} \sum_i m_i(\bm{\theta}) \right)' 
+     \left(\frac{1}{N} \sum_i m_i(\tilde{\bm{\theta}}) m_i(\tilde{\bm{\theta}})' \right)^{-1} 
+     \left(\frac{1}{N} \sum_i m_i(\bm{\theta}) \right) 
+\end{align*}
+We estimate the weights matrix, $\tilde{\Omega}$, using $\tilde{\bm{\theta}}$ from a first stage estimate where the identity matrix is used as the weighting matrix.
+
+This produces the following first-order conditions
+$$
+  \left(\frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\theta}} m_i(\hat{\bm{\theta}}) \right)' \tilde{\Omega}^{-1} \left(\frac{1}{N} \sum_i m_i(\hat{\bm{\theta}}) \right) \equiv
+  \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \bar{m}(\hat{\bm{\theta}}) = \bm{0}
+$$
+
+Expanding this at $\bm{\theta}_0$ gives (asymptotically)
+$$
+  \bm{0} = \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \bar{m}(\hat{\bm{\theta}}) = 
+  \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \bar{m}(\bm{\theta}_0) +
+  \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \bar{M}(\bar{\bm{\theta}}) \left( \hat{\bm{\theta}} - \bm{\theta}_0 \right)
+$$
+
+Solving and multiplying by $\sqrt{N}$ yields
+\begin{align*}
+  \sqrt{N}\left( \hat{\bm{\theta}} - \bm{\theta}_0 \right) &=
+  - \left( \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \bar{M}(\bar{\bm{\theta}}) \right)^{-1} \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \sqrt{N} \bar{m}(\bm{\theta}_0) \\
+  &= - \left[ 
+    \left(\frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\theta}} m_i(\hat{\bm{\theta}}) \right)' 
+    \left( \frac{1}{N} \sum_i m_i(\tilde{\bm{\theta}}) m_i(\tilde{\bm{\theta}})' \right)
+    \left(\frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\theta}} m_i(\bar{\bm{\theta}}) \right) 
+  \right]^{-1} \times \\
+  &\qquad \left(\frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\theta}} m_i(\hat{\bm{\theta}}) \right)' 
+  \left( \frac{1}{N} \sum_i m_i(\tilde{\bm{\theta}}) m_i(\tilde{\bm{\theta}})' \right) 
+  \left(\sqrt{N} \frac{1}{N} \sum_i m_i(\bm{\theta}_0) \right)
+\end{align*}
+
+The previous display gives the influence function for the first-step quasi-long differencing estimator. The first five terms converge (under regularity conditions) to non-random matrices. The last term will, by some CLT, converge in distribution to a normally distributed term.
+
+\bigskip\bigskip
+Then, our treatment effect estimator estimator can be written as a method of moments estimator given by 
+$$
+  g(z_i, \bm{\tau}, \hat{\bm{\theta}}) \equiv g_i(\bm{\tau}, \hat{\bm{\theta}}),
+$$
+where $\hat{\bm{\theta}}$ is the first-step estimate. 
+The method of moments estimator solves the sample average of $g_i$:
+$$
+  \frac{1}{N} \sum_i g_i(\hat{\bm{\tau}}, \hat{\bm{\theta}}) = \bm{0}
+$$
+Expanding this at the true value $\bm{\tau}_0$ yields
+\begin{align*}
+  \bm{0} = \frac{1}{N} \sum_i g_i(\hat{\bm{\tau}}, \hat{\bm{\theta}}) &= 
+  \frac{1}{N} \sum_i g_i(\bm{\tau}_0, \hat{\bm{\theta}}) +
+  \left[ \frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\tau}} g_i(\bar{\bm{\tau}}, \hat{\bm{\theta}}) \right] (\hat{\bm{\tau}} - \bm{\tau}_0)
+\end{align*}
+
+We can solve and multiply by $\sqrt{N}$ to yield
+\begin{align*}
+  \sqrt{N}(\hat{\bm{\tau}} - \bm{\tau}_0) &=
+  - \left[ \frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\tau}} g_i(\bar{\bm{\tau}}, \hat{\bm{\theta}}) \right]^{-1} \frac{1}{\sqrt{N}} \sum_i g_i(\bm{\tau}_0, \hat{\bm{\theta}})
+\end{align*}
+Expanding $\frac{1}{\sqrt{N}} \sum_i g_i(\bm{\tau}_0, \hat{\bm{\theta}})$ at $\bm{\theta}_0$ yields
+\begin{align*}
+  \frac{1}{\sqrt{N}} \sum_i g_i(\bm{\tau}_0, \hat{\bm{\theta}}) &= 
+  \frac{1}{\sqrt{N}} \sum_i g_i(\bm{\tau}_0, \bm{\theta}_0) +
+  \left[ \frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\tau}} g_i(\bm{\tau}_0, \bar{\bm{\theta}}) \right] \sqrt{N} (\hat{\bm{\theta}} - \bm{\theta}_0) \\
+  &= \frac{1}{\sqrt{N}} \sum_i g_i(\bm{\tau}_0, \bm{\theta}_0) + \\
+  &\quad \left[ \frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\theta}} g_i(\bm{\tau}_0, \bar{\bm{\theta}}) \right] \left( \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \bar{M}(\bar{\bm{\theta}}) \right)^{-1} \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \sqrt{N} \bar{m}(\bm{\theta}_0) 
+\end{align*}
+
+Combining the previous two displays yield the influence function for our treatment effect estimator:
+\begin{align*}
+  \sqrt{N}(\hat{\bm{\tau}} - \bm{\tau}_0) &=
+  \left[ \frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\tau}} g_i(\bar{\bm{\tau}}, \hat{\bm{\theta}}) \right]^{-1} 
+  \frac{1}{\sqrt{N}} \sum_i g_i(\bm{\tau}_0, \bm{\theta}_0) \ + \\
+  &\quad
+  \left[ \frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\tau}} g_i(\bar{\bm{\tau}}, \hat{\bm{\theta}}) \right]^{-1}
+  \left[ \frac{1}{N} \sum_i \frac{\partial}{\partial \bm{\theta}} g_i(\bm{\tau}_0, \bar{\bm{\theta}}) \right] 
+  \left( \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \bar{M}(\bar{\bm{\theta}}) \right)^{-1} \times \\
+  &\qquad \bar{M}(\hat{\bm{\theta}})' \tilde{\Omega}^{-1} \left( 
+    \frac{1}{\sqrt{N}} \sum_i m_i(\bm{\theta}_0)
+  \right).
+\end{align*}
+Here, the first term is the standard OLS score and the second term adjusts for the fact that $\bm{\theta}$ is estimated.
+
+
+
+
+
+
+
+
+
+\end{document}

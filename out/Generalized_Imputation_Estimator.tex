@@ -42,11 +42,11 @@ Difference-in-differences estimators are one of the most popular causal inferenc
 
 A recent but growing literature models these kind of parallel trends deviations using interactive fixed effects. While interactive fixed effects relax the parallel trends assumptions relied on by difference-in-differences, these estimators often require long panels, which may be impractical because of (i) lack of data, (ii) strong assumptions like serially uncorrelated outcomes and homogeneous treatment effects, or (iii) the presence of structural breaks, i.e. recessions or structural changes to the macroeconomy that render previous time periods uninformative about the current economy. This paper proposes a treatment effect estimator under the more general interactive fixed effect model that is robust to certain violations of parallel trends while remaining consistent in short panels and under heterogeneous treatment effects. 
 
-We model untreated potential outcomes $y_{it}(\infty)$ with interactive fixed effects
+We model untreated potential outcomes $y_{i,t}(\infty)$ with interactive fixed effects
 \begin{equation}\label{eq:untreated_po}
-    y_{it}(\infty) = \bm{F}_t' \bm{\gamma}_i + u_{it},
+    y_{i,t}(\infty) = \bm{F}_t' \bm{\gamma}_i + u_{i,t},
 \end{equation}
-where $\bm{F}_t$ is a $p \times 1$ vector of unobservable factors, $\bm \gamma_i$ is a $p \times 1$ vector of unobservable factor loadings, and $\expec{u_{it}} = 0$ for all $(i,t)$.\footnote{We follow \citet{Callaway_Santanna_2021} and define the state of not receiving treatment in the sample as `$\infty$'. This is useful in settings with staggered treatment timing where potential outcomes are denoted by the period where a unit start treatments.} We can view the factors $\bm{F}_t$ as macroeconomic shocks with factor loadings $\bm \gamma_i$ denoting a unit's exposure to the shocks. Another interpretation lets the $\bm \gamma_i$ represent time-invariant characteristics with a marginal effect on the outcome $\bm{F}_t$ that changes over time.\footnote{\citet{Ahn_Lee_Schmidt_2013} suggest a wage equation where $\bm \gamma_i$ are unobserved worker characteristics of an individual and $\bm{F}_t$ are their time-varying prices or returns to those characteristics. See \citet{Bai_2009} for a collection of economic examples that justify the inclusion of a factor structure.} Note that this model nests the standard two-way error model when $\bm{F}_t' = (\lambda_t, 1)$ and $\bm \gamma_i' = (1, \mu_i)$; that is, $\bm{F}_t' \bm \gamma_i = \lambda_t + \mu_i$. The interactive structure allows for more general patterns of unobserved heterogeneity. Importantly, we allow for treatment to be correlated with a unit's exposure to macroeconomic shocks via their factor loadings $\bm{\gamma}_i$. 
+where $\bm{F}_t$ is a $p \times 1$ vector of unobservable factors, $\bm \gamma_i$ is a $p \times 1$ vector of unobservable factor loadings, and $\expec{u_{i,t}} = 0$ for all $(i,t)$.\footnote{We follow \citet{Callaway_Santanna_2021} and define the state of not receiving treatment in the sample as `$\infty$'. This is useful in settings with staggered treatment timing where potential outcomes are denoted by the period where a unit start treatments.} We can view the factors $\bm{F}_t$ as macroeconomic shocks with factor loadings $\bm \gamma_i$ denoting a unit's exposure to the shocks. Another interpretation lets the $\bm \gamma_i$ represent time-invariant characteristics with a marginal effect on the outcome $\bm{F}_t$ that changes over time.\footnote{\citet{Ahn_Lee_Schmidt_2013} suggest a wage equation where $\bm \gamma_i$ are unobserved worker characteristics of an individual and $\bm{F}_t$ are their time-varying prices or returns to those characteristics. See \citet{Bai_2009} for a collection of economic examples that justify the inclusion of a factor structure.} Note that this model nests the standard two-way error model when $\bm{F}_t' = (\lambda_t, 1)$ and $\bm \gamma_i' = (1, \mu_i)$; that is, $\bm{F}_t' \bm \gamma_i = \lambda_t + \mu_i$. The interactive structure allows for more general patterns of unobserved heterogeneity. Importantly, we allow for treatment to be correlated with a unit's exposure to macroeconomic shocks via their factor loadings $\bm{\gamma}_i$. 
 
 For a concrete example, our empirical application focuses on estimating the effect of Walmart store openings on county-level employment. Estimation of a standard two-way fixed effect (TWFE) event-study model suggests that Walmart opened stores in counties that had higher retail employment growth prior to the opening \citep{neumark2008effects}. In \autoref{fig:walmart_retail}, we present an event-study graph and overlay a line of best fit on the pre-treatment estimates. That the line is positive sloping and the estimates are different from zero at the 5\% level suggests that the estimated positive impacts are due to pre-existing trends rather than the effect of Walmart per se. However, there seems to be a discrete jump when the Walmart opened. The goal then is to remove these pre-existing trends to isolate the treatment effect. It is plausible to assume that during their period of mass expansion, Walmart selected appealing locations based on their local demographic background and national economic trends, while ignoring transitory local economic shocks. Our framework allows this type of selection mechanism and effectively `controls' for these pre-existing trends.
 
@@ -63,10 +63,12 @@ In our application, we estimate the impact of Walmart opening in a county on loc
 To estimate the factor space, we use baseline county-level demographic variables, such as employment and educational characteristics, that are likely correlated with Walmart's opening decisions, itself driven by the common factor structure. 
 \citet{hatch2000job} provide evidence that such characteristics drive long-term trends in both retail spending and employment nationally, and are therefore good proxies for the factor loadings, $\bm \gamma_i$.
 Unlike a traditional IV approach, these variables can be either internal or external, and must explicitly correlate with the unobserved effects. 
+% Similar to \citet{Callaway_Karami_2020}, they require the existence of `instruments`, or observable covariates that are correlated with the unobserved factor loadings. These are not instruments in the traditional sense: we use them to identify the common factors, not the treatment effect.
+
 
 \subsection*{Relation to Literature}
 
-Current estimators that allow for selection based on a factor model either require (i) the number of time periods available is large, e.g. synthetic control \citep{abadie2021using}, factor model imputation via principal components \citep{Gobillon_Magnac_2016,xu2017generalized,Bai_Ng_2021}, and the matrix completion method  \citep{Athey_et_al_2021,fernandez2021low}; or (ii) that an individual's error term $u_{it}$ is uncorrelated over time \citep{Feng_2020,Imbens_Kallus_Mao_2021}.\footnote{\citet{Imbens_Kallus_Mao_2021} allow correlation within the post- and pre-treatment sets of the idiosyncratic errors, but assume independence between the two sets. This assumption is still strong in a static modeling context.} Both of these restrictions are non-realistic in many applied microeconomic data sets where the number of time periods is much smaller than the number of units and serial correlation of shocks is expected. Further, large-$T$ estimators often place restrictions on the dynamic heterogeneity of treatment. Our method requires neither large $T$ nor error term restrictions.
+Current estimators that allow for selection based on a factor model either require (i) the number of time periods available is large, e.g. synthetic control \citep{abadie2021using}, factor model imputation via principal components \citep{Gobillon_Magnac_2016,xu2017generalized,Bai_Ng_2021}, and the matrix completion method  \citep{Athey_et_al_2021,fernandez2021low}; or (ii) that an individual's error term $u_{i,t}$ is uncorrelated over time \citep{Feng_2020,Imbens_Kallus_Mao_2021}.\footnote{\citet{Imbens_Kallus_Mao_2021} allow correlation within the post- and pre-treatment sets of the idiosyncratic errors, but assume independence between the two sets. This assumption is still strong in a static modeling context.} Both of these restrictions are non-realistic in many applied microeconomic data sets where the number of time periods is much smaller than the number of units and serial correlation of shocks is expected. Further, large-$T$ estimators often place restrictions on the dynamic heterogeneity of treatment. Our method requires neither large-$T$ nor error term restrictions.
 
 A recent set of papers has proposed `imputation' in the TWFE setting \citep{Borusyak_Jaravel_Spiess_2021,Gardner_2021,Wooldridge_2021}.\footnote{The imputation procedure has been proposed in various settings in causal inference \citep{imbens2015causal}.}
 While these estimators are consistent in fixed-$T$ settings, these approaches only allow for level fixed effects and preclude interactions like in equation (\ref{eq:untreated_po}). \citet{Borusyak_Jaravel_Spiess_2021} allow a structure similar to equation \eqref{eq:untreated_po} but requires the the factors $\bm{F}_t$ be observed. We generalize these techniques by proposing an estimator that imputes the untreated potential outcomes under the more general (\ref{eq:untreated_po}) with unobserved interactive effects.
@@ -80,11 +82,13 @@ The rest of the paper is divided into the following sections: Section \ref{sec:t
 \section{Model and Identification} \label{sec:theory}
 % ------------------------------------------------------------------------------
 
-We assume a balanced panel data set with units $i = 1,\dots, N$ and periods $t = 1, \dots, T$. Treatment turns on in different periods for units in different groups; we denote these groups by the period they start treatment. For each unit, we define $G_i$ to be unit $i$'s group with possible values $\{ g_1, \dots, g_G \} \equiv \mathcal{G} \subseteq \{ 2, \dots, T \}$.\footnote{The number of possible treatment cohorts is fixed asymptotically because it is strictly less than the number of time periods.} We follow \citet{Callaway_Santanna_2021} and denote $G_i = \infty$ for units that never receive treatment. We assume that $0 < P(G_i = g) < 1$ for all $g \in \mathcal{G} \cup \{ \infty \}$, so that the number of individuals in each group and the never-treated group grow with $N$. Treated potential outcomes can be a function of group-timing, so we denote $y_{it}(g)$ as the treated potential outcome for unit $i$ at time $t$ if they were treated at time $g$. We define the vector of treatment statuses $\bm d_{i} = (d_{i1},...,d_{iT})$ where $d_{it} = \mathbf{1}(t \geq G_i)$ and the indicator $D_{ig} = \mathbf{1}(G_i = g)$ if unit $i$ is a member of group $g$. Let $T_0 = \min_j \{ g_j \} - 1$ be the last period before the earliest treatment adoption. 
+We assume a balanced panel data set with units $i = 1,\dots, N$ and periods $t = 1, \dots, T$. Treatment turns on in different periods for units in different groups; we denote these groups by the period they start treatment. For each unit, we define $G_i$ to be unit $i$'s group with possible values $\{ g_1, \dots, g_G \} \equiv \mathcal{G} \subseteq \{ 2, \dots, T \}$.\footnote{The number of possible treatment cohorts is fixed asymptotically because it is strictly less than the number of time periods.} We follow \citet{Callaway_Santanna_2021} and denote $G_i = \infty$ for units that never receive treatment. We assume that $0 < P(G_i = g) < 1$ for all $g \in \mathcal{G} \cup \{ \infty \}$, so that the number of individuals in each group and the never-treated group grow with $N$. Treated potential outcomes can be a function of group-timing, so we denote $y_{i,t}(g)$ as the treated potential outcome for unit $i$ at time $t$ if they were treated at time $g$. We define the vector of treatment statuses $\bm d_{i} = (d_{i,1},...,d_{i,T})$ where $d_{i,t} = \mathbf{1}(t \geq G_i)$ and the indicator $D_{i,g} = \mathbf{1}(G_i = g)$ if unit $i$ is a member of group $g$. Let $T_0 = \min_j \{ g_j \} - 1$ be the last period before the earliest treatment adoption. Finally, we let $N_g = \sum_i D_{i,g}$ be the number of units in group $g$ and $N_{\infty} = N - \sum_{g \in \mathcal{G}} N_g$ be the number of never-treated units. 
+
+% We also introduce some matrix notation. For a vector $\bm x$ of length $T$, we use the subscript $\bm x_{t < g}$ to denote the first $g - 1$ elements and $\bm x_{t \geq g}$ to refer to the last $T - g + 1$ elements. This holds similarly for the rows of a matrix $\bm X$. 
 
 Following \citet{Callaway_Santanna_2021}, we aim to estimate group-time Average Treatment Effects on the Treated:
 \begin{equation}
-  \ATT(g,t) = \tau_{gt} \equiv \expec{y_{it}(g) - y_{it}(\infty)}{G_i = g} 
+  \ATT(g,t) = \tau_{g,t} \equiv \expec{y_{i,t}(g) - y_{i,t}(\infty)}{G_i = g} 
 \end{equation}
 These quantities represent the average effect of treatment at time $t$ for units that start treatment in period $g$ for $t \geq g$. Once these quantities are obtained, it is trivial to estimate other aggregations, including averaging over all post-treatment observations to estimate an overall $\ATT$, and averaging over $(i,t)$ where $t - G_i = \ell$ to estimate event-study estimands $\ATT^\ell$'s. We discuss these and other extensions from \citet{Callaway_Santanna_2021} in Section \ref{sec:estimation}.
 
@@ -96,16 +100,16 @@ The random vectors $\{ (\bm d_i, \bm \gamma_i, \bm u_i) \}$ are independent and 
 \begin{assumption}[\textbf{Untreated potential outcomes}]\label{asm:untreated_po}
 The untreated potential outcomes take the form
 \begin{equation*}
-  y_{it}(\infty) = \bm{F}_t' \bm \gamma_i + u_{it}
+  y_{i,t}(\infty) = \bm{F}_t' \bm \gamma_i + u_{i,t}
 \end{equation*}
-where $\expec{u_{it}}{\bm d_i, \bm \gamma_i} = 0$ for $t = 1,...,T$. $\blacksquare$
+where $\expec{u_{i,t}}{\bm d_i, \bm \gamma_i} = 0$ for $t = 1,...,T$. $\blacksquare$
 \end{assumption}
 
 \begin{assumption}[\textbf{No anticipation}]\label{asm:no_anticipation}
-For all units $i$ and groups $g \in \mathcal{G}$, $y_{it} = y_{it}(\infty)$ for $t < g$. $\blacksquare$ % Or, less strictly, we require $\expec{y_{it}}{G_i = g} = \expec{y_{it}(\infty)}{G_i = g}$ for $t < g$.
+For all units $i$ and groups $g \in \mathcal{G}$, $y_{i,t} = y_{i,t}(\infty)$ for $t < g$. $\blacksquare$ % Or, less strictly, we require $\expec{y_{i,t}}{G_i = g} = \expec{y_{i,t}(\infty)}{G_i = g}$ for $t < g$.
 \end{assumption}
 
-Assumption \ref{asm:untreated_po} imposes a factor model for the untreated potential outcomes. We discuss the inclusion of covariates and the subsequent relaxation of assumption \ref{asm:untreated_po} in the Appendix. We allow for heterogeneous and dynamic treatment effects of any form, i.e. $y_{it}(g) = \tau_{igt} + y_{it}(\infty)$. We also allow arbitrary serial correlation among the idiosyncratic errors. We assume the common factors $\bm{F}_t$ are nonrandom parameters and the number of factors $p$ is both known and fixed in the asymptotic analysis. In practice, the number of factors can be consistently estimated; see section \ref{subsection:QLD}. 
+Assumption \ref{asm:untreated_po} imposes a factor model for the untreated potential outcomes. We discuss the inclusion of covariates and the subsequent relaxation of assumption \ref{asm:untreated_po} in the Appendix. We allow for heterogeneous and dynamic treatment effects of any form, i.e. $y_{i,t}(g) = \tau_{i,g,t} + y_{i,t}(\infty)$. We also allow arbitrary serial correlation among the idiosyncratic errors. We assume the common factors $\bm{F}_t$ are nonrandom parameters and the number of factors $p$ is both known and fixed in the asymptotic analysis. In practice, the number of factors can be consistently estimated; see section \ref{subsection:QLD}. 
 
 Assumption \ref{asm:untreated_po} is more general than the standard parallel trends assumption since we include the factor structure in our potential outcome model. 
 In particular, it assumes that the error term is uncorrelated with treatment status \emph{after} controlling for the factor loadings. For example, in our application, employment is measured at the county level, but Walmart ultimately determines treatment status (when and where a new Walmart opens). 
@@ -117,39 +121,47 @@ On the other hand, Assumption \ref{asm:untreated_po} rules out Walmart opening s
 
 The two-way error model cannot generally accommodate differential exposure.\footnote{The following derivation is also shown in \citet{Callaway_Karami_2020}, but we are repeating it here for exposition.} In the more general factor model and \autoref{asm:untreated_po}, changes in untreated potential outcomes are given by
 \begin{equation*}
-  \expec{y_{it}(\infty) - y_{it-1}(\infty)}{G_i = g} = \lambda_t + (\bm{F}_t - \bm{F}_{t-1})' \expec{\bm \gamma_i}{G_i = g}
+  \expec{y_{i,t}(\infty) - y_{i,t-1}(\infty)}{G_i = g} = \lambda_t + (\bm{F}_t - \bm{F}_{t-1})' \expec{\bm \gamma_i}{G_i = g}
 \end{equation*}
 Unless either (i) the factor loadings have the same mean across treatment groups, $\expec{\bm \gamma_i}{G_i = g} = \expec{\bm \gamma_i}$, or (ii) the factors are time-invariant, then the standard parallel trends assumption would not hold. If either of the two cases hold for all $g$ and $t$, the two-way error model is correctly specified.\footnote{We explicitly prove this result later.} However, these are knife-edge cases which are not the focus of the paper. 
 
-Our Assumption \ref{asm:untreated_po} allows for the factor loadings to be correlated with treatment timing and opens up treatment effect estimation for a much broader set of empirical questions. The key econometric challenge lies in that we do not observe $y_{it}(\infty)$ whenever $d_{it} = 1$. Our goal is to consistently estimate $\expec{y_{it}(\infty)}{G_i = g}$ under equation (\ref{eq:untreated_po}) to consistently estimate group-time average treatment effects. \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \citet{Borusyak_Jaravel_Spiess_2021} implicitly rely on this insight in studying the two-way error model. 
+Our Assumption \ref{asm:untreated_po} allows for the factor loadings to be correlated with treatment timing and opens up treatment effect estimation for a much broader set of empirical questions. The key econometric challenge lies in that we do not observe $y_{i,t}(\infty)$ whenever $d_{i,t} = 1$. Our goal is to consistently estimate $\expec{y_{i,t}(\infty)}{G_i = g}$ under equation (\ref{eq:untreated_po}) to consistently estimate group-time average treatment effects. \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \citet{Borusyak_Jaravel_Spiess_2021} implicitly rely on this insight in studying the two-way error model. 
 
 Prior work on estimation of average treatment effects in a factor model setting focus on finding conditions that allow for estimation of $\bm \gamma_i$ and $\bm{F}_t$ jointly as in \citet{Gobillon_Magnac_2016}, \citet{xu2017generalized}, and \citet{Bai_Ng_2021}, or a generalized version of a factor model as in \citet{Feng_2020} and \citet{arkhangelsky2021synthetic}. These techniques require a large number of pre-treatment periods and often place restrictions on both the dynamics of the treatment effects' distribution and the serial dependence among the idiosyncratic errors. Instead, we pursue identification noting that 
 \begin{equation}\label{eq:untreated_cond_expectation}
-\expec{y_{it}(\infty)}{G_i = g} = \bm{F}_t' \expec{\bm \gamma_i}{G_i = g}
+\expec{y_{i,t}(\infty)}{G_i = g} = \bm{F}_t' \expec{\bm \gamma_i}{G_i = g}
 \end{equation}
 Therefore, we only need to estimate the \emph{average} of the factor loadings among a treatment group, which we can always do even with a small number of post-treatment time periods. We can then accommodate either a large or small number of pre-treatment periods and allow for estimation using a broad range of known strategies.
 
 \subsection{\texorpdfstring{$\ATT(g,t)$}{ATT(g,t)} Identification}\label{sec:ATT_identification}
 
-We begin by describing the intuition behind our identification result. Consider a unit treated at time $g$. Define $\bm y_{i,t<g}$ and $\bm y_{i,t\geq g}$ as respectively the first $(g-1)$ and last $(T-g+1)$ outcomes for unit $i$, or the `pre-treatment' and `post-treatment' outcomes. Define $\bm{F}$ to be the matrix of factors with rows given by $\bm{F}_t'$. We similarly define $\bm{F}_{t < g}$ and $\bm{F}_{t \geq g}$ as the first and last rows of matrix $\bm{F}$. Equation \eqref{eq:untreated_cond_expectation} implies
-\begin{equation}
-  \expec{\bm y_{i,t < g}(\infty)}{ \bm G_i = g} = \bm{F}_{t < g} \expec{\bm \gamma_i}{\bm G_i = g}
-\end{equation}
-If the factors were observed, we could consistently estimate the mean values of the $p$-vector of average factor loadings for treated group $G_i = g$ via ordinary least squares; if $\text{Rank}(\bm{F}_{t < g}) = p$, the coefficient from the population regression of $\expec{\bm y_{i,t < g}(\infty) }{ G_i = g}$ on $\bm{F}_{t < g}'$ is $\expec{\bm \gamma_i}{G_i = g}$. Equation \eqref{eq:untreated_cond_expectation} also gives us 
-\begin{equation}
-  \expec{\bm y_{i,t \geq g}(\infty)}{ \bm G_i = g} = \bm{F}_{t \geq g} \expec{\bm \gamma_i}{\bm G_i = g}
-\end{equation}
-for the post-treated outcomes. Because we assume $\bm{F}$ is known (for now), we can predict $\expec{ y_{i,t}(\infty)}{G_i = g}$ for $t \geq g$ by multiplying $\bm{F}_t'$ by the OLS estimate from the prior infeasible regression. We then obtain $\expec{y_{it}(\infty)}{G_i = g}$ for the post-treatment outcomes, which we can subtract from $y_{i t}$ and average over the respective sample to obtain an estimate of $\text{ATT}(g,t)$. 
+% For a unit treated at time $g$, define $\bm y_{i,t<g}$ and $\bm y_{i,t\geq g}$ as respectively the first $(g-1)$ and last $(T-g+1)$ outcomes for unit $i$, or the `pre-treatment' and `post-treatment' outcomes. Define $\bm{F}$ to be the matrix of factors with rows given by $\bm{F}_t'$. We similarly define $\bm{F}_{t < g}$ and $\bm{F}_{t \geq g}$ as the first and last rows of matrix $\bm{F}$. Equation \eqref{eq:untreated_cond_expectation} implies
+% \begin{equation}
+%   \expec{\bm y_{i,t < g}(\infty)}{ \bm G_i = g} = \bm{F}_{t < g} \expec{\bm \gamma_i}{\bm G_i = g}
+% \end{equation}
+% If the factors were observed, we could consistently estimate the mean values of the $p$-vector of average factor loadings for treated group $G_i = g$ via ordinary least squares; if $\text{Rank}(\bm{F}_{t < g}) = p$, the coefficient from the population regression of $\expec{\bm y_{i,t < g}(\infty) }{ G_i = g}$ on $\bm{F}_{t < g}'$ is $\expec{\bm \gamma_i}{G_i = g}$. Equation \eqref{eq:untreated_cond_expectation} also gives us 
+% \begin{equation}
+%   \expec{\bm y_{i,t \geq g}(\infty)}{ \bm G_i = g} = \bm{F}_{t \geq g} \expec{\bm \gamma_i}{\bm G_i = g}
+% \end{equation}
+% for the post-treated outcomes. Because we assume $\bm{F}$ is known (for now), we can predict $\expec{ y_{i,t}(\infty)}{G_i = g}$ for $t \geq g$ by multiplying $\bm{F}_t'$ by the OLS estimate from the prior infeasible regression. We then obtain $\expec{y_{i,t}(\infty)}{G_i = g}$ for the post-treatment outcomes, which we can subtract from $y_{i, t}$ and average over the respective sample to obtain an estimate of $\text{ATT}(g,t)$.
+
+
+For a unit treated at time $g$, define $\bm y_{i,t<g}$ and $\bm y_{i,t\geq g}$ as respectively the first $(g-1)$ and last $(T-g+1)$ outcomes for unit $i$, or the `pre-treatment' and `post-treatment' outcomes. Define $\bm{F}$ to be the matrix of factors with rows given by $\bm{F}_t'$. We similarly define $\bm{F}_{t < g}$ and $\bm{F}_{t \geq g}$ as the first and last rows of matrix $\bm{F}$. Equation \eqref{eq:untreated_cond_expectation} implies
+\begin{gather}
+    \expec{\bm y_{i,t < g}(\infty)}{ G_i = g} = \bm{F}_{t < g} \expec{\bm \gamma_i}{G_i = g}\\
+    \expec{\bm y_{i,t \geq g}(\infty)}{ G_i = g} = \bm{F}_{t \geq g} \expec{\bm \gamma_i}{G_i = g}
+\end{gather}
+Projecting the pre-treatment average outcomes onto the pre-treatment factors $\bm F_{t < g}$ isolates the average (rotated) factor loadings $\expec{\bm \gamma_i}{G_i = g}$. We can then load this projection onto the post-treatment factors $\bm F_{t \geq g}$ to recover the average untreated potential outcomes. 
 
 We now define a useful matrix function for a more formal derivation of our main result. Given matrices $\bm X_1$ and $\bm X_0$ that are respectively $n \times k$ and $m \times k$, suppose $\text{Rank}( \bm X_0) = k$. We define the \emph{imputation matrix} 
 \begin{equation}
   \bm P(\bm X_1, \bm X_0) \equiv \bm X_1 (\bm X_0' \bm X_0)^{-1} \bm X_0'
 \end{equation}
-This matrix takes a similar form to a projection matrix but ``imputes" the fitted values from regressing on $\bm X_0$ onto a different matrix $\bm X_1$. The next theorem provides our main identification result:
+This matrix takes a similar form to a projection matrix but ``imputes" the fitted values from projecting on $\bm X_0$ onto a different matrix $\bm X_1$. The next theorem provides our main identification result:
 \begin{theorem}\label{theorem:ATT_identification}
   Suppose $\bm{F}$ is known and $\text{Rank}(\bm{F}_{t \leq T_0}) = p$. Under Assumptions \ref{asm:sampling}, \ref{asm:untreated_po}, and \ref{asm:no_anticipation} for all $g \in \mathcal{G}$,
   \begin{equation}\label{eq:ATT_moments}
-    \ATT(g,t) = \expec{y_{it} - \bm P(\bm{F}_{t}', \bm{F}_{t < g}) \bm y_{i,t < g}}{G_i = g}
+    \ATT(g,t) = \expec{y_{i,t} - \bm P(\bm{F}_{t}', \bm{F}_{t < g}) \bm y_{i,t < g}}{G_i = g}
   \end{equation}
   for $t \geq g$. 
 
@@ -171,7 +183,7 @@ We only require $m \geq p$ for this result because we only need $\bm F$ to be in
 
 We view Theorem \ref{theorem:ATT_identification} as an extension of earlier treatment effect identification results to the factor model. The identification argument in equation \eqref{eq:ATT_moments} is similar to the bridge function argument of \citet{Imbens_Kallus_Mao_2021}, but does not require restrictions on the time series dependence of the outcomes because we put structure on the non-parallel trending (i.e. factor model). It can also be seen as an extension of the imputation arguments from \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \citet{Borusyak_Jaravel_Spiess_2021} who study the additive error model. In fact, \citet{Gardner_2021} and \citet{Borusyak_Jaravel_Spiess_2021} implicitly use the imputation matrix but with known factors. 
 
-\autoref{theorem:ATT_identification} shows we can apply these conclusions to any estimator that achieves fixed-$T$ consistency by asymptotically spanning the factor space. One such estimator that we focus on in this paper is the QLD estimator of \citet{Ahn_Lee_Schmidt_2013}.
+% \autoref{theorem:ATT_identification} shows we can apply these conclusions to any estimator that achieves fixed-$T$ consistency by asymptotically spanning the factor space. One such estimator that we focus on in this paper is the QLD estimator of \citet{Ahn_Lee_Schmidt_2013}.
 
 \subsection{Quasi-Long-Differencing}\label{subsection:QLD}
 A leading example of a set of moment equations for factor-space estimation comes from \citet{Ahn_Lee_Schmidt_2013}. They normalize the factors as 
@@ -182,25 +194,25 @@ A leading example of a set of moment equations for factor-space estimation comes
     -\bm I_p
   \end{pmatrix}
 \end{equation}
-where $\bm \Theta$ is a $(T-p) \times p$ matrix of unrestricted parameters and $\bm \theta = \text{vec}(\bm \Theta)$\footnote{We reuse the ``$\bm \theta$" notation throughout the remainder of the text.} They then define the QLD transformation as 
+where $\bm \Theta$ is a $(T-p) \times p$ matrix of unrestricted parameters and $\bm \theta = \text{vec}(\bm \Theta)$.\footnote{We reuse the ``$\bm \theta$" notation throughout the remainder of the text.} They then define the QLD transformation as 
 \begin{equation}
   \bm H(\bm \theta) = (\bm I_{T-p}, \bm \Theta)
 \end{equation}
 so that $\bm H(\bm \theta) \bm{F} \bm \gamma_i = \bm 0$ by construction. We modify their proposed moment conditions to use just the never-treated group:
 \begin{equation}\label{eq:factor_moments}
-    \expec{\bm H(\bm \theta) \bm y_i \otimes \bm w_i}{G_i = \infty} = \bm 0
+    \expec{\bm h_{i,\infty}(\bm \theta)}{G_i = \infty} \equiv \expec{\bm H(\bm \theta) \bm y_i \otimes \bm w_i}{G_i = \infty} = \bm 0
 \end{equation}
 where $\bm w_i$ is a vector of instruments that are exogenous with respect to the idiosyncratic error in \autoref{asm:untreated_po} but correlated with $\bm \gamma_i$ (we elaborate on these conditions below). Essentially, we require the instruments to be strictly exogenous with the defactored errors, but correlate strongly with the factor loadings $\bm \gamma_i$. We also require there be at least as many instruments as factors. 
 We discuss the practical selection of instruments $\bm w_i$ in Section \ref{sec:application}. 
 It is important to stress that variables in $\bm w$ are instruments for the factors and not for treatment, i.e. we do not view $\bm{w}$ as shifting units into treatment.
 
-While both approaches are valid in the first stage of our setting, we use the \citet{Ahn_Lee_Schmidt_2013} estimator because it is more general than \citet{Callaway_Karami_2020}. For one, \citet{Ahn_Lee_Schmidt_2013} allow for a larger set of instruments. One identification strategy proposed by \citet{Callaway_Karami_2020} requires time-invariant covariates whose effects on $y_{it}$ are independent of time, meaning the researcher must decide which of the time-invariant observables have constant effects on the outcome. \citet{Ahn_Lee_Schmidt_2013} can allow for arbitrary time effects on covariates while still using those covariates as instruments. \citet{Ahn_Lee_Schmidt_2013} also give a road map to estimation based on weakly exogenous covariates that allows for dynamic modeling. This aspect of the estimator is left for future research. We can allow $\bm w_i$ to come from either external variables or covariates that have a linear effect on the outcome. We demonstrate the inclusion of covariates in the Appendix. 
+While both approaches are valid in the first stage of our setting, we use the \citet{Ahn_Lee_Schmidt_2013} estimator because it is more general than \citet{Callaway_Karami_2020}. For one, \citet{Ahn_Lee_Schmidt_2013} allow for a larger set of instruments. One identification strategy proposed by \citet{Callaway_Karami_2020} requires time-invariant covariates whose effects on $y_{i,t}$ are independent of time, meaning the researcher must decide which of the time-invariant observables have constant effects on the outcome. \citet{Ahn_Lee_Schmidt_2013} can allow for arbitrary time effects on covariates while still using those covariates as instruments. \citet{Ahn_Lee_Schmidt_2013} also give a road map to estimation based on weakly exogenous covariates that allows for dynamic modeling. This aspect of the estimator is left for future research. We can allow $\bm w_i$ to come from either external variables or covariates that have a linear effect on the outcome. We demonstrate the inclusion of covariates in the Appendix. 
 
 Because the QLD matrix is a function of $p$, we need a consistent estimator of the number of common factors. \citet{Ahn_Lee_Schmidt_2013} propose a number of consistent estimators of $p$. First, they consider the usual Hansen-Sargan over-identifying test restriction. Let
 \begin{equation}
-    J(\bm \theta) = \left( N_{\infty}^{-1} \sum_{i = 1}^N D_{i\infty} \bm g_{i\infty}(\bm \theta) \right)' \left( N_{\infty}^{-1} \sum_{i = 1}^N D_{i\infty} \bm g_{i\infty}(\tilde{\bm \theta}) \bm g_{i\infty}(\tilde{\bm \theta}) \right)^{-1} \left( N^{-1}_{\infty} \sum_{i = 1}^N D_{i\infty} \bm g_{i\infty}(\bm \theta) \right)
+    J(\bm \theta) = \left( N_{\infty}^{-1} \sum_{i = 1}^N D_{i,\infty} \bm h_{i,\infty}(\bm \theta) \right)' \left( N_{\infty}^{-1} \sum_{i = 1}^N D_{i,\infty} \bm h_{i,\infty}(\tilde{\bm \theta}) \bm h_{i,\infty}(\tilde{\bm \theta}) \right)^{-1} \left( N^{-1}_{\infty} \sum_{i = 1}^N D_{i,\infty} \bm h_{i,\infty}(\bm \theta) \right)
 \end{equation}
-where $\tilde{\bm \theta}$ is an initial consistent estimator of $\bm \theta$ for the given $p$ being tested. Letting $\widehat{\bm \theta}$ minimize the statistic above, \citet{Ahn_Lee_Schmidt_2013} show that $N_{\infty} J(\widehat{\bm \theta}) \stackrel{d}{\rightarrow} \chi^2_{(T-p)(q-p)}$ 
+where $\tilde{\bm \theta}$ is an initial consistent estimator of $\bm \theta$ for the given $p$ being tested and $\bm h_{i,\infty}(\bm \theta)$ is the moment function from equation \eqref{eq:factor_moments}. Letting $\widehat{\bm \theta}$ minimize the statistic above, \citet{Ahn_Lee_Schmidt_2013} show that $N_{\infty} J(\widehat{\bm \theta}) \stackrel{d}{\rightarrow} \chi^2_{(T-p)(q-p)}$ 
 where $q$ is the number of instruments in $\bm w_i$, which we can see implicitly must be larger than $p$. One can start at $p = 0$ then continue to increase $p$ until rejection\footnote{One must choose a rejection level $b_{N_{\infty}}$ such that $b_{N_\infty} \rightarrow 0$ and $-\ln(b_{N_{\infty}}) / N_\infty \rightarrow 0$ as $N_{\infty} \rightarrow \infty$. See \citet{Cragg_Donald_1997inferring}.}. See Section 3 of \citet{Ahn_Lee_Schmidt_2013} for further discussion. There is currently no formal derivation of the limiting properties of $\widehat{\bm \theta}$ when the practitioner overestimates $p$. However, a number of simulation studies \citep{Ahn_Lee_Schmidt_2013,Breitung_Hansen_2021,Brown_2022} have shown that QLD estimators still have favorable finite-sample properties when $p$ is overestimated. We later demonstrate via simulations that our estimator performs well when $p$ is estimated in this manner. 
 
 We make the following assumption on the instruments and factor matrix to guarantee the identification of the rotated factors $\bm F(\bm \theta)$:
@@ -210,7 +222,7 @@ We make the following assumption on the instruments and factor matrix to guarant
     \item There exists a $k \times 1$ vector of observed variables $\bm w_i$ such that $\expec{\bm u_i}{G_i = \infty, \bm \gamma_i, \bm w_i} = 0$ and $\expec{\bm I_{(T - p)} \otimes \bm w_i \bm \gamma_i'}{G_i = \infty}$ has full rank.
   \end{enumerate}
 \end{assumption}
-Assumption \ref{asm:ALS_identification} applies the `Basic Assumptions' of \citet{Ahn_Lee_Schmidt_2013} to our setting. Part (i) defines the number of factors, as also seen in \citet{Bai_2009}.\footnote{Our assumptions implicitly require the factors to be `strong' as in \citet{Bai_2009} and \citet{Ahn_Lee_Schmidt_2013} in that all factors that affect at least one treated group affect the entire never-treated group, because we will use the never-treated group to predict the factors.} We require the rank of the factor matrix to be strictly less than $T$ because we need a baseline period to perform the QLD transformation. If $p = T$, then the QLD transformation is undefined. 
+Assumption \ref{asm:ALS_identification} applies the `Basic Assumptions' of \citet{Ahn_Lee_Schmidt_2013} to our setting. Part (i) defines the number of factors, as also seen in \citet{Bai_2009}.\footnote{Our assumptions implicitly require the factors to be `strong' as in \citet{Bai_2009} and \citet{Ahn_Lee_Schmidt_2013} in that all factors that affect at least one treated group affect the entire never-treated group, because we will use the never-treated group to predict the factors.} We require the rank of the factor matrix to be strictly less than $T_0$ because we need a baseline period to perform the QLD transformation. If $p = T_0$, then the QLD transformation is undefined. 
 
 Part (ii) requires instruments that are strongly correlated with the unobserved factor loadings. 
 We do not put restrictions on these instruments; they may be time-varying or time constant. 
@@ -224,37 +236,37 @@ In our application, we use county-level demographic characteristics like share o
 
 We now demonstrate how to explicitly control for additive effects before estimating the more general interactive effects. While the additive structure is a special case of the factor model, we consider the special case because manually eliminating the additive effects saves degrees of freedom to estimate the factor model and provides efficiency by reducing the burden on the QLD estimator.\footnote{\citet{pesaran2006estimation} also allows for so-called "known factors" (like an additive intercept).} 
 
-We might consider first using the TWFE imputation procedures of \citet{Gardner_2021}, \cite{Wooldridge_2021}, and \citet{Borusyak_Jaravel_Spiess_2021} to obtain residuals that are free of the additive effects, then apply the QLD method to estimate the remaining interactive effects. However, such a procedure will not maintain a common factor structure between the untreated and treated groups, meaning their proposed estimators cannot be used as a first step before estimating the interactive effects. Consider the first order conditions from the regression of $(1 - d_{it})y_{it}$ on unit and time effects. The estimators for the unit effect of a unit treated at time $g$ and a never-treated unit respectively satisfy
+We might consider first using the TWFE imputation procedures of \citet{Gardner_2021}, \cite{Wooldridge_2021}, and \citet{Borusyak_Jaravel_Spiess_2021} to obtain residuals that are free of the additive effects, then apply the QLD method to estimate the remaining interactive effects. However, such a procedure will not maintain a common factor structure between the untreated and treated groups, meaning their proposed estimators cannot be used as a first step before estimating the interactive effects. Consider the first order conditions from the regression of $(1 - d_{i,t})y_{i,t}$ on unit and time effects. The estimators for the unit effect of a unit treated at time $g$ and a never-treated unit respectively satisfy
 \begin{align}
-  &\sum_{t = 1}^{g-1} (y_{it} - \widehat{\lambda}_t - \widehat{\mu}_i) = 0\\
-  &\sum_{t = 1}^T (y_{it} - \widehat{\lambda}_t - \widehat{\mu}_i) = 0
+  &\sum_{t = 1}^{g-1} (y_{i,t} - \widehat{\lambda}_t - \widehat{\mu}_i) = 0\\
+  &\sum_{t = 1}^T (y_{i,t} - \widehat{\lambda}_t - \widehat{\mu}_i) = 0
 \end{align}
 The control sample will remove more time averages than in every treated sample, meaning the factors are demeaned using different subsamples. As such, the transformed factors are not equal across groups and we cannot use the control sample to estimate the factors for the treated samples. 
 
 We first define the following averages for the purpose of removing the additive effects:
 \begin{gather}
-  \overline{y}_{\infty , t} = \frac{1}{N_{\infty}} \sum_{i = 1}^N D_{i \infty} y_{it} \\
-  \overline{y}_{i,t\leq T_0} = \frac{1}{T_0} \sum_{t = 1}^{T_0} y_{it} \\
-  \overline{y}_{\infty, t < T_0} = \frac{1}{N_{\infty} T_0} \sum_{i = 1}^N \sum_{t = 1}^{T_0} D_{i \infty} y_{it}
+  \overline{y}_{\infty , t} = \frac{1}{N_{\infty}} \sum_{i = 1}^N D_{i, \infty} y_{i,t} \\
+  \overline{y}_{i,t\leq T_0} = \frac{1}{T_0} \sum_{t = 1}^{T_0} y_{i,t} \\
+  \overline{y}_{\infty, t < T_0} = \frac{1}{N_{\infty} T_0} \sum_{i = 1}^N \sum_{t = 1}^{T_0} D_{i, \infty} y_{i,t}
 \end{gather}
 where $\overline{y}_{\infty , t}$ is the cross-sectional averages of the never-treated units for period $t$, $\overline{y}_{i,t\leq T_0}$ is the time-averages of unit $i$ before any group is treated, and $\overline{y}_{\infty, t < T_0}$ is the total average of the never-treated units before any group is treated.
 
-We then perform all estimation on the residuals $\tilde{y}_{it} \equiv y_{it} - \overline{y}_{\infty, t} - \overline{y}_{i,t < T_0} + \overline{y}_{\infty, t < T_0}$. These residuals are reminiscent of the usual TWFE residuals, except we carefully select this transformation to accomplish two things. First, this transformation leaves the treatment dummy variables unaffected to prevent problems with negative weighting when aggregating heterogeneous treatment effects \citep{Goodman-Bacon_2021,Borusyak_Jaravel_Spiess_2021}. Second, it preserves a common factor structure for all units and time periods\footnote{Such a transformation should not be used when considering the common correlated effects estimator because it would violate the CCE rank condition \citep{Brown_Butts_Westerlund_2023}.}. The TWFE imputation estimator of \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \citet{Borusyak_Jaravel_Spiess_2021} would not share this property because they estimate $\mu_i$ and $\lambda_t$ based on the full sample $d_{it} = 0$, while we use a specific subsample.
+We then perform all estimation on the residuals $\tilde{y}_{i,t} \equiv y_{i,t} - \overline{y}_{\infty, t} - \overline{y}_{i,t < T_0} + \overline{y}_{\infty, t < T_0}$. These residuals are reminiscent of the usual TWFE residuals, except we carefully select this transformation to accomplish two things. First, this transformation leaves the treatment dummy variables unaffected to prevent problems with negative weighting when aggregating heterogeneous treatment effects \citep{Goodman-Bacon_2021,Borusyak_Jaravel_Spiess_2021}. Second, it preserves a common factor structure for all units and time periods\footnote{Such a transformation should not be used when considering the common correlated effects estimator because it would violate the CCE rank condition \citep{Brown_Butts_Westerlund_2023}.}. The TWFE imputation estimator of \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \citet{Borusyak_Jaravel_Spiess_2021} would not share this property because they estimate $\mu_i$ and $\lambda_t$ based on the full sample $d_{i,t} = 0$, while we use a specific subsample.
 
 This result is summarized in the following lemma:
 \begin{lemma}\label{lemma:twfe_residuals}
-  $\expec{\tilde{y}_{it}}{G_i = g} = \expec{d_{it}\tau_{it} + (\bm{F}_t - \overline{\bm{F}}_{t < T_0})' (\bm \gamma_i - \overline{\bm \gamma}_{\infty}) }{G_i = g}$ for $t = 1,...,T$ and $g \in \mathcal{G} \cup \{ \infty \}$ where $\overline{\bm{F}}_{t < T_0}$ is the average of $\bm{F}_t$ in the pre-treatment periods and $\overline{\bm\gamma}_\infty$ is the average of $\bm \gamma_i$ among the control units. $\blacksquare$
+  $\expec{\tilde{y}_{i,t}}{G_i = g} = \expec{d_{i,t}\tau_{i,t} + (\bm{F}_t - \overline{\bm{F}}_{t < T_0})' (\bm \gamma_i - \overline{\bm \gamma}_{\infty}) }{G_i = g}$ for $t = 1,...,T$ and $g \in \mathcal{G} \cup \{ \infty \}$ where $\overline{\bm{F}}_{t < T_0}$ is the average of $\bm{F}_t$ in the pre-treatment periods and $\overline{\bm\gamma}_\infty$ is the average of $\bm \gamma_i$ among the control units. $\blacksquare$
 \end{lemma}
 
 Lemma \ref{lemma:twfe_residuals} demonstrates how to explicitly remove additive effects while preserving a common factor structure for the QLD estimation. Since we are not interested in inference on the factors themselves, this form will suffice for the imputation process. The transformed outcomes take the form
 \begin{equation}
-  \tilde{y}_{it} = d_{it} \tau_{it} + (\bm{F}_t - \overline{\bm{F}}_{t < T_0})' (\bm \gamma_i - \overline{\bm \gamma}_\infty) + \tilde{u}_{it}.
+  \tilde{y}_{i,t} = d_{i,t} \tau_{i,t} + (\bm{F}_t - \overline{\bm{F}}_{t < T_0})' (\bm \gamma_i - \overline{\bm \gamma}_\infty) + \tilde{u}_{i,t}.
 \end{equation}
 For ease of exposition, we rewrite the above equation as:
 \begin{equation}
-  \tilde{y}_{it} = d_{it} \tau_{it} + \tilde{\bm{F}}_t' \tilde{\bm \gamma}_i + \tilde{u}_{it}.
+  \tilde{y}_{i,t} = d_{i,t} \tau_{i,t} + \tilde{\bm{F}}_t' \tilde{\bm \gamma}_i + \tilde{u}_{i,t}.
 \end{equation}
-Estimation can then proceed on $\tilde{y}_{it}$.
+Estimation can then proceed on $\tilde{y}_{i,t}$.
 
 We can also see that if there is no time variation in the factors or if the factor loadings are mean independent of treatment status, the interactive effects structure will be zero in expectation, meaning TWFE will be consistent. The TWFE imputation methods mentioned above will all be simpler to estimate and likely more efficient. See the Appendix for tests of consistency of the TWFE estimator. 
 
@@ -271,20 +283,20 @@ This section considers estimation of the group-time ATTs. Our moment conditions 
 
 Equations \eqref{eq:ATT_moments} and \eqref{eq:factor_moments} provide us with the necessary moment conditions to estimate the ATTs. We collect them here in their unconditional form: 
 \begin{gather*}
-  \expec{\bm h_{i\infty}(\bm \theta)} = \expec{\frac{D_{i\infty}}{\mathbb{P}(D_{i \infty} = 1)}\bm H(\bm \theta) \bm y_i \otimes \bm w_i} = \bm 0\\
-  \expec{\bm h_{i g_G}(\bm{\theta}, \bm \tau_{g_G})} = \expec{ \frac{D_{ig_G}}{\mathbb{P}(D_{ig_G} = 1) } \left( \bm y_{i, t \geq g_G} - \bm P(\bm{F}_{t \geq g_G}(\bm{\theta}), \bm{F}_{t < g_G}(\bm{\theta})) \bm y_{i, t < g_G} - \bm \tau_{g_G} \right)} = \bm 0\\
+  \expec{\bm h_{i, \infty}(\bm \theta)} \equiv \expec{\frac{D_{i, \infty}}{\mathbb{P}(D_{i, \infty} = 1)}\bm H(\bm \theta) \bm y_i \otimes \bm w_i} = \bm 0\\
+  \expec{\bm h_{i, g_G}(\bm{\theta}, \bm \tau_{g_G})} \equiv \expec{ \frac{D_{i, g_G}}{\mathbb{P}(D_{i, g_G} = 1) } \left( \bm y_{i, t \geq g_G} - \bm P(\bm{F}_{t \geq g_G}(\bm{\theta}), \bm{F}_{t < g_G}(\bm{\theta})) \bm y_{i, t < g_G} - \bm \tau_{g_G} \right)} = \bm 0\\
   \vdots\\
-  \expec{\bm h_{i 1}(\bm{\theta}, \bm \tau_{g_1})} = \expec{ \frac{D_{i g_1}}{\mathbb{P}(D_{i g_1} = 1) } \left( \bm y_{i, t \geq g_1} - \bm P(\bm{F}_{t \geq g_1}(\bm{\theta}), \bm{F}_{t < g_1}(\bm{\theta})) \bm y_{i, t < g_1} - \bm \tau_{g_1} \right)} = \bm 0
+  \expec{\bm h_{i, 1}(\bm{\theta}, \bm \tau_{g_1})} \equiv \expec{ \frac{D_{i, g_1}}{\mathbb{P}(D_{i, g_1} = 1) } \left( \bm y_{i, t \geq g_1} - \bm P(\bm{F}_{t \geq g_1}(\bm{\theta}), \bm{F}_{t < g_1}(\bm{\theta})) \bm y_{i, t < g_1} - \bm \tau_{g_1} \right)} = \bm 0
 \end{gather*}
-where $\bm \tau_g = (\tau_{gg},...,\tau_{gT})'$ is the vector of post-treatment treatment effects. We stack these over $g$ as $\bm \tau = (\bm \tau_{g_1}',...,\bm \tau_{g_G}')'$. The first set of moment conditions identify the factor space by Assumption \ref{asm:ALS_identification} and the remaining moments identify the $\tau_{gt}$ via our imputation method. Implementation requires replacing $\mathbb{P}(D_{ig} = 1)$ with its sample counterpart $N_g/N$. 
+where $\bm \tau_g = (\tau_{g,g},...,\tau_{g,T})'$ is the vector of post-treatment treatment effects. We stack these over $g$ as $\bm \tau = (\bm \tau_{g_1}',...,\bm \tau_{g_G}')'$. The first set of moment conditions identify the factor space by Assumption \ref{asm:ALS_identification} and the remaining moments identify the $\tau_{g,t}$. Implementation requires replacing $\mathbb{P}(D_{ig} = 1)$ with its sample counterpart $N_g/N$. 
 
 
 We need one final regularity condition to implement the asymptotically efficient GMM estimator:
 \begin{assumption}\label{asm:variance_pd}
-  $\expec{\bm h_{ig}(\bm{\theta}, \bm \tau_g) \bm h_{ig}(\bm{\theta}, \bm \tau_g)'}$ is positive definite for each $g \in \mathcal{G} \cup \{\infty\}$. $\blacksquare$
+  $\expec{\bm h_{i, g}(\bm{\theta}, \bm \tau_g) \bm h_{i, g}(\bm{\theta}, \bm \tau_g)'}$ is positive definite for each $g \in \mathcal{G} \cup \{\infty\}$. $\blacksquare$
 \end{assumption}
 
-The moment functions $\bm h_i(\bm{\theta}, \bm \tau) = (\bm h_{i\infty}(\bm{\theta})', \bm h_{ig_G}(\bm{\theta}, \bm \tau_{g_G})',...,\bm h_{ig_1}(\bm{\theta}, \bm \tau_{g_1})')'$ are collected into a vector. We define $\bm \Delta = \expec{\bm h_i(\bm{\theta}, \bm \tau) \bm h_i(\bm{\theta}, \bm \tau)'}$ which is positive definite by Assumptions \ref{asm:ALS_identification} and \ref{asm:variance_pd}. Then our GMM estimator $(\widehat{ \bm{\theta}}', \widehat{ \bm \tau}')'$ solves
+The moment functions $\bm h_i(\bm{\theta}, \bm \tau) = (\bm h_{i, \infty}(\bm{\theta})', \bm h_{i, g_G}(\bm{\theta}, \bm \tau_{g_G})',...,\bm h_{i, g_1}(\bm{\theta}, \bm \tau_{g_1})')'$ are collected into a vector. We define $\bm \Delta = \expec{\bm h_i(\bm{\theta}, \bm \tau) \bm h_i(\bm{\theta}, \bm \tau)'}$ which is positive definite by Assumptions \ref{asm:ALS_identification} and \ref{asm:variance_pd}. Then our GMM estimator $(\widehat{ \bm{\theta}}', \widehat{ \bm \tau}')'$ solves
 \begin{equation}\label{eq:minimization_problem}
   \min_{\bm{\theta}, \bm \tau} \left( \sum_{i = 1}^N \bm h_i(\bm{\theta}, \bm \tau) \right)' \widehat{\bm \Delta}^{-1} \left( \sum_{i = 1}^N \bm h_i(\bm{\theta}, \bm \tau) \right)
 \end{equation}
@@ -301,13 +313,13 @@ where $\widehat{\bm \Delta} \plim \bm \Delta$ uses an initial consistent estimat
 where $\bm D_g$ is the gradient of group $g$'s moment function with respect to $\bm{\theta}$ and $\bm \Delta_g$ is the variance of group $g$'s moment function. Further, the asymptotic covariance between $\sqrt{N}(\widehat{\bm \tau}_{g_h} - \bm \tau_{g_h})$ and $\sqrt{N}(\widehat{\bm \tau}_{g_k} - \bm \tau_{g_k})$ is given by $\bm D_{g_h} (\bm D_{\infty}' \bm \Delta_{\infty}^{-1} \bm D_{\infty})^{-1} \bm D_{g_k}'$.$\blacksquare$
 \end{theorem}
 
-\begin{remark}[Inference]
-    Valid inference is easy to obtain because we use a GMM framework. Numerical standard errors are computed and reported by most routine statistical packages and is reproduced by the \texttt{Julia} and \texttt{R} packages that we provide. The nonparametric panel bootstrap is also available, though we derive in the Appendix an asymptotically linear representation of the estimator so one can utilize the multiplier bootstrap for uniform inference as in \citet{Callaway_Karami_2020}. 
+\begin{remark}[Inference]\label{remark:uniform}
+    Valid inference is easy to obtain because we use a GMM framework. Analytic standard errors are computed and reported by most routine statistical packages and is reproduced by the \texttt{Julia} and \texttt{R} packages that we provide. The nonparametric panel bootstrap is also available, though we derive in the Appendix an asymptotically linear representation of the estimator so one can utilize the multiplier bootstrap for uniform inference as in \citet{Callaway_Karami_2020}. 
 
     We derive the functional forms of $\bm D_g$ in the Appendix for the computation of analytic standard errors. Estimating $\bm D_g$ requires we replace expectations with sample averages and unknown parameters with their estimators. We can also estimate the variance of the moment functions $\bm \Delta_g$ using a nonparametric variance estimator similar to \citet{pesaran2006estimation}:   \begin{equation}\label{eq:nonparametric_variance}
-        \widehat{\bm \Delta}_g = \frac{1}{N_g - 1} \sum_{i = 1}^N D_{ig} \left( \widehat{\bm \Delta}_{ig} - \widehat{\bm \tau}_{g_G} \right) \left( \widehat{\bm \Delta}_{ig} - \widehat{\bm \tau}_{g_G} \right)'
+        \widehat{\bm \Delta}_g = \frac{1}{N_g - 1} \sum_{i = 1}^N D_{i,g} \left( \widehat{\bm \Delta}_{i,g} - \widehat{\bm \tau}_{g_G} \right) \left( \widehat{\bm \Delta}_{i,g} - \widehat{\bm \tau}_{g_G} \right)'
     \end{equation}
-    where $\widehat{\bm \Delta}_{ig} = \bm y_{i, t \geq g} - \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}})) \bm y_{i, t < g}$. This quantity is then consistent for $\bm \Delta_g$: 
+    where $\widehat{\bm \Delta}_{i,g} = \bm y_{i, t \geq g} - \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}})) \bm y_{i, t < g}$. This quantity is then consistent for $\bm \Delta_g$: 
     \begin{theorem}\label{theorem:nonparametric_variance}
   Under Assumptions \ref{asm:sampling}-\ref{asm:variance_pd}, $\widehat{\bm \Delta}_g^{-1} \plim \bm \Delta_g^{-1}$.
 \end{theorem}
@@ -328,7 +340,7 @@ $\blacksquare$
 
 \begin{remark}[Other Aggregate Treatment Effects]
 
-Our estimation method can handle other aggregations of $y_{it} - \hat{y}_{it}(\infty)$. For example, one could aggregate over all post-treatment $(i,t)$ to estimate an overall $\ATT$ or over event-time indicators to estimate aggregate event-study estimates.\footnote{Alternatively, we allow for aggregation of $\ATT(g,t)$ estimates as in \citet{Callaway_Santanna_2021} by deriving the influence function in the Appendix.
+Our estimation method can handle other aggregations of $y_{i,t} - \hat{y}_{i,t}(\infty)$. For example, one could aggregate over all post-treatment $(i,t)$ to estimate an overall $\ATT$ or over event-time indicators to estimate aggregate event-study estimates.\footnote{Alternatively, we allow for aggregation of $\ATT(g,t)$ estimates as in \citet{Callaway_Santanna_2021} by deriving the influence function in the Appendix.
 } Researchers can perform heterogeneity analyses by estimating the ATTs by gender, race, age, or other observed characteristics. All one needs to do to estimate such aggregate effects is to correctly specify the unconditional treatment effect moment conditions. If there are \emph{a priori} restrictions on treatment effects as in \citet{Borusyak_Jaravel_Spiess_2021}, these can be imposed on the moment conditions as well. $\blacksquare$
 \end{remark}
 
@@ -340,18 +352,18 @@ Our key identifying assumption is that after subtracting off (the estimated) fac
 \end{equation}
 so that the properly standardized vector of pre-treatment residuals is asymptotically normal and centered at 0. While this is not a formal test, pre-treatment estimates are typically presented to readers to help assess the plausibility of the identifying assumption.
 
-The synthetic control literature provides an alternative procedure that plots the raw outcome data for the treated unit and the synthetic control prediction. Readers can then visually inspect the model fit and see if they believe the synthetic control makes a good counterfactual estimator \citep{abadie2021using}. Our proposed estimator can be used to produce estimates for $y_{it}(\infty)$ in all periods for the treated observations:
+The synthetic control literature provides an alternative procedure that plots the raw outcome data for the treated unit and the synthetic control prediction. Readers can then visually inspect the model fit and see if they believe the synthetic control makes a good counterfactual estimator \citep{abadie2021using}. Our proposed estimator can be used to produce estimates for $y_{i,t}(\infty)$ in all periods for the treated observations:
 \begin{equation}
-  \hat{y}_{it}(\infty) = \bm P(\bm{F}_t', \bm{F}_{t < g}) \bm y_{i, t<g} + \overline{y}_{\infty, t} + \overline{y}_{i, t<T_0} - \overline{y}_{\infty, t<T_0}
+  \hat{y}_{i,t}(\infty) = \bm P(\bm{F}_t', \bm{F}_{t < g}) \bm y_{i, t<g} + \overline{y}_{\infty, t} + \overline{y}_{i, t<T_0} - \overline{y}_{\infty, t<T_0}
 \end{equation}
-where the first term on the right-hand side imputes $\hat{y}_{it}(\infty)$ and the last three terms in the sum `undo' the within-transformation\footnote{Leave this part out if you do not remove the additive effects by hand.}. In the pre-treatment periods, our estimates $\hat{y}_{it}(\infty)$ should be approximately equal to the observed $y_{it}$ under our assumptions. Similar to synthetic control estimators, comparing the imputed values to the true value can validate the `fit' of our model. However, since we have many treated units, doing so unit by unit is not practical. There are two complementary ways to aggregate treated units that will prove useful. 
+where the first term on the right-hand side imputes $\hat{y}_{i,t}(\infty)$ and the last three terms in the sum `undo' the within-transformation\footnote{Leave this part out if you do not remove the additive effects by hand.}. In the pre-treatment periods, our estimates $\hat{y}_{i,t}(\infty)$ should be approximately equal to the observed $y_{i,t}$ under our assumptions. Similar to synthetic control estimators, comparing the imputed values to the true value can validate the `fit' of our model. However, since we have many treated units, doing so unit by unit is not practical. There are two complementary ways to aggregate treated units that will prove useful. 
 
-First, one can aggregate by group and plot the average of $y_{it}$ and the average of $\hat{y}_{it}(\infty)$ separately for each $g \in \mathcal{G}$. This will create a set of `synthetic-control' like plots. To produce an `overall' plot, the observed outcome $y_{it}$ and the estimated untreated potential outcome $\hat{y}_{it}(\infty)$ should be `recentered' to event-time, i.e. reindex time to $e = t - G_i$, so that treatment is centered at event-time $0$. Then $y_{ie}$ and $\hat{y}_{ie}(\infty)$ can be aggregated for each value of event-time $e$. We produce such a plot in our empirical example. $\blacksquare$
+First, one can aggregate by group and plot the average of $y_{i,t}$ and the average of $\hat{y}_{i,t}(\infty)$ separately for each $g \in \mathcal{G}$. This will create a set of `synthetic-control' like plots. To produce an `overall' plot, the observed outcome $y_{i,t}$ and the estimated untreated potential outcome $\hat{y}_{i,t}(\infty)$ should be `recentered' to event-time, i.e. reindex time to $e = t - G_i$, so that treatment is centered at event-time $0$. Then $y_{i,e}$ and $\hat{y}_{i,e}(\infty)$ can be aggregated for each value of event-time $e$. We produce such a plot in our empirical example. $\blacksquare$
 
 \end{remark}
 
 \begin{remark}[TWFE Specification Testing]\label{remark:twfe_testing}
-  This paper is motivated by the fact that the two-way error model's generality is suspicious in practice. Therefore, we think a test of the two-way error structure versus a more complicated interactive effects model is of practical importance. \citet{Ahn_Lee_Schmidt_2013} discuss consistent estimation of $p$. Their tests have a new interpretation under this null hypothesis when testing for $p$ on the residuals $\tilde{y}_{it}$. If Assumption \ref{asm:sampling} and \ref{asm:untreated_po} hold with $\bm{F}_t' \bm \gamma_i = \bm 0$ almost surely for all $(i,t)$, then $p = 0$. One should then proceed with a more efficient estimator that is consistent under the additive model \citep{Gardner_2021,Wooldridge_2021,Borusyak_Jaravel_Spiess_2021}. $\blacksquare$
+  This paper is motivated by the fact that the two-way error model's generality is suspicious in practice. Therefore, we think a test of the two-way error structure versus a more complicated interactive effects model is of practical importance. \citet{Ahn_Lee_Schmidt_2013} discuss consistent estimation of $p$. Their tests have a new interpretation under this null hypothesis when testing for $p$ on the residuals $\tilde{y}_{i,t}$. If Assumption \ref{asm:sampling} and \ref{asm:untreated_po} hold with $\bm{F}_t' \bm \gamma_i = \bm 0$ almost surely for all $(i,t)$, then $p = 0$. One should then proceed with a more efficient estimator that is consistent under the additive model \citep{Gardner_2021,Wooldridge_2021,Borusyak_Jaravel_Spiess_2021}. $\blacksquare$
 \end{remark}
 
 
@@ -367,14 +379,13 @@ We present a brief simulation study to compare our estimator to alternatives in 
 
 We generate two factor loadings, $\mu_i \sim N(1,1)$ and $\gamma_i \sim N(1, 1)$.
 We generate the first factor $f_{1t} = t$ as a linear time-trend so that the difference in trends is easy to characterize.
-We generate the second factor as an AR(1) process: $f_{2t} = 0.75 f_{2,t-1} + v_t$ where $v_t$ is serially independent and has variance $0.5$ for all $t$. 
-We draw the $13 \times 2$ matrix $\bm{F} = (f_1, f_2)$ once for all simulations. 
+We generate the second factor as an AR(1) process: $f_{2t} = 0.75 f_{2,t-1} + v_t$ where $v_t$ is a serially independent draw from $N(0, 1 - 0.75^2)$ for all $t$. We draw the $13 \times 2$ matrix $\bm{F} = (f_1, f_2)$ once for all simulations. 
 When $T_0 = 4$, we use the last $5$ rows so that the post-period $f_{1,T}$ and $f_{2,T}$ are the same as when $T_0 = 12$.
 
-DGP 1 uses a two-way error model, $\mu_i + f_{2t}$, which is consistent with the usual parallel trends assumption. 
-In DGPs 2-4, we use the multiplicative model $f_{1t} \mu_i + f_{2t} \gamma_i$.
+DGP 1 uses a two-way error model, $\mu_i + f_{2,t}$, which is consistent with the usual parallel trends assumption. 
+In DGPs 2-4, we use the multiplicative model $f_{1,t} \mu_i + f_{2,t} \gamma_i$.
 In DGPs 1-2, we assign treatment randomly with probability 1/2. Parallel trends holds in both DGPs because $(\mu_i, \gamma_i)' \indep D_i$.
-In DGPs 3 and 4, we generate treatment as $\mathds{1}(\mu_i > 0)$ so that treated units are more exposed to the linear time-trend than untreated units, inducing non-parallel trends.\footnote{To help make sense of our bias estimates, DGPs 3 and 4 have a difference in $y_{it}(0)$ between the treated and untreated groups in the post-period of $\left(\expec{\mu_i}{D_i = 1} - \expec{\mu_i}{D_i = 0} \right) f_{1T} \approx (1.8 - 0.20) * 13 = 20.8$.}
+In DGPs 3 and 4, we generate treatment as $\mathds{1}(\mu_i > 0)$ so that treated units are more exposed to the linear time-trend than untreated units, inducing non-parallel trends.\footnote{To help make sense of our bias estimates, DGPs 3 and 4 have a difference in $y_{i,t}(\infty)$ between the treated and untreated groups in the post-period of $\left(\expec{\mu_i}{D_i = 1} - \expec{\mu_i}{D_i = 0} \right) f_{1,T} \approx (1.8 - 0.20) * 13 = 20.8$.}
 
 
 \begin{table}[tb!]
@@ -387,10 +398,10 @@ In DGPs 3 and 4, we generate treatment as $\mathds{1}(\mu_i > 0)$ so that treate
     & Error Term & Selection \\
     \midrule
 
-    \textbf{DGP1} & $\mu_i + f_{2t} + \epsilon_{it}$ & Random \\
-    \textbf{DGP2} & $f_{1t} \mu_i + f_{2t} \gamma_i + \epsilon_{it}$ & Random \\
-    \textbf{DGP3} & $f_{1t} \mu_i + f_{2t} \gamma_i + \epsilon_{it}$ & $\mathds{1}(\mu_i > 0)$ \\
-    \textbf{DGP4} & $f_{1t} \mu_i + f_{2t} \gamma_i + \zeta_{it}$ & $\mathds{1}(\mu_i > 0)$ \\
+    \textbf{DGP1} & $\mu_i + f_{2,t} + \epsilon_{i,t}$ & Random \\
+    \textbf{DGP2} & $f_{1,t} \mu_i + f_{2,t} \gamma_i + \epsilon_{i,t}$ & Random \\
+    \textbf{DGP3} & $f_{1,t} \mu_i + f_{2t,} \gamma_i + \epsilon_{i,t}$ & $\mathds{1}(\mu_i > 0)$ \\
+    \textbf{DGP4} & $f_{1,t} \mu_i + f_{2,t} \gamma_i + \zeta_{i,t}$ & $\mathds{1}(\mu_i > 0)$ \\
 
     \bottomrule 
   \end{tabular}
@@ -398,33 +409,36 @@ In DGPs 3 and 4, we generate treatment as $\mathds{1}(\mu_i > 0)$ so that treate
   \note{This table summarizes the data-generating processes used in the simulations. In all simulations, the probability of treatment is 50\%.}
 \end{table}
 
-In DGPs 1-3, the idiosyncratic error $\epsilon_{it}$ is drawn as $N(0,1)$ iid over time. 
-In DGP 4, we replace $\epsilon_{it}$ with an AR(1) process $\zeta_{it}$, where $\zeta_{it} = 0.75\zeta_{i,t-1} + z_{it}$. 
-The innovation $z_{it}$ is iid over time with error variance $(1-0.75^2)$ so that the variance of $\zeta_{it}$ is also $1$.
-DGP 4 aims to to highlight the problems that autocorrelated errors can cause for the existing large-$T$ factor model estimators. 
+In DGPs 1-3, the idiosyncratic error $\epsilon_{i,t}$ is drawn as $N(0,1)$ iid over time. 
+In DGP 4, we replace $\epsilon_{i,t}$ with an AR(1) process $\zeta_{i,t}$, where $\zeta_{i,t} = 0.75 \zeta_{i,t-1} + z_{i,t}$. The innovation $z_{i,t}$ is iid $N(0, 1 - 0.75^2)$ over time with variance chosen so that the variance of $\zeta_{i,t}$ is also $1$. DGP 4 aims to to highlight the problems that autocorrelated errors can cause for the existing large-$T$ factor model estimators. 
 
 
-We consider nine alternative estimators. The first two are versions of the TWFE imputation estimators of \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \cite{Borusyak_Jaravel_Spiess_2021}, and should only perform well in the first two DGPs when parallel trends holds. The estimator `TWFE' assumes an untreated potential outcome model of $y_{it}(0) = c_i + \theta_t + u_{it}$. $\expec{c_i}{D_i = 1}$ and $\theta_t$ are estimated via OLS on the untreated sample.\footnote{When we say `untreated sample', we mean the collection of both groups' pre-treatment observations along with the never-treated group's post-treatment observations.} Most modern treatment effect analyses also condition on observed covariates. We generate two ``observed covariates" as 
+We consider nine alternative estimators. The first two are versions of the TWFE imputation estimators of \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \cite{Borusyak_Jaravel_Spiess_2021}, and should only perform well in the first two DGPs when parallel trends holds. The estimator `TWFE' assumes an untreated potential outcome model of $y_{i,t}(\infty) = c_i + \theta_t + u_{i,t}$. $\expec{c_i}{D_i = 1}$ and $\theta_t$ are estimated via OLS on the untreated sample.\footnote{When we say `untreated sample', we mean the collection of both groups' pre-treatment observations along with the never-treated group's post-treatment observations.} Most modern treatment effect analyses also condition on observed covariates. We generate two ``observed covariates" as 
 \begin{gather}
-    w_{i1} = \mu_i + \xi_{i1}\\
-    w_{i2} = \gamma_i + \xi_{i2}
+    w_{i,1} = \mu_i + \xi_{i,1}\\
+    w_{i,2} = \gamma_i + \xi_{i,2}
 \end{gather}
-where $\xi_{i1}$ and $\xi_{i2}$ are mutually independent $N(0,1)$ errors. 
-If researchers believe that their observed covariates are correlated with the unobserved drivers of non-parallel trending, they often control for the baseline values while allowing for time-varying slopes. Let $\bm w_i = (w_{i1}, w_{i2})'$; then the estimator `TWFE with $\bm w_i' \bm \beta_t$' is the TWFE imputation estimator of \citet{Borusyak_Jaravel_Spiess_2021} that estimates time-varying slopes on the covariates $\bm w_i$: $y_{it}(0) = c_i + \theta_t + \bm w_i \beta_t + u_{it}$ using the untreated sample. 
-In a second set of simulations below, we will generate $\bm \xi_i = (\xi_{i1}, \xi_{i2})'$ with varying amounts of noise to highlight issues with using noisy `proxies' in a TWFE model.
+where $\xi_{i,1}$ and $\xi_{i,2}$ are mutually independent $N(0,1)$ errors. 
+If researchers believe that their observed covariates are correlated with the unobserved drivers of non-parallel trending, they often control for the baseline values while allowing for time-varying slopes. Let $\bm w_i = (w_{i,1}, w_{i,2})'$; then the estimator `TWFE with $\bm w_i' \bm \beta_t$' is the TWFE imputation estimator of \citet{Borusyak_Jaravel_Spiess_2021,Gardner_2021} that estimates time-varying slopes on the covariates $\bm w_i$: $y_{i,t}(\infty) = c_i + \theta_t + \bm w_i' \bm \beta_t + u_{i,t}$ using the untreated sample. 
+Analytic confidence intervals are formed following the GMM formulation in \citet{Gardner_2021}.
+In a second set of simulations below, we will generate $\bm \xi_i = (\xi_{i,1}, \xi_{i,2})'$ with varying amounts of noise to highlight issues with using noisy `proxies' in a TWFE model.
 
 To compare our QLD imputation estimator to an already popular factor model based imputation estimator, we include two versions of the generalized synthetic control estimator of \citet{xu2017generalized}. He proposes an imputation estimator that estimates the unobserved factors and factor loadings via \citet{Bai_2009}'s least squares principal components algorithm. He estimates the factors and factor loadings using the untreated observations. However, this method generally requires $T_0 \rightarrow \infty$ for consistency and may not perform well in our setting. The estimator `Generalized Synth ($p$ known)' is the \citet{xu2017generalized} estimator but with $p = 2$ treated as known. The estimator `Generalized Synth ($p$ unknown)' is the same estimator but uses the mean square prediction error cross validation test of \citet{xu2017generalized} to estimate the number of factors. 
-Additionally, we include the augmented synthetic control estimator of \citet{ben2021augmented}, which combines the classic synthetic control method with a form of `bias correction' estimating a factor model for untreated outcomes, similar to \citet{xu2017generalized}.
+Confidence intervals are formed following the bootstrap procedure discussed in \citet{xu2017generalized}.
+
+Additionally, we include the augmented synthetic control estimator of \citet{ben2021augmented}, which combines the classic synthetic control method with a form of `bias correction' estimating a factor model for untreated outcomes, similar to \citet{xu2017generalized}. 
+Confidence intervals are formed via the `Jackknife +' procedure described in \citet{ben2021augmented} via the corresponding package.
 
 Finally, we include three versions of the estimator proposed in Section \ref{sec:estimation}. The first is an infeasible estimator that simply treats $\bm F$ as known. This estimator, `Factor Imputation ($\bm F$ known)', does not require a first-stage estimator of the factors and takes the form
 \begin{equation}
     \widehat{\bm \tau} = \frac{1}{N_1} \sum_{i = 1}^N D_i \left( \bm y_{i,t > T_0} - \bm P(\bm F_{t > T_0}, \bm F_{t \leq T_0}) \bm y_{i,t \leq T_0} \right)
 \end{equation}
-We then include two versions that use QLD to estimate the factors, meaning we use the GMM estimator in equation \eqref{eq:minimization_problem}. The first, `QLD ($p$ known)', treats $p = 2$ as known. The second, `QLD ($p$ estimated)', uses the sequential testing method for $p$ as described in Section \ref{subsection:QLD} at the 10\% significance level. Both use moment conditions in equation \eqref{eq:factor_moments} to estimate the factor parameters with instruments $w_{i1}$ and $w_{i2}$.
+We then include two versions that use QLD to estimate the factors, meaning we use the GMM estimator in equation \eqref{eq:minimization_problem}. The first, `QLD ($p$ known)', treats $p = 2$ as known. The second, `QLD ($p$ estimated)', uses the sequential testing method for $p$ as described in Section \ref{subsection:QLD} at the 10\% significance level. Both use moment conditions in equation \eqref{eq:factor_moments} to estimate the factor parameters with instruments $w_{i,1}$ and $w_{i,2}$.
+Analytic confidence intervals are used following Theorem \ref{theorem:asymptotic_distribution}.
 
 \subsection{Main Results}
 
-Results are presented in Table \ref{tab:sim_1_t0_4} for $T_0 = 4$ and Table \ref{tab:sim_1_t0_12} for $T_0 = 12$. For each data-generating process, we report the bias, root mean squared error (RMSE), and empirical coverage of $95\%$ confidence intervals for the treatment effect estimator (where $\tau_{T_0 + 1} = 1$ in each setting). The second panel of the table describes the data generating processes corresponding to Table \ref{tab:dgps}.
+Results are presented in Table \ref{tab:sim_1_t0_4} for $T_0 = 4$ and Table \ref{tab:sim_1_t0_12} for $T_0 = 12$. For each data-generating process, we report the bias and the root mean squared error (RMSE) (where $\tau_{T_0 + 1} = 1$ in each setting). The second panel of the table describes the data generating processes corresponding to Table \ref{tab:dgps}. For the sake of space, simulation results on the performance of confidence intervals are presented in appendix \ref{sec:simulations_additional}. There, we present results on the empirical coverage of $95\%$ confidence intervals for the treatment effect estimator, the average confidence interval length and the standard deviation of the confidence interval length.
 
 \begin{table}
   \def\arraystretch{1.5}
@@ -434,15 +448,15 @@ Results are presented in Table \ref{tab:sim_1_t0_4} for $T_0 = 4$ and Table \ref
   \begin{adjustbox}{width=\textwidth}
   \begin{tabular}{@{}
     >{\RaggedRight}p{6cm} 
-    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
-    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
-    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c 
-    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c 
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c 
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c 
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c 
   @{}} 
         \toprule
-    & \multicolumn{3}{c}{DGP 1} & \multicolumn{3}{c}{DGP 2} & \multicolumn{3}{c}{DGP 3} & \multicolumn{3}{c}{DGP 4} \\
-    \cmidrule{2-4} \cmidrule{5-7} \cmidrule{8-10} \cmidrule{11-13}
-    \textbf{Estimator} & \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} \\
+    & \multicolumn{2}{c}{DGP 1} & \multicolumn{2}{c}{DGP 2} & \multicolumn{2}{c}{DGP 3} & \multicolumn{2}{c}{DGP 4} \\
+    \cmidrule{2-3} \cmidrule{4-5} \cmidrule{6-7} \cmidrule{8-9}
+    \textbf{Estimator} & \textbf{Bias} & \textbf{RMSE}  & \textbf{Bias} & \textbf{RMSE}  & \textbf{Bias} & \textbf{RMSE}  & \textbf{Bias} & \textbf{RMSE}  \\
     \midrule
 
     % ----
@@ -453,19 +467,19 @@ Results are presented in Table \ref{tab:sim_1_t0_4} for $T_0 = 4$ and Table \ref
     \midrule
     \addlinespace[1mm]
 
-    Model & \multicolumn{3}{c}{TWFE} & \multicolumn{3}{c}{Factor} & \multicolumn{3}{c}{Factor} & \multicolumn{3}{c}{Factor} \\
+    Model & \multicolumn{2}{c}{TWFE} & \multicolumn{2}{c}{Factor} & \multicolumn{2}{c}{Factor} & \multicolumn{2}{c}{Factor} \\
 
-    Treatment & \multicolumn{3}{c}{Random} & \multicolumn{3}{c}{Random} & \multicolumn{3}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{3}{c}{$\mathds{1}(\gamma_i > 0)$} \\
+    Treatment & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{2}{c}{$\mathds{1}(\gamma_i > 0)$} \\
 
-    Parallel Trends & \multicolumn{3}{c}{$\checkmark$} & \multicolumn{3}{c}{$\checkmark$} & \multicolumn{3}{c}{} & \multicolumn{3}{c}{} \\
+    Parallel Trends & \multicolumn{2}{c}{$\checkmark$} & \multicolumn{2}{c}{$\checkmark$} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} \\
 
-    AR$(1)$ Error Term & \multicolumn{3}{c}{} & \multicolumn{3}{c}{} & \multicolumn{3}{c}{} & \multicolumn{3}{c}{$\checkmark$} \\
+    AR$(1)$ Error Term & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{$\checkmark$} \\
 
     \bottomrule
   \end{tabular}
   \end{adjustbox}
   
-  \note{This table presents a set of simulations with 1000 iterations. Each row in a panel consists of a treatment effect estimator as described in the text. There are 4 different data-generating processes as described in the main text with key details listed in the second portion of the table. The columns present the bias and mean-squared error of the estimate of $\hat{\tau}$ relative to the true effect of $\tau_{T_0 + 1} = 1$. Additionally, confidence intervals are formed and `Cov.' presents the percent of $95\%$ confidence intervals containing the true treatment effect.}
+  \note{This table presents a set of simulations with 1000 iterations. Each row in a panel consists of a treatment effect estimator as described in the text. There are 4 different data-generating processes as described in the main text with key details listed in the second portion of the table. The columns present the bias and mean-squared error of the estimate of $\hat{\tau}$ relative to the true effect of $\tau_{T_0 + 1} = 1$.}
 \end{table}
 
 \begin{table}
@@ -476,15 +490,15 @@ Results are presented in Table \ref{tab:sim_1_t0_4} for $T_0 = 4$ and Table \ref
   \begin{adjustbox}{width=\textwidth}
   \begin{tabular}{@{}
     >{\RaggedRight}p{6cm} 
-    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
-    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
-    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c 
-    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c
   @{}} 
     \toprule
-    & \multicolumn{3}{c}{DGP 1} & \multicolumn{3}{c}{DGP 2} & \multicolumn{3}{c}{DGP 3} & \multicolumn{3}{c}{DGP 4} \\
-    \cmidrule{2-4} \cmidrule{5-7} \cmidrule{8-10} \cmidrule{11-13}
-    \textbf{Estimator} & \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} \\
+    & \multicolumn{2}{c}{DGP 1} & \multicolumn{2}{c}{DGP 2} & \multicolumn{2}{c}{DGP 3} & \multicolumn{2}{c}{DGP 4} \\
+    \cmidrule{2-3} \cmidrule{4-5} \cmidrule{6-7} \cmidrule{8-9}
+    \textbf{Estimator} & \textbf{Bias} & \textbf{RMSE}  & \textbf{Bias} & \textbf{RMSE}  & \textbf{Bias} & \textbf{RMSE}  & \textbf{Bias} & \textbf{RMSE} \\
     \midrule
 
     % ----
@@ -495,26 +509,26 @@ Results are presented in Table \ref{tab:sim_1_t0_4} for $T_0 = 4$ and Table \ref
     \midrule
     \addlinespace[1mm]
 
-    Model & \multicolumn{3}{c}{TWFE} & \multicolumn{3}{c}{Factor} & \multicolumn{3}{c}{Factor} & \multicolumn{3}{c}{Factor} \\
+    Model & \multicolumn{2}{c}{TWFE} & \multicolumn{2}{c}{Factor} & \multicolumn{2}{c}{Factor} & \multicolumn{2}{c}{Factor} \\
 
-    Treatment & \multicolumn{3}{c}{Random} & \multicolumn{3}{c}{Random} & \multicolumn{3}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{3}{c}{$\mathds{1}(\gamma_i > 0)$} \\
+    Treatment & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{2}{c}{$\mathds{1}(\gamma_i > 0)$} \\
 
-    Parallel Trends & \multicolumn{3}{c}{$\checkmark$} & \multicolumn{3}{c}{$\checkmark$} & \multicolumn{3}{c}{} & \multicolumn{3}{c}{} \\
+    Parallel Trends & \multicolumn{2}{c}{$\checkmark$} & \multicolumn{2}{c}{$\checkmark$} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} \\
 
-    AR$(1)$ Error Term & \multicolumn{3}{c}{} & \multicolumn{3}{c}{} & \multicolumn{3}{c}{} & \multicolumn{3}{c}{$\checkmark$} \\
+    AR$(1)$ Error Term & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{$\checkmark$} \\
     
     \bottomrule
   \end{tabular}
   \end{adjustbox}
   
-  \note{This table presents a set of simulations with 1000 iterations. Each row in a panel consists of a treatment effect estimator as described in the text. There are 4 different data-generating processes as described in the main text with key details listed in the second portion of the table. The columns present the bias and mean-squared error of the estimate of $\hat{\tau}$ relative to the true effect of $\tau_{T_0 + 1} = 1$. Additionally, confidence intervals are formed and `Cov.' presents the percent of $95\%$ confidence intervals containing the true treatment effect.}
+  \note{This table presents a set of simulations with 1000 iterations. Each row in a panel consists of a treatment effect estimator as described in the text. There are 4 different data-generating processes as described in the main text with key details listed in the second portion of the table. The columns present the bias and mean-squared error of the estimate of $\hat{\tau}$ relative to the true effect of $\tau_{T_0 + 1} = 1$.}
 \end{table}
 
 The TWFE estimator performs well in terms of bias and RMSE for DGPs 1 and 2. 
 Even though we generate a factor model for DGP 2, treatment is randomly assigned and so parallel trends holds. 
 The factor model is subsumed in the error and inflates the variance, but does not cause substantial bias. 
 For DGPs 3 and 4, TWFE performs unacceptably poorly. 
-We can see that performance worsens moving from $T_0 = 4$ to $T_0 = 12$ even though the post-period difference-in-$Y(0)$ is the same. 
+We can see that performance worsens moving from $T_0 = 4$ to $T_0 = 12$ even though the post-period difference-in-$y(\infty)$ is the same. 
 Increasing the number of time periods increases deviations from treated and untreated units due to the linear trend, in line with recent work by \citet{milliment2023misuse}.
 It is interesting to note that the bias of the TWFE estimator falls substantially, almost by half, when the proxy variables are used as controls. We investigate this phenomenon at the end of the section. 
 
@@ -528,6 +542,7 @@ Still, the generalized synthetic control estimator performs worse than the QLD, 
 The oracle estimator that uses the true $\bm F$ performs better than all other estimators in every metric for each simulation exercise. 
 The QLD estimators also perform well, with acceptable biases and empirical coverage in each setting. When $T_0 = 4$, QLD with estimated $p$ outperforms generalized synthetic control, even when it takes $p$ as known. We can also see that estimating $p$ does not impose much of a cost on the QLD first-stage estimator. This is primarily because in the vast amount of simulations, the estimator estimates the correct $p$. 
 Last, our confidence intervals perform well in all cases, having approximately correct coverage even in the case of autocorrelated errors. 
+% However, the sequential testing method of \citet{Ahn_Lee_Schmidt_2013} tends to overestimate $p$, which does not lead to bias but can reduce precision \citep{Breitung_Hansen_2021}. 
 
 \subsection{Using a Noisy Proxy}
 
@@ -535,10 +550,10 @@ As mentioned earlier, practitioners recognize that treated and untreated units m
 
 The intuition for imputation estimators in the microeconometric setting is that we may not be consistent for the unobserved factor loadings, but we can estimate them on average if we knew the factors. We generated $\bm w_i$ as being unbiased in the factor loadings. However, just having an unbiased estimator of the loadings does not mean we can consistently estimate the slopes $\bm \beta_t$ unless the estimator of the loadings is very precise. To demonstrate this, we plot the bias of the TWFE estimator with proxy $\bm w_i' \bm \beta_t$ along with the bias of the feasible QLD estimator (with estimated $p$) at different levels of ``signal to noise ratio", which we define as 
 \begin{gather}
-    \text{signal to noise ratio 1} = \frac{\text{Var}(\mu_i)}{\text{Var}(\mu_i) + \text{Var}(\xi_{i1})}\\
-    \text{signal to noise ratio 2} = \frac{\text{Var}(\gamma_i)}{\text{Var}(\gamma_i) + \text{Var}(\xi_{i2})}
+    \text{signal to noise ratio 1} = \frac{\text{Var}(\mu_i)}{\text{Var}(\mu_i) + \text{Var}(\xi_{i,1})}\\
+    \text{signal to noise ratio 2} = \frac{\text{Var}(\gamma_i)}{\text{Var}(\gamma_i) + \text{Var}(\xi_{i,2})}
 \end{gather}
-When this ratio is one, $w_{i1} = \mu_i$ and $w_{i2} = \gamma_i$, so that the factor loadings are observed. At the smallest value we use, 0.1, the variance of $\xi$ is 9 relative to the variance of $\mu = 1$. As we add more noise, the instrument becomes weaker and so we increase $N = 500$ for this set of simulations.
+When this ratio is one, $w_{i,1} = \mu_i$ and $w_{i,2} = \gamma_i$, so that the factor loadings are observed. At the smallest value we use, 0.1, the variance of $\xi$ is 9 relative to the variance of $\mu = 1$. As we add more noise, the instrument becomes weaker and so we increase $N = 500$ for this set of simulations.
 
 \begin{figure}
   \begin{adjustbox}{width=.8\textwidth, center}
@@ -546,10 +561,10 @@ When this ratio is one, $w_{i1} = \mu_i$ and $w_{i2} = \gamma_i$, so that the fa
   \end{adjustbox}
   \caption{Bias of TWFE Imputation with Covariates}\label{fig:noisy_w}
 
-  \note{This figure plots the bias of the `TWFE with $\bm w_i' \bm \beta_t$' and `QLD ($p$ estimated)' estimators when varying the signal to noise ratio of the observed covariates. The shaded regions represent values within the 2.5th and 97.5th percentile of all estimated values at the given specification. Along the $x$ axis, we vary the signal to noise ratios of the observed covariates $(w_{i1}, w_{i2})'$ by changing the variance of the noise terms $\xi_{i1}$ and $\xi_{i2}$. When the signal to noise ratio is 1, the covariates are equal to the factor loadings. A smaller noise ratio corresponds to a larger error variance. we run 1000 simulations for each value of the signal to noise ratio.}
+  \note{This figure plots the bias of the `TWFE with $\bm w_i' \bm \beta_t$' and `QLD ($p$ estimated)' estimators when varying the signal to noise ratio of the observed covariates. The shaded regions represent values within the 2.5th and 97.5th percentile of all estimated values at the given specification. Along the $x$ axis, we vary the signal to noise ratios of the observed covariates $(w_{i,1}, w_{i,2})'$ by changing the variance of the noise terms $\xi_{i,1}$ and $\xi_{i,2}$. When the signal to noise ratio is 1, the covariates are equal to the factor loadings. A smaller noise ratio corresponds to a larger error variance. we run 1000 simulations for each value of the signal to noise ratio.}
 \end{figure}
 
-At one extreme, where the signal to noise ratio is approximately 0, i.e. $\xi_{i1}$ and $\xi_{i2}$ are white noise, the bias for the TWFE imputation estimator with linear model $\bm w_i' \bm \beta_t$ is the same as the TWFE imputation estimator that does not include covariates. At the other extreme, where the signal to noise ratio is approximately 1, i.e. $w_{i1} = \mu_i$ and $w_{i2} = \gamma_i$, the bias is completely removed. Except in settings with very large amounts of noise, the factor model imputation estimator remains unbiased because it only requires the covariates to be correlated with the factor loadings (Assumption \ref{asm:ALS_identification}). This experiment echos the results of \citet{kejriwal2024efficacy}. However, we note that our results are still generous to estimators that use such noisy measure because we generate the observables as unbiased estimators of the factor loadings. 
+At one extreme, where the signal to noise ratio is approximately 0, i.e. $\xi_{i,1}$ and $\xi_{i,2}$ are white noise, the bias for the TWFE imputation estimator with linear model $\bm w_i' \bm \beta_t$ is the same as the TWFE imputation estimator that does not include covariates. At the other extreme, where the signal to noise ratio is approximately 1, i.e. $w_{i,1} = \mu_i$ and $w_{i,2} = \gamma_i$, the bias is completely removed. Except in settings with very large amounts of noise, the factor model imputation estimator remains unbiased because it only requires the covariates to be correlated with the factor loadings (Assumption \ref{asm:ALS_identification}). This experiment echos the results of \citet{kejriwal2024efficacy}. However, we note that our results are still generous to estimators that use such noisy measure because we generate the observables as unbiased estimators of the factor loadings. 
 
 
 
@@ -563,9 +578,9 @@ We construct a dataset following the description in \citet{basker2005job}. In pa
 
 We first implement the TWFE imputation estimator proposed by \citet{Borusyak_Jaravel_Spiess_2021} and estimate event-study effects on ($\log$) retail and wholesale employment. In particular, we use the following model
 \begin{equation}\label{eq:Walmart_twfe}
-  \log(y_{it}) = \mu_i + \lambda_t + \sum_{\ell=-22}^{13} \tau^\ell d_{it}^\ell + u_{it}
+  \log(y_{i,t}) = \mu_i + \lambda_t + \sum_{\ell=-22}^{13} \tau^\ell d_{i,t}^\ell + u_{i,t}
 \end{equation}
-where $i$ denotes county, $t$ denotes year, $y_{it}$ is either retail or wholesale employment, and $d_{it}^\ell = 1(t - g_i = \ell)$ are indicator variables denoting event-time. Results of the event-study estimates are presented in panel (a) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale}.
+where $i$ denotes county, $t$ denotes year, $y_{i,t}$ is either retail or wholesale employment, and $d_{i,t}^\ell = 1(t - g_i = \ell)$ are indicator variables denoting event-time. Results of the event-study estimates are presented in panel (a) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale}.
 
 For both retail and wholesale employment, counties receiving Walmarts had faster employment growth relative to the control counties, emphasizing our concern over endogenous opening decisions. In the spirit of \citet{Freyaldenhoven_Hansen_Perez_Shapiro_2022} and \citet{rambachan2023more}, we draw the line of best fit for the 15 most-recent pre-treatment estimates ($\hat{\tau}^\ell$ for $-15 \leq \ell < 0$) and extend it into the post-treatment estimates. For both retail and wholesale employment, the pre-trend lines would suggest that a large portion of the estimated effect is a continuation of already existing trends. However, there still appears to be positive effects on retail employment (if the pre-trend violations were indeed linear in the post-treatment period). 
 
@@ -592,10 +607,10 @@ For both retail and wholesale employment, counties receiving Walmarts had faster
 \end{subfigure}
 \end{center}
 
-\note{This figure plots point estimates and bootstrapped 95\%  confidence intervals for event-study treatment effects on $\log$ retail employment. Panel (a) estimates effects using the TWFE imputation estimator proposed in \citet{Borusyak_Jaravel_Spiess_2021}. Panel (b) estimates effects using the QLD imputation estimator we propose in Section \ref{sec:estimation} with $p = 2$ and using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree. The red lines correspond to a linear estimate of pre-treatment point estimates for event time -15 to -1 and is extended into the post-treatment periods.}
+\note{This figure plots point estimates and analytic 95\% confidence intervals for event-study treatment effects on $\log$ retail employment. Panel (a) estimates effects using the TWFE imputation estimator proposed in \citet{Borusyak_Jaravel_Spiess_2021}. Panel (b) estimates effects using the QLD imputation estimator we propose in Section \ref{sec:estimation} with $p = 2$ and using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree. The red lines correspond to a linear estimate of pre-treatment point estimates for event time -15 to -1 and is extended into the post-treatment periods.}
 \end{figure}
 
-We use the QLD estimator to estimate the factors as described in Section \ref{subsection:QLD}. to estimate the factor parameters $\bm \theta$, we need a set of instruments that satisfy the two standard instrument requirements as described by Assumption \ref{asm:ALS_identification}: relevancy and exclusion. Intuitively, the relevancy restriction requires that the instruments are correlated with the full vector of factor-loadings. That is, the instruments should be selected as `proxies' for the kinds of economic factor-loadings that the researcher is concerned of. The exclusion restriction requires that the instrument values are uncorrelated with location-specific idiosyncratic shocks. For this reason, we use baseline covariate values as instruments to avoid shocks to the covariates that are correlated with shocks to the outcome variable. 
+We use the QLD estimator to estimate the factors as described in Section \ref{subsection:QLD}. to estimate the factor parameters $\bm \theta$, we need a set of instruments that satisfy the two standard instrument requirements as described by Assumption \ref{asm:ALS_identification}: relevancy and exclusion. Intuitively, the relevancy restriction requires that the instruments are correlated with the full vector of factor-loadings. That is, the instruments should be selected as `proxies' for the kinds of economic factor-loadings that the researcher is concerned of. The exclusion restriction requires that the instrument values are uncorrelated with location-specific idiosyncratic shocks. For this reason, we use baseline covariate values as instruments to avoid shocks to the covariates that are correlated with shocks to the outcome variable. We calculate analytic standard errors using our GMM formulation.\footnote{We present point-wise standard errors in the figure. As discussed in appendix Section \ref{sec:agg_te}, uniform inference on the event-study estimates is also possible via a multiplier bootstrap.}
 
 We select instruments that we suspect are driven by the general macroeconomic trends that cause differential retail employment growth in the 1980s and 1990s. For example, retail employment is likely driven by consumptive expenditures, which in turn are reflective of local labor market trends. Therefore, we use instruments that we think proxy for characteristics that determine local labor market trends. We specifically use the 1980 baseline values of the following variables as instruments: share of population employed in manufacturing, shares of population below and above the poverty line, shares of population employed in the private-sector and by the government, and shares of population with high-school and college degrees.\footnote{All of these values are obtained from 1980 Census Tables accessed from \citet{manson2020ipums}.} Note that instead of estimating $\ATT(g,t)$, we estimate $\ATT^\ell$ pooling across $(i, t)$ with $\ell = t - g_i$ as described after Theorem \ref{theorem:asymptotic_distribution}.
 
@@ -621,18 +636,21 @@ We select instruments that we suspect are driven by the general macroeconomic tr
 \end{subfigure}
 \end{center}
 
-\note{This figure plots point estimates and bootstrapped 95\% confidence intervals for event-study treatment effects on $\log$ wholesale employment. Panel (a) estimates effects using the TWFE imputation estimator proposed in \citet{Borusyak_Jaravel_Spiess_2021}. Panel (b) estimates effects using the generalized imputation estimator we propose in Section \ref{sec:estimation} with $p = 1$ and using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree. The red lines correspond to a linear estimate of pre-treatment point estimates for event time -15 to -1 and is extended into the post-treatment periods.}
+\note{This figure plots point estimates and analytic 95\% confidence intervals for event-study treatment effects on $\log$ wholesale employment. Panel (a) estimates effects using the TWFE imputation estimator proposed in \citet{Borusyak_Jaravel_Spiess_2021}. Panel (b) estimates effects using the generalized imputation estimator we propose in Section \ref{sec:estimation} with $p = 1$ and using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree. The red lines correspond to a linear estimate of pre-treatment point estimates for event time -15 to -1 and is extended into the post-treatment periods.}
 \end{figure}
 
-The results of our estimator are presented in panel (b) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale}.\footnote{We carry out the test to determine the correct number of factors $p$ following the discussion in \citet{Ahn_Lee_Schmidt_2013}. For retail, the p-value of the over-identification test were as follows: p = 0 with a p-value of 1.56e-5; p = 1 with a p-value of 0.001; p = 2 with a p-value of 0.133.  Since $p = 2$ is the first value where we fail to reject the null at a 10\% level, we set $p = 2$. Similarly, we selected $p = 1$ for wholesale since the p-values were: p = 0 with a p-value of 0.049; and p = 1 with a p-value of 0.40.} For retail employment, there is basically no pre-trend violations with the pre-treatment point estimates centered on zero. After removing the pre-existing economic trends, the treatment effect point estimates are smaller than those estimated by TWFE with an estimated effect on employment of around 6\% on average. Evaluated at the median baseline retail employment of 1417 employees, this result would imply an increase in about 85 jobs, which is in line with the estimates of \citet{basker2005job} and \citet{stapp2014Walmart} who use alternative instrumental variables strategies. It is important to note that post-treatment estimates are noisier than the TWFE estimates largely due to estimating the factor proxies in the first stage. This problem is at its worst for the furthest event-times due to very few counties being averaged over in the last few bins. We view this as a worthy trade-off since the point estimates are much less likely to be biased. 
+The results of our estimator are presented in panel (b) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale}. We carry out the test to determine the correct number of factors $p$ following the discussion in \citet{Ahn_Lee_Schmidt_2013}. 
+For retail, the p-value of the over-identification test were as follows: $p = 0$ with a p-value of 1.56e-5; $p = 1$ with a p-value of 0.001; $p = 2$ with a p-value of 0.133, so we set $p = 2$ for estimating the effects on retail employment. Similarly, we selected $p = 1$ for wholesale employment since the p-values were: $p = 0$ with a p-value of 0.049; and $p = 1$ with a p-value of 0.40. 
+
+For retail employment, there is basically no pre-trend violations with the pre-treatment point estimates centered on zero. After removing the pre-existing economic trends, the treatment effect point estimates are smaller than those estimated by TWFE with an estimated effect on employment of around 6\% on average. Evaluated at the median baseline retail employment of 1417 employees, this result would imply an increase in about 85 jobs, which is in line with the estimates of \citet{basker2005job} and \citet{stapp2014Walmart} who use alternative instrumental variables strategies. It is important to note that post-treatment estimates are noisier than the TWFE estimates largely due to estimating the factor proxies in the first stage. This problem is at its worst for the furthest event-times due to very few counties being averaged over in the last few bins. We view this as a worthy trade-off since the point estimates are much less likely to be biased. 
 
 We see a similar story with wholesale employment, where our estimator removes most of the pre-trend violations. In this case, however, the estimated effects flip signs with an estimated effect of around -6\%, although they are not statistically significant at the 5\% level. Evaluated at the 1977 median wholesale employment of 410, this suggests a decrease of about 25 jobs, similar to the findings in \citet{basker2005job}.
 
 Our estimator allows for any consistent estimator of the factor's column space to be `plugged-in' and used for estimation of treatment effects. To show the versatility of the method, we use three different factor estimators in Figure \ref{fig:many_factor_estimators}. First, we use our original QLD estimator from Figure \ref{fig:walmart_retail}. Second, we use the common correlated effects (CCE) estimator originally proposed in \citet{pesaran2006estimation}. This estimator uses a set of covariates, $\bm X$, which are assumed linear in the same common factors as the outcome variable:
 \begin{equation}
-  X_{it} = \bm\alpha_i' \bm{F}_t + \nu_{it}.
+  X_{i,t} = \bm\alpha_i' \bm{F}_t + \nu_{i,t}.
 \end{equation}
-where $\bm \alpha_i$ is a $p \times 1$ vector of covariate-specific factor loadings and $\nu_{it}$ is a mean zero idiosyncratic shock. Under this assumption, the cross-sectional averages of $\bm X$ (averaged over the never-treated group) consistently span the column space of $\bm{F}$. We use log employment for the manufacturing, construction, agriculture, and healthcare 2-digit NAICS codes. The choice of these covariates is plausible if the same sort of national shocks that affect retail employment also affect these other sectors. We more formally analyze this estimator in \citet{Brown_Butts_Westerlund_2023}, which derives the asymptotic distribution of the estimates. Lastly, we use the principal components estimator of \citet{Bai_2009} to impute the factors, as proposed by \citet{xu2017generalized}. This estimator does not require instruments/proxies or additional covariates. However, this advantage comes at the cost of requiring a large number of time periods, which may be infeasible to assume in our application.
+where $\bm \alpha_i$ is a $p \times 1$ vector of covariate-specific factor loadings and $\nu_{i,t}$ is a mean zero idiosyncratic shock. Under this assumption, the cross-sectional averages of $\bm X$ (averaged over the never-treated group) consistently span the column space of $\bm{F}$. We use log employment for the manufacturing, construction, agriculture, and healthcare 2-digit NAICS codes. The choice of these covariates is plausible if the same sort of national shocks that affect retail employment also affect these other sectors. We more formally analyze this estimator in \citet{Brown_Butts_Westerlund_2023}, which derives the asymptotic distribution of the estimates. Lastly, we use the principal components estimator of \citet{Bai_2009} to impute the factors, as proposed by \citet{xu2017generalized}. This estimator does not require instruments/proxies or additional covariates. However, this advantage comes at the cost of requiring a large number of time periods, which may be infeasible to assume in our application.
 
 \begin{figure}
 \caption{Generalized Imputation Estimator for Effect of Walmart on County Employment with Different Factor Estimators}
@@ -660,7 +678,7 @@ where $\bm \alpha_i$ is a $p \times 1$ vector of covariate-specific factor loadi
 
 The results of each estimator are presented in Figure \ref{fig:many_factor_estimators}. All three are effective at removing underlying trends that the treated counties experienced before treatment. This figure highlights the broad applicability of our identification results, allowing the factor estimator of choice to be tailored to the research context at hand. In panel (b), we use $\log$ wholesale employment as an outcome. The CCE and the QLD estimators produce very similar results, while the principal components estimator suggests positive growth in employment outcomes in later years. Corresponding confidence intervals are very large, suggesting that these results are too noisy to draw any meaningful conclusions. These results suggest we may not have a large enough time series to meaningfully estimate the factors via principal components.
 
-One reason the synthetic control literature is increasingly popular is that it allows researchers to transparently plot the counterfactual estimates of $y(0)$ for the treated unit. For this reason, we plot the observed $\tilde{y}_{it}$ and the imputed $\hat{\tilde{y}}_{it}(0)$ for (log) retail and wholesale employment in Figure \ref{fig:synthetic_control_plot}. In pre-treatment ($\ell < 0$), the imputed estimate follows closely with the observed $\tilde{y}_{it}$, giving us confidence in our ability to approximate the factor structure. In the post-periods, we see the observed counties and the imputed untreated version of the counties pulling apart. The gap between the two is our estimated effect of treatment. 
+One reason the synthetic control literature is increasingly popular is that it allows researchers to transparently plot the counterfactual estimates of $y(\infty)$ for the treated unit. For this reason, we plot the observed $\tilde{y}_{i,t}$ and the imputed $\hat{\tilde{y}}_{i,t}(\infty)$ for (log) retail and wholesale employment in Figure \ref{fig:synthetic_control_plot}. In pre-treatment ($\ell < 0$), the imputed estimate follows closely with the observed $\tilde{y}_{i,t}$, giving us confidence in our ability to approximate the factor structure. In the post-periods, we see the observed counties and the imputed untreated version of the counties pulling apart. The gap between the two is our estimated effect of treatment. 
 
 \begin{figure}
 \caption{Synthetic Control Style Plot of the Effect of Walmart on County Employment}
@@ -680,7 +698,7 @@ One reason the synthetic control literature is increasingly popular is that it a
   \end{adjustbox}
 \end{subfigure}
 
-\note{This figure plots the observed $\tilde{y}_{it}$ and the imputed $\hat{\tilde{y}}_{it}(0)$ for treated units averaged over event time $\ell = t - g_i$. We impute within-transformed potential outcome using the generalized imputation estimator we propose in Section \ref{sec:estimation} using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree.}
+\note{This figure plots the observed $\tilde{y}_{i,t}$ and the imputed $\hat{\tilde{y}}_{i,t}(\infty)$ for treated units averaged over event time $\ell = t - g_i$. We impute within-transformed potential outcome using the generalized imputation estimator we propose in Section \ref{sec:estimation} using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree.}
 \end{figure}
 
 As discussed in Section \ref{sec:simulations}, a common approach in empirical work is to include a set of time-invariant covariates interacted with time-period-specific coefficients, $\bm w_i' \bm \beta_t$, to capture some forms of non-parallel trends \citep{abadie2005semiparametric, sant2020doubly}. Mirroring our simulations, we rerun our TWFE model using our QLD instruments as the controls $\bm w_i$. Figure \ref{fig:walmart_covs} presents the results. Including these variables in our TWFE model fails to absorb the non-parallel trends we think are present in the estimates. This result may imply that $\bm w_i$ is a correlated but noisy measures of the underlying factor loadings and causes attenuation bias in estimates of $\bm \beta_t$, which ultimately fails to absorb the non-parallel trends. 
@@ -730,7 +748,7 @@ To highlight the importance of the uncertainty from estimation of the factors in
   \end{adjustbox}
 \end{subfigure}
 
-\note{This figure recreates estimates from panel (b) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale} with bootstrapped confidence intervals holding the first-stage estimate of $\theta$ fixed in repeated samples.}
+\note{This figure recreates estimates from panel (b) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale} with analytic confidence intervals holding the first-stage estimate of $\bm \theta$ fixed in repeated samples.}
 \end{figure}
 
 
@@ -771,7 +789,7 @@ We would like to thank Stephane Bonhomme, Brantly Callaway, Brian Cadena, Peter 
 Let $t \geq g$ for the given group $g$.
 
 \begin{equation*}
-    \expec{y_{it} - \bm P(\bm{F}_{t}', \bm{F}_{t < g}) \bm y_{i,t < g}}{G_i = g} = \expec{y_{it}(1)}{G_i = g} - \expec{\bm P(\bm{F}_{t}', \bm{F}_{t < g}) \bm y_{i,t < g}}{G_i = g} 
+    \expec{y_{i,t} - \bm P(\bm{F}_{t}', \bm{F}_{t < g}) \bm y_{i,t < g}}{G_i = g} = \expec{y_{i,t}(g)}{G_i = g} - \expec{\bm P(\bm{F}_{t}', \bm{F}_{t < g}) \bm y_{i,t < g}}{G_i = g} 
 \end{equation*}
 We use the fact that 
 \begin{align*}
@@ -779,9 +797,9 @@ We use the fact that
     &= \expec{ \bm{F}_{t}' (\bm{F}_{t < g}' \bm{F}_{t < g})^{-1} \bm{F}_{t < g}' \bm y_{i,t < g} }{G_i = g} \\
     &= \expec{ \bm{F}_{t}' (\bm{F}_{t < g}' \bm{F}_{t < g})^{-1} \bm{F}_{t < g}' \big[\bm{F}_{t < g} \bm \gamma_i + u_{i,t < g} \big] }{G_i = g} \\
     &= \expec{ \bm{F}_{t}' \bm \gamma_i + \bm{F}_{t}' (\bm{F}_{t < g}' \bm{F}_{t < g})^{-1} \bm{F}_{t < g}' u_{i,t < g} }{G_i = g} \\
-    &= \expec{ y_{it}(\infty) }{G_i = g} 
+    &= \expec{ y_{i,t}(\infty) }{G_i = g} 
 \end{align*}
-The second equality hold by Assumption 2 and the fact that $y_{i,t < g} = y_{i, t < g}(0)$. The final equality holds by Assumption 2.
+The second equality hold by Assumption 2 and the fact that $y_{i,t < g} = y_{i, t < g}(\infty)$. The final equality holds by Assumption 2.
 
 For the second part of the theorem, note that from the column span condition, there exists a $m \times p$ matrix $\bm A$ such that 
 \begin{equation}
@@ -811,25 +829,27 @@ $\square$
 
 We first derive the averages defined in Section 2.2 in terms of the potential outcome framework:
 \begin{gather*}
-    \overline{y}_{\infty , t} = \frac{1}{N_{\infty}} \sum_{i = 1}^N D_{i \infty} y_{it} = \overline{\mu}_{\infty} + \lambda_t + \bm{F}_t \overline{\bm \gamma}_{\infty} + \overline{u}_{t, \infty}\\
-    \overline{y}_{i,t\leq T_0} = \frac{1}{T_0} \sum_{t = 1}^{T_0} y_{it} = \mu_i + \overline{\lambda}_{t < T_0} + \overline{\bm{F}}_{t < T_0} \bm \gamma_i + \overline{u}_{i,t < T_0}\\
-    \overline{y}_{\infty, t < T_0} = \frac{1}{N_{\infty} T_0} \sum_{i = 1}^N \sum_{t = 1}^{T_0} D_{i \infty} y_{it} = \overline{\mu}_{\infty} + \overline{\lambda}_{t < T_0} + \overline{\bm{F}}_{t < T_0} \overline{\bm \gamma}_{\infty} + \overline{u}_{\infty, t < T_0}
+    \overline{y}_{\infty , t} = \frac{1}{N_{\infty}} \sum_{i = 1}^N D_{i, \infty} y_{i,t} = \overline{\mu}_{\infty} + \lambda_t + \bm{F}_t \overline{\bm \gamma}_{\infty} + \overline{u}_{t, \infty}\\
+    \overline{y}_{i,t\leq T_0} = \frac{1}{T_0} \sum_{t = 1}^{T_0} y_{i,t} = \mu_i + \overline{\lambda}_{t < T_0} + \overline{\bm{F}}_{t < T_0} \bm \gamma_i + \overline{u}_{i,t < T_0}\\
+    \overline{y}_{\infty, t < T_0} = \frac{1}{N_{\infty} T_0} \sum_{i = 1}^N \sum_{t = 1}^{T_0} D_{i, \infty} y_{i,t} = \overline{\mu}_{\infty} + \overline{\lambda}_{t < T_0} + \overline{\bm{F}}_{t < T_0} \overline{\bm \gamma}_{\infty} + \overline{u}_{\infty, t < T_0}
 \end{gather*}
 where $\overline{\mu}_{\infty}$ and $\overline{\bm \gamma}_{\infty}$ are the averages of the never-treated individuals' heterogeneity and $\overline{\bm{F}}_{t < T_0}$ and $\overline{\lambda}_{t < T_0}$ are the averages of the time effects before anyone is treated. The error averages have the same interpretation as the outcome averages.
 
-The definition of $\tau_{it}$ is the difference between treated and untreated potential outcomes for unit $i$ at time $t$, so for any $(i,t)$, $y_{it} = d_{it} y_{it}(1) + (1-d_{it})y_{it}(\infty) = d_{it} \tau_{it} + y_{it}(\infty)$. Then
+The definition of $\tau_{i,t}$ is the difference between treated and untreated potential outcomes for unit $i$ at time $t$, so for any $(i,t)$, $y_{i,t} = d_{i,t} y_{i,t}(g) + (1-d_{i,t})y_{i,t}(\infty) = d_{i,t} \tau_{i,t} + y_{i,t}(\infty)$. Then
 \begin{align*}
-    \tilde{y}_{it} 
-    &= d_{it} \tau_{it} + \bm{F}_t' \bm \gamma_i - \overline{\bm{F}}'_{t < T_0} \bm \gamma_i - \bm{F}_t' \overline{\bm \gamma}_{\infty} + \overline{\bm{F}}_{t < T_0} \overline{\bm \gamma}_{\infty} + u_{it} - \overline{u}_{t,\infty} - \overline{u}_{i, t < T_0} + \overline{u}_{\infty, t < T_0}\\
-    &= d_{it} \tau_{it} + (\bm{F}_t - \overline{\bm{F}}_{t < T_0})' (\bm \gamma_i - \overline{\bm \gamma}_{\infty}) + u_{it} - \overline{u}_{t,\infty} - \overline{u}_{i, t < T_0} + \overline{u}_{\infty, t < T_0}
+    \tilde{y}_{i,t} 
+    &= d_{i,t} \tau_{i,t} + \bm{F}_t' \bm \gamma_i - \overline{\bm{F}}'_{t < T_0} \bm \gamma_i - \bm{F}_t' \overline{\bm \gamma}_{\infty} + \overline{\bm{F}}_{t < T_0} \overline{\bm \gamma}_{\infty} + u_{i,t} - \overline{u}_{t,\infty} - \overline{u}_{i, t < T_0} + \overline{u}_{\infty, t < T_0}\\
+    &= d_{i,t} \tau_{i,t} + (\bm{F}_t - \overline{\bm{F}}_{t < T_0})' (\bm \gamma_i - \overline{\bm \gamma}_{\infty}) + u_{i,t} - \overline{u}_{t,\infty} - \overline{u}_{i, t < T_0} + \overline{u}_{\infty, t < T_0}
 \end{align*}
-Taking expectation conditional on $G_i = g$ gives $\expec{u_{it} - \overline{u}_{i, t < T_0}}{G_i = g} = 0$ by Assumption 2 and $\expec{\overline{u}_{\infty, t < T_0} - \overline{u}_{t, \infty} }{G_i = g} = \expec{\overline{u}_{\infty, t < T_0} - \overline{u}_{t, \infty}} = 0$ by random sampling and iterated expectations.
+Taking expectation conditional on $G_i = g$ gives $\expec{u_{i,t} - \overline{u}_{i, t < T_0}}{G_i = g} = 0$ by Assumption 2 and $\expec{\overline{u}_{\infty, t < T_0} - \overline{u}_{t, \infty} }{G_i = g} = \expec{\overline{u}_{\infty, t < T_0} - \overline{u}_{t, \infty}} = 0$ by random sampling and iterated expectations.
 
 $\square$
 
 \subsection*{Proof of \autoref{theorem:asymptotic_distribution}}
 
-We can appeal to standard large sample GMM theory as in \citet{Hansen_1982} due to the types of first-stage factor estimators we consider. We do not consider true ``fixed effects" estimators where the number of parameters grows with the sample size. The IV and cross-sectional averages approaches are based on eliminating the factors (which are fixed in the asymptotic analysis) by reducing them to a smaller set of parameters. For example, while the CCE estimator can be implemented as a pooled regression where unit dummies are interacted with cross-sectional averages, the estimator itself takes a form similar to the within transformation in the linear fixed effects model. In fact, we prove asymptotic unbiasedness of dynamic ATT estimators using the CCE estimator in the first stage \citep{Brown_Butts_Westerlund_2023}\footnote{We consider CCE in a separate paper because the additional modeling assumptions allow for stronger results than those considered in this paper.}.
+% \nick{2/23/2024 draft:} 
+
+We can appeal to standard large sample GMM theory as in \citet{Hansen_1982} due to the types of first-stage factor estimators we consider. We do not consider true ``fixed effects" estimators where the number of parameters grows with the sample size. The IV and cross-sectional averages approaches are based on eliminating the factors (which are fixed in the asymptotic analysis) by reducing them to a smaller set of parameters. For example, while the CCE estimator can be implemented as a pooled regression where unit dummies are interacted with cross-sectional averages, the estimator itself takes a form similar to the within transformation in the linear fixed effects model. In fact, we prove asymptotic unbiasedness of dynamic ATT estimators using the CCE estimator in the first stage \citep{Brown_Butts_Westerlund_2023}\footnote{We consider CCE in a separate paper because the additional modeling assumptions imply stronger results than those considered in this paper.}.
 
 Consider the QLD estimator of \citet{Ahn_Lee_Schmidt_2013}. They study the linear model
 \begin{equation}
@@ -841,27 +861,27 @@ They jointly estimate the QLD parameters $\bm \theta$ along with the conditional
 \end{equation}
 They show that the estimator is well-behaved and does not suffer from asymptotic bias. As described in \citet{windmeijer2005finite}, the most likely source of finite-sample bias comes from estimating the optimal weight matrix. The appendix of \citet{Ahn_Lee_Schmidt_2013} describes a continuous updating estimator (CUE) based on their moment conditions, which may have less finite-sample bias than the optimal two-step estimator. However, we may also sacrifice efficiency in large samples if their assumed covariance structure is incorrect. 
 
-We now derive the asymptotic variance of the full estimator under a general first-step estimator of the factors. Note that $\bm h_{i\infty}(\bm{\theta}) \otimes \bm h_{ig}(\bm{\theta}, \bm \tau_g) = \bm 0$ (from the $D_{ig}$ terms) and $\bm h_{ih}(\bm{\theta}, \bm \tau_h) \otimes \bm h_{ik}(\bm{\theta}, \bm \tau_k) = \bm 0$ almost surely uniformly over the parameter space for all $g \in \mathcal{G}$ and $h \neq k$. The covariance matrix of these moment functions, which we denote as $\bm \Delta$, is a block diagonal matrix.
+We now derive the asymptotic variance of the full estimator under a general first-step estimator of the factors. Note that $\bm h_{i, \infty}(\bm{\theta}) \otimes \bm h_{i, g}(\bm{\theta}, \bm \tau_g) = \bm 0$ (from the $D_{i,g}$ terms) and $\bm h_{i, h}(\bm{\theta}, \bm \tau_h) \otimes \bm h_{i, k}(\bm{\theta}, \bm \tau_k) = \bm 0$ almost surely uniformly over the parameter space for all $g \in \mathcal{G}$ and $h \neq k$. The covariance matrix of these moment functions, which we denote as $\bm \Delta$, is a block diagonal matrix.
 \begin{equation*}
     \bm \Delta =
     \begin{pmatrix}
-        \expec{\bm h_{i \infty}(\bm{\theta}) \bm h_{i \infty}(\bm{\theta})'} & \bm 0 & \bm 0 & \hdots & \bm 0\\
-        \bm 0 &  \expec{\bm h_{i g_G}(\bm{\theta}, \bm \tau_{g_G}) \bm h_{i g_G}(\bm{\theta}, \bm \tau_{g_G})' } & \bm 0 & \hdots & \bm 0\\
+        \expec{\bm h_{i, \infty}(\bm{\theta}) \bm h_{i, \infty}(\bm{\theta})'} & \bm 0 & \bm 0 & \hdots & \bm 0\\
+        \bm 0 &  \expec{\bm h_{i, g_G}(\bm{\theta}, \bm \tau_{g_G}) \bm h_{i, g_G}(\bm{\theta}, \bm \tau_{g_G})' } & \bm 0 & \hdots & \bm 0\\
         \vdots & & \ddots  &\\
-        \bm 0 & \bm 0 & \bm 0 & \hdots & \expec{ \bm h_{i g_1}(\bm{\theta}, \bm \tau_{g_1}) \bm h_{i g_1}(\bm{\theta}, \bm \tau)'}
+        \bm 0 & \bm 0 & \bm 0 & \hdots & \expec{ \bm h_{i, g_1}(\bm{\theta}, \bm \tau_{g_1}) \bm h_{i, g_1}(\bm{\theta}, \bm \tau)'}
     \end{pmatrix}
 \end{equation*}
 We write the individual blocks as $\bm \Delta_g$ for $g \in \mathcal{G} \cup \{ \infty \}$. The gradient is also simple to compute because all of the moments are linear in the treatment effects. We define the overall gradient $\bm D$ and show it is a lower triangular matrix which we write in terms of its constituent blocks:
 \begin{equation*}
     \bm D = 
     \begin{pmatrix}
-        \expec{\nabla_{\bm{\theta}} \bm h_{i\infty}(\bm{\theta}) } & \bm 0 & \bm 0 & \hdots & \bm 0\\
-        \expec{\nabla_{\bm{\theta}} \bm h_{ig_G}(\bm{\theta}, \bm \tau_{g_G})} & -\bm I_{T - g_G + 1} & \bm 0 & \hdots & \bm 0\\
+        \expec{\nabla_{\bm{\theta}} \bm h_{i, \infty}(\bm{\theta}) } & \bm 0 & \bm 0 & \hdots & \bm 0\\
+        \expec{\nabla_{\bm{\theta}} \bm h_{i, g_G}(\bm{\theta}, \bm \tau_{g_G})} & -\bm I_{T - g_G + 1} & \bm 0 & \hdots & \bm 0\\
         \vdots & & \ddots  &\\
-        \expec{\nabla_{\bm{\theta}} \bm h_{ig_1}(\bm{\theta}, \bm \tau_{g_1})} & \bm 0 & \bm 0 & \hdots & -\bm I_{T - g_1 + 1}
+        \expec{\nabla_{\bm{\theta}} \bm h_{i, g_1}(\bm{\theta}, \bm \tau_{g_1})} & \bm 0 & \bm 0 & \hdots & -\bm I_{T - g_1 + 1}
     \end{pmatrix}
 \end{equation*}
-where we write the blocks in the first column as $\bm D_g$ for $g \in \mathcal{G} \cup \{ \infty \}$. The diagonal is made up of negative identity matrices because $\expec{\frac{D_{ig_h}}{\mathbb{P}(D_{ig_h} = 1)}} = 1$.
+where we write the blocks in the first column as $\bm D_g$ for $g \in \mathcal{G} \cup \{ \infty \}$. The diagonal is made up of negative identity matrices because $\expec{\frac{D_{i, g_h}}{\mathbb{P}(D_{i,g_h} = 1)}} = 1$.
 
 Given we use the optimal weight matrix, the overall asymptotic variance of the GMM estimator is given by $(\bm D' \bm \Delta^{-1} \bm D)^{-1}$. $\bm\Delta$ is a block diagonal matrix so its inverse is trivial to compute. First, we have
 \begin{equation*}
@@ -1041,7 +1061,7 @@ The second case, when $g - 1 < T-p$, now has parameters in the post-treatment ma
         - \bm I_p
     \end{pmatrix}
 \end{equation}
-Because $\bm \theta \neq (\text{vec}(\bm \Theta_1)', \text{vec}(\bm \Theta_2)')'$, we define the matrices $\bm E_1 = [\bm I_{g-1}, \bm 0_{(g-1) \times (T-p - g+1)}$ and $\bm E_2 = [ \bm 0_{(T-p - g + 1) \times (g-1)}, \bm I_{(T-p -g + 1)}]$ such that 
+Because $\bm \theta \neq (\text{vec}(\bm \Theta_1)', \text{vec}(\bm \Theta_2)')'$, we define the matrices $\bm E_1 = [\bm I_{g-1}, \bm 0_{(g-1) \times (T-p - g+1)}]$ and $\bm E_2 = [ \bm 0_{(T-p - g + 1) \times (g-1)}, \bm I_{(T-p -g + 1)}]$ such that 
 \begin{gather}
     \bm \Theta_1 = \bm E_1 \bm \Theta\\
     \bm \Theta_2 = \bm E_2 \bm \Theta
@@ -1118,19 +1138,19 @@ $\square$
 
 We derive the limiting theory by multiplying $\widehat{\bm \Delta}_g$ by $(N_g-1)/N_g$ which produces the same limit as $N \rightarrow \infty$. We write
 \begin{equation*}
-    \frac{N_g - 1}{ N_g} \widehat{\bm \Delta}_g = \frac{1}{N_g} \sum_{i = 1}^N D_{ig} \widehat{\bm \Delta}_{ig} \widehat{\bm \Delta}_{ig}' - \widehat{\bm \tau}_g \widehat{\bm \tau}_g'
+    \frac{N_g - 1}{ N_g} \widehat{\bm \Delta}_g = \frac{1}{N_g} \sum_{i = 1}^N D_{i,g} \widehat{\bm \Delta}_{i,g} \widehat{\bm \Delta}_{i,g}' - \widehat{\bm \tau}_g \widehat{\bm \tau}_g'
 \end{equation*}
 We already know that $\widehat{\bm \tau}_g \plim \bm \tau_g$ by Theorem 3.1. Note that 
 \begin{align*}
-  &\frac{1}{N_g} \sum_{i = 1}^N D_{ig} \widehat{\bm \Delta}_{ig} \widehat{\bm \Delta}_{ig}' =\\
-  &\qquad \left( \frac{1}{N_g} \sum_{i = 1}^N D_{ig}  \bm y_{i, t \geq g} \bm y_{i, t \geq g}' \right) - \left( \frac{1}{N_g} \sum_{i = 1}^N D_{ig} \bm y_{i, t \geq g} \bm y_{i, t < g}' \right) \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}}))' \\
-  &\qquad- \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}})) \left( \frac{1}{N_g} \sum_{i = 1}^N D_{ig} \bm y_{i, t < g} \bm y_{i, t \geq g}' \right)\\
-  &\qquad- \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}})) \left( \frac{1}{N_g} \sum_{i = 1}^N D_{ig}  \bm y_{i, t < g} \bm y_{i, t \geq g}' \right) \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}}))'
+  &\frac{1}{N_g} \sum_{i = 1}^N D_{i,g} \widehat{\bm \Delta}_{i,g} \widehat{\bm \Delta}_{i,g}' =\\
+  &\qquad \left( \frac{1}{N_g} \sum_{i = 1}^N D_{i,g}  \bm y_{i, t \geq g} \bm y_{i, t \geq g}' \right) - \left( \frac{1}{N_g} \sum_{i = 1}^N D_{i,g} \bm y_{i, t \geq g} \bm y_{i, t < g}' \right) \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}}))' \\
+  &\qquad- \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}})) \left( \frac{1}{N_g} \sum_{i = 1}^N D_{i,g} \bm y_{i, t < g} \bm y_{i, t \geq g}' \right)\\
+  &\qquad- \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}})) \left( \frac{1}{N_g} \sum_{i = 1}^N D_{i,g}  \bm y_{i, t < g} \bm y_{i, t \geq g}' \right) \bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}}))'
 \end{align*} 
 
 Given $\bm P(\bm{F}_{t \geq g}(\widehat{\bm{\theta}}), \bm{F}_{t < g}(\widehat{\bm{\theta}}))$ is equal to its infeasible counterpart $\bm P(\bm{F}_{t \geq g}, \bm{F}_{t < g})$ plus a term that is $O_p(N^{-1/2})$. Assumption 1 and the weak law of large numbers imply 
 \begin{equation*}
-    \frac{1}{N_g} \sum_{i = 1}^N D_{ig} \widehat{\bm \Delta}_{ig} \widehat{\bm \Delta}_{ig}' - \widehat{\bm \tau}_g \widehat{\bm \tau}_g' \plim \expec{\bm g_{ig}(\bm{\theta}, \bm \tau_g)}{G_i = g} = \bm \Delta_g
+    \frac{1}{N_g} \sum_{i = 1}^N D_{i,g} \widehat{\bm \Delta}_{i,g} \widehat{\bm \Delta}_{i,g}' - \widehat{\bm \tau}_g \widehat{\bm \tau}_g' \plim \expec{\bm h_{i,g}(\bm{\theta}, \bm \tau_g) \bm h_{i,g}(\bm{\theta}, \bm \tau_g)'}{G_i = g} = \bm \Delta_g
 \end{equation*}
 The inverse exists with probability approaching one by Assumption 5.
 
@@ -1138,16 +1158,16 @@ $\square$
 
 
 % ------------------------------------------------------------------------------
-\section{Inference of Aggregate Treatment Effects}
+\section{Inference of Aggregate Treatment Effects}\label{sec:agg_te}
 % ------------------------------------------------------------------------------
 
-As in \citet{Callaway_Santanna_2021}, we can form aggregates of our group-time average treatment effects. For example, event-study type coefficients would average over the $\tau_{gt}$ where $t - g = e$ for some relative event-time $e$ with weights proportional to group membership. Consider a general aggregate estimand $\delta$ which we define as a weighted average of $ATT(g,t)$:
+As in \citet{Callaway_Santanna_2021}, we can form aggregates of our group-time average treatment effects. For example, event-study type coefficients would average over the $\tau_{g,t}$ where $t - g = e$ for some relative event-time $e$ with weights proportional to group membership. Consider a general aggregate estimand $\delta$ which we define as a weighted average of $ATT(g,t)$:
 \begin{equation}
-\delta = \sum_{g\in \mathcal{G}} \sum_{t > T_0} w(g,t) \tau_{gt}
+\delta = \sum_{g\in \mathcal{G}} \sum_{t > T_0} w(g,t) \tau_{g,t}
 \end{equation}
 where the weights $w(g,t)$ are non-negative and sum to one. Table 1 of \citet{Callaway_Santanna_2021} and the surrounding discussion describes various treatment effect aggregates and discuss explicit forms for the weights. 
 
-Our plug-in estimate for $\delta$ is given by $\hat{\delta} = \sum_{g\in \mathcal{G}} \sum_{t > T_0} \hat{w}(g,t) \hat{\tau}_{gt}$. Inference on this term follows directly from Corollary 2 in \citet{Callaway_Santanna_2021} if we have the influence function for our $\tau_{gt}$ estimates. Rewriting our moment equations in an asymptotically linear form, we have:
+Our plug-in estimate for $\delta$ is given by $\hat{\delta} = \sum_{g\in \mathcal{G}} \sum_{t > T_0} \hat{w}(g,t) \hat{\tau}_{g,t}$. Inference on this term follows directly from Corollary 2 in \citet{Callaway_Santanna_2021} if we have the influence function for our $\tau_{g,t}$ estimates. Rewriting our moment equations in an asymptotically linear form, we have:
 \begin{equation}
     \sqrt{N}\Big( (\widehat{\bm{\theta}}', \widehat{\bm \tau}')' - (\bm{\theta}', \bm \tau')' \Big) = - \left( \frac{1}{\sqrt{N}} \sum_{i = 1}^N (\bm D' \bm \Delta^{-1} \bm D)^{-1} \bm D' \bm \Delta^{-1} \bm g_i(\bm{\theta}, \bm \tau) \right) + o_p(1).
 \end{equation}
@@ -1163,28 +1183,28 @@ We derive the asymptotic distribution of our imputation estimator based off of t
 \end{equation}
 where the $t^{th}$ component of the above $T$-vector is 
 \begin{equation}
-    d_{it} \tau_{it} + \tilde{u}_{it},
+    d_{i,t} \tau_{i,t} + \tilde{u}_{i,t},
 \end{equation}
-with $\tilde{u}_{it}$ is defined as the same transformation as $\tilde{y}_{it}$.
+with $\tilde{u}_{i,t}$ is defined as the same transformation as $\tilde{y}_{i,t}$.
 
 The imputation step of our estimator is a just-identified system of equations. As such, we do not need to worry about weighting in implementation and inference comes from standard theory of M-estimators. In fact, we have the following closed-form solution for the estimator of a group-time average treatment effect: 
 \begin{equation}
-    \widehat{\tau}_{gt} = \frac{1}{N_{g}}\sum_{i} D_{ig} \tilde{y}_{it},
+    \widehat{\tau}_{g,t} = \frac{1}{N_{g}}\sum_{i} D_{i,g} \tilde{y}_{i,t},
 \end{equation}
-where $N_{g} = \sum_i D_{ig}$ is the number of units in group $g$. 
+where $N_{g} = \sum_i D_{i,g}$ is the number of units in group $g$. 
 
 The following theorem characterizes estimation under the two-way error model:
 \begin{theorem}\label{theorem:twfe}
-    Assume untreated potential outcomes take the form of the two-way error model given in equation (1). Suppose Assumptions 1 and 3 hold, as well as Assumption 2 with $\bm \gamma_i = 0$. Then for all $(g, t)$ with $g > t$, $\widehat{\bm \tau}_{gt}$ is conditionally unbiased for $\expec{\tau_{it}}{D_{ig} = 1}$, has the linear form
+    Assume untreated potential outcomes take the form of the two-way error model given in equation (1). Suppose Assumptions 1 and 3 hold, as well as Assumption 2 with $\bm \gamma_i = 0$. Then for all $(g, t)$ with $g > t$, $\widehat{\bm \tau}_{g,t}$ is conditionally unbiased for $\expec{\tau_{i,t}}{D_{i,g} = 1}$, has the linear form
     \begin{equation}\label{eq:twfe_influence}
-        \sqrt{N_{g}} \big( \widehat{\tau}_{gt} - \tau_{gt} \big) 
-        = \frac{1}{\sqrt{N_{g}}}\sum_{i=1}^N D_{ig} (\tau_{it} - \tau_{gt} + u_{it} - \overline{u}_{i,t < T_0} - \overline{u}_{\infty,t} + \overline{u}_{\infty,t < T_0})
+        \sqrt{N_{g}} \big( \widehat{\tau}_{g,t} - \tau_{g,t} \big) 
+        = \frac{1}{\sqrt{N_{g}}}\sum_{i=1}^N D_{i,g} (\tau_{i,t} - \tau_{g,t} + u_{i,t} - \overline{u}_{i,t < T_0} - \overline{u}_{\infty,t} + \overline{u}_{\infty,t < T_0})
     \end{equation}
     and  
     \begin{equation}\label{eq:twfe_asymptotic}
-        \sqrt{N_1}(\widehat{\tau}_{gt} - \tau_{gt}) \stackrel{d}{\rightarrow} N(0, V_1 + V_0)
+        \sqrt{N_1}(\widehat{\tau}_{g,t} - \tau_{g,t}) \stackrel{d}{\rightarrow} N(0, V_1 + V_0)
     \end{equation}
-    as $N \rightarrow \infty$, where $V_1$ and $V_0$ are given below and $\tau_{gt} = \expec{y_{it}(g) - y_{it}(\infty)}{D_{ig} = 1}$ is the group-time average treatment effect (on the treated). $\blacksquare$
+    as $N \rightarrow \infty$, where $V_1$ and $V_0$ are given below and $\tau_{g,t} = \expec{y_{i,t}(g) - y_{i,t}(\infty)}{D_{i,g} = 1}$ is the group-time average treatment effect (on the treated). $\blacksquare$
 \end{theorem}
 Theorem (\ref{theorem:twfe}) demonstrates the simplicity of our imputation procedure under the two-way error model. While the general factor structure requires more care, estimation and inference will yield a similar result.
 
@@ -1193,38 +1213,37 @@ Theorem (\ref{theorem:twfe}) demonstrates the simplicity of our imputation proce
 
 The transformed post-treatment observations are
 \begin{equation}
-    \tilde{y}_{it} = \tau_{it} + u_{it} - \overline{u}_{\infty,t}  - \overline{u}_{i,t < T_0} + \overline{u}_{\infty,t < T_0}
+    \tilde{y}_{i,t} = \tau_{i,t} + u_{i,t} - \overline{u}_{\infty,t}  - \overline{u}_{i,t < T_0} + \overline{u}_{\infty,t < T_0}
 \end{equation}
-To show unbiasedness, take expectation conditional on $D_{ig} = 1$. This expected value is
+To show unbiasedness, take expectation conditional on $D_{i,g} = 1$. This expected value is
 \begin{equation}
-    \expec{ \tau_{it} + u_{it} - \overline{u}_{i,t < T_0} - \overline{u}_{\infty,t} + \overline{u}_{\infty,t < T_0} }{D_{ig} = 1} = \expec{\tau_{it}}{D_{ig} = 1}
+    \expec{ \tau_{i,t} + u_{i,t} - \overline{u}_{i,t < T_0} - \overline{u}_{\infty,t} + \overline{u}_{\infty,t < T_0} }{D_{i,g} = 1} = \expec{\tau_{i,t}}{D_{i,g} = 1}
 \end{equation}
 by Assumption 2 and 3.
 
-For consistency, note that averaging over the sample with $D_{ig} = 1$, subtracting $\tau_{gt}$, and multiplying $\sqrt{N_{g}}$ gives
+For consistency, note that averaging over the sample with $D_{i,g} = 1$, subtracting $\tau_{g,t}$, and multiplying $\sqrt{N_{g}}$ gives
 \begin{align}
-    \sqrt{N_{g}} \big( \widehat{\tau}_{gt} - \tau_{gt} \big) 
-    = \frac{1}{\sqrt{N_{g}}}\sum_{i=1}^N D_{ig} (\tau_{it} - \tau_{gt} + u_{it} - \overline{u}_{i,t < T_0})
-    + \frac{1}{\sqrt{N_{g}}}\sum_{i = 1}^N D_{ig} (- \overline{u}_{\infty,t} + \overline{u}_{\infty,t < T_0}) 
+    \sqrt{N_{g}} \big( \widehat{\tau}_{g,t} - \tau_{g,t} \big) 
+    = \frac{1}{\sqrt{N_{g}}}\sum_{i=1}^N D_{i,g} (\tau_{i,t} - \tau_{g,t} + u_{i,t} - \overline{u}_{i,t < T_0})
+    + \frac{1}{\sqrt{N_{g}}}\sum_{i = 1}^N D_{i,g} (- \overline{u}_{\infty,t} + \overline{u}_{\infty,t < T_0}) 
 \end{align}
-which is two normalized sums of uncorrelated iid sequences that have mean zero (by iterated expectations) and finite fourth moments. 
-% The right-hand side is the influence function for $\tau_{gt}$ so inference across terms is possible as well as inference for aggregates following \citet{Callaway_Santanna_2021}.
+which is two normalized sums of uncorrelated iid sequences that have mean zero (by iterated expectations) and finite fourth moments. % The right-hand side is the influence function for $\tau_{gt}$ so inference across terms is possible as well as inference for aggregates following \citet{Callaway_Santanna_2021}.
 
 Rewriting the second term in terms of the original averages $\frac{1}{N_\infty} \sum_{i=1}^N - u_{i,t} + \overline{u}_{i,t < T_0}$ gives:
 \begin{align*}
-    &\sqrt{N_{g}} \big( \widehat{\tau}_{gt} - \tau_{gt} \big) \\
-    &\qquad= \frac{1}{\sqrt{N_{g}}}\sum_{i=1}^N D_{ig} (\tau_{it} - \tau_{gt} + u_{it} - \overline{u}_{i,t < T_0})
-    + \sqrt{\frac{N_g}{N_\infty}} \bigg ( \frac{1}{\sqrt{N_\infty}} \sum_{i = 1}^N D_{i\infty} (- u_{i,t} + \overline{u}_{i,t < T_0} ) \bigg)
+    &\sqrt{N_{g}} \big( \widehat{\tau}_{g,t} - \tau_{g,t} \big) \\
+    &\qquad= \frac{1}{\sqrt{N_{g}}}\sum_{i=1}^N D_{i,g} (\tau_{i,t} - \tau_{g,t} + u_{i,t} - \overline{u}_{i,t < T_0})
+    + \sqrt{\frac{N_g}{N_\infty}} \bigg ( \frac{1}{\sqrt{N_\infty}} \sum_{i = 1}^N D_{i,\infty} (- u_{i,t} + \overline{u}_{i,t < T_0} ) \bigg)
 \end{align*}
 Since these terms are mean zero and uncorrelated, we find the variance of each term separately. 
 
 The first term has asymptotic variance 
 \begin{equation}
-V_1 = \expec{\Big( \tau_{it} - \tau_{gt} + u_{it} - \overline{u}_{i,t < T_0} \Big) \Big( \tau_{it} - \tau_{gt} + u_{it} - \overline{u}_{i,t < T_0} \Big)'}{D_{ig} = 1}
+V_1 = \expec{\Big( \tau_{i,t} - \tau_{g,t} + u_{i,t} - \overline{u}_{i,t < T_0} \Big) \Big( \tau_{i,t} - \tau_{g,t} + u_{i,t} - \overline{u}_{i,t < T_0} \Big)'}{D_{i,g} = 1}
 \end{equation}
 and the second term has asymptotic variance
 \begin{equation}
-V_0 = \frac{\mathbb{P}(D_{ig} = 1)}{\mathbb{P}(D_{i\infty} = 1)} \expec{ \Big( \overline{u}_{i,t < T_0} - u_{i,t} \Big) \Big( \overline{u}_{i,t < T_0} - u_{i,t} \Big)' }{D_{i\infty} = 1}
+V_0 = \frac{\mathbb{P}(D_{i,g} = 1)}{\mathbb{P}(D_{i,\infty} = 1)} \expec{ \Big( \overline{u}_{i,t < T_0} - u_{i,t} \Big) \Big( \overline{u}_{i,t < T_0} - u_{i,t} \Big)' }{D_{i,\infty} = 1}
 \end{equation}
 The result follows from the independence of the two sums.
 
@@ -1237,19 +1256,19 @@ The result follows from the independence of the two sums.
 
 We now discuss the inclusion of covariates in the untreated potential outcome mean model. Allowing for covariates further weakens our parallel trends assumption by allowing selection to hold on unobserved heterogeneity as well as observed characteristics. Identifying the effects of covariates requires some kind of time and unit variation because we manually remove the level fixed effects. 
 
-A common inclusion in the treatment effects literature is time-constant variables with time-varying slopes. Suppose $\bm x_i$ is $1 \times K$ vector of time-constant covariates. We could write the mean model of the untreated outcomes as 
+A common inclusion in the treatment effects literature is time-constant variables with time-varying slopes. Suppose $\bm x_i$ is $K \times 1$ vector of time-constant covariates. We could write the mean model of the untreated outcomes as 
 \begin{equation}
-    \expec{y_{it}(\infty)}{x_i, \mu_i, \bm \gamma_i, D_i} = \bm x_i \bm \beta_t + \mu_i + \lambda_t + \bm{F}_t' \bm \gamma_i
+    \expec{y_{i,t}(\infty)}{x_i, \mu_i, \bm \gamma_i, D_i} = \bm x_i' \bm \beta_t + \mu_i + \lambda_t + \bm{F}_t' \bm \gamma_i
 \end{equation}
-which allows observable covariates to have trending partial effects; covariates with constant slopes are captured by the unit effect. After removing the additive fixed effects, $\bm x_i \bm \beta_t$ will take the same form as the residuals of factor structure. Estimating $\bm{\theta}$ can be done jointly with the time-varying coefficients by applying the QLD transformation to the vector of $\tilde{y}_{it} - \tilde{x}_i \tilde{\beta}_t$. We cannot identify the underlying partial effects because of the time-demeaning, but we can include them for the sake of strengthening the parallel trends assumption.
+which allows observable covariates to have trending partial effects; covariates with constant slopes are captured by the unit effect. After removing the additive fixed effects, $\bm x_i' \bm \beta_t$ will take the same form as the residuals of factor structure. Estimating $\bm{\theta}$ can be done jointly with the time-varying coefficients by applying the QLD transformation to the vector of $\tilde{y}_{i,t} - \tilde{\bm x}_i' \tilde{\bm \beta}_t$. We cannot identify the underlying partial effects because of the time-demeaning, but we can include them for the sake of strengthening the parallel trends assumption.
 
-Time-constant covariates (or time-varying covariates fixed at their pre-treatment value) are often employed because there is little worry that they are affected by treatment. However, we could also include time- and individual-varying covariates of the form $\bm x_{it}$ that are allowed to have identifiable constant slopes if we assume their distribution is unaffected by treatment status. Let $\bm x_{it}$ be a $1 \times K$ vector of covariates that vary over $i$ and $t$. We can jointly estimate a $K \times 1$ vector of parameters $\bm \beta$ along with $\bm{\theta}$ using the moments
+Time-constant covariates (or time-varying covariates fixed at their pre-treatment value) are often employed because there is little worry that they are affected by treatment. However, we could also include time- and individual-varying covariates of the form $\bm x_{i,t}$ that are allowed to have identifiable constant slopes if we assume their distribution is unaffected by treatment status. Let $\bm x_{i,t}$ be a $K \times 1$ vector of covariates that vary over $i$ and $t$. We can jointly estimate a $K \times 1$ vector of parameters $\bm \beta$ along with $\bm{\theta}$ using the moments
 \begin{equation}
     \expec{\bm H(\bm{\theta})' (\tilde{\bm y_i} - \tilde{\bm X_i} \bm \beta) \otimes \bm w_i}{G_i = \infty} = \bm 0
 \end{equation}
 where $\Tilde{\bm X}_i$ is the $T \times K$ matrix of stacked covariates after our double-demeaning procedure.
 
-We could also allow slopes to vary across groups and estimate them via the group-specific pooled regression $D_{ig} y_{it}$ on $D_{ig} \bm x_{it}$ with unit-specific slopes on $D_{ig} \Tilde{\bm{F}}(\widehat{\bm{\theta}})_t$ for $t = 1,..., g-1$. Then we include the covariates and their respective slopes into the moment conditions
+We could also allow slopes to vary across groups and estimate them via the group-specific pooled regression $D_{i,g} y_{i,t}$ on $D_{i,g} \bm x_{i,t}$ with unit-specific slopes on $D_{i,g} \Tilde{\bm{F}}(\widehat{\bm{\theta}})_t$ for $t = 1,..., g-1$. Then we include the covariates and their respective slopes into the moment conditions
 \begin{equation}
     \expec{(\tilde{\bm y}_{i,t\geq g} - \tilde{\bm X}_{i, t \geq g} \bm \beta_g) - \bm P(\tilde{\bm{F}}_{t \geq g}, \tilde{\bm{F}}_{t < g}) (\tilde{\bm y}_{i,t< g} - \tilde{\bm X}_{i, t < g} \bm \beta_g) - \bm \tau_g  }{G_i = g} = \bm 0
 \end{equation}
@@ -1275,11 +1294,11 @@ The results above show how we can identify $(\bm A^*)^{-1} \expec{\bm \gamma_i}{
 
 Collect the moments 
 \begin{gather*}
-    \expec{\frac{D_{i \infty}}{\mathbb{P}(D_{i \infty} = 1)}\bm H(\bm{\theta}) \tilde{\bm y}_i \otimes \bm w_i} = \bm 0\\
-    \expec{\frac{D_{i \infty}}{\mathbb{P}(D_{i \infty} = 1)} \left( \bm P(\bm I_p, \bm{F}(\bm{\theta})) \bm y_i - \bm \gamma^* \right)} = \bm 0\\
-    \expec{\frac{D_{i g_G}}{\mathbb{P}(D_{ig_G} = 1)} \left( \bm P(\bm I_p, \bm{F}(\bm{\theta})_{t < g_G}) \bm y_{i,t < g_G} - \bm \gamma_{g_G}^* \right) } = \bm 0\\
+    \expec{\frac{D_{i, \infty}}{\mathbb{P}(D_{i, \infty} = 1)}\bm H(\bm{\theta}) \tilde{\bm y}_i \otimes \bm w_i} = \bm 0\\
+    \expec{\frac{D_{i, \infty}}{\mathbb{P}(D_{i, \infty} = 1)} \left( \bm P(\bm I_p, \bm{F}(\bm{\theta})) \bm y_i - \bm \gamma^* \right)} = \bm 0\\
+    \expec{\frac{D_{i, g_G}}{\mathbb{P}(D_{i,g_G} = 1)} \left( \bm P(\bm I_p, \bm{F}(\bm{\theta})_{t < g_G}) \bm y_{i,t < g_G} - \bm \gamma_{g_G}^* \right) } = \bm 0\\
     \vdots\\
-    \expec{\frac{D_{i g_1}}{\mathbb{P}(D_{ig_1} = 1)} \left( \bm P(\bm I_p, \bm{F}(\bm{\theta})_{t < g_1}) \bm y_{i,t < g_1} - \bm \gamma_{g_G}^* \right) } = \bm 0
+    \expec{\frac{D_{i, g_1}}{\mathbb{P}(D_{i,g_1} = 1)} \left( \bm P(\bm I_p, \bm{F}(\bm{\theta})_{t < g_1}) \bm y_{i,t < g_1} - \bm \gamma_{g_G}^* \right) } = \bm 0
 \end{gather*}
 The parameters $(\bm \gamma^*, \bm \gamma_{g_G}^*,...,\bm \gamma_{g_1}^*)$ represent the rotated means of the factor loadings. $\bm \gamma$ is the unconditional mean $(\bm A^*)^{-1}\expec{\bm \gamma_i}$ and $\bm \gamma_g$ is the conditional mean $(\bm A^*)^{-1}\expec{\bm \gamma_i}{G_i = g}$ for $g \in \mathcal{G}$. We include estimation of the factors for convenience, so that one does not need to directly calculate the effect of first-stage estimation on the asymptotic variances of conditional means. 
 
@@ -1291,6 +1310,128 @@ Joint GMM estimation of the above parameters, including $\bm{\theta}$, then allo
     \end{equation}
     $\blacksquare$
 \end{theorem}
+
+
+\section{Additional Simulation Results}\label{sec:simulations_additional}
+
+Here we present additional summary tables from the simulations described in Section \ref{sec:simulations}. 
+
+\newpage
+\begin{landscape}
+\begin{table}
+  \def\arraystretch{1.5}
+  \caption{Simulation with $T_0 = 4$}
+  \label{tab:sim_1_t0_4_full}
+  
+  \begin{adjustbox}{width=1.38\textwidth}
+  \begin{tabular}{@{}
+    >{\RaggedRight}p{6cm} 
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c 
+    @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
+  @{}} 
+    \toprule
+    & \multicolumn{5}{c}{DGP 1} & \multicolumn{5}{c}{DGP 2} & \multicolumn{5}{c}{DGP 3} & \multicolumn{5}{c}{DGP 4} \\
+    \cmidrule{2-6} \cmidrule{7-11} \cmidrule{12-16} \cmidrule{17-21}
+     & 
+     &  &  & \multicolumn{2}{c}{\emph{CI Length}} & 
+     &  &  & \multicolumn{2}{c}{\emph{CI Length}} & 
+     &  &  & \multicolumn{2}{c}{\emph{CI Length}} & 
+     &  &  & \multicolumn{2}{c}{\emph{CI Length}} \\
+    \cmidrule{5-6} \cmidrule{10-11} \cmidrule{15-16} \cmidrule{20-21}
+    \textbf{Estimator} & 
+    \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Avg.} & \textbf{SD} &
+    \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Avg.} & \textbf{SD} &
+    \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Avg.} & \textbf{SD} &
+    \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Avg.} & \textbf{SD} \\
+    \midrule
+
+    % ----
+    \input{tables/simulation-1/T0_4_ci.tex}
+    % ----
+
+    \addlinespace[1mm]
+    \midrule
+    \addlinespace[1mm]
+
+    Model & \multicolumn{5}{c}{TWFE} & \multicolumn{5}{c}{Factor} & \multicolumn{5}{c}{Factor} & \multicolumn{5}{c}{Factor} \\
+
+    Treatment & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{5}{c}{$\mathds{1}(\gamma_i > 0)$} \\
+
+    Parallel Trends & \multicolumn{5}{c}{$\checkmark$} & \multicolumn{5}{c}{$\checkmark$} & \multicolumn{5}{c}{} & \multicolumn{5}{c}{} \\
+
+    AR$(1)$ Error Term & \multicolumn{5}{c}{} & \multicolumn{5}{c}{} & \multicolumn{5}{c}{} & \multicolumn{5}{c}{$\checkmark$} \\
+    
+    \bottomrule
+  \end{tabular}
+  \end{adjustbox}
+  
+  \parbox{1.38\textwidth}{\small\vspace*{\medskipamount}%
+    \noindent\emph{Notes.} This table presents a set of simulations with 1000 iterations. Each row in a panel consists of a treatment effect estimator as described in the text. There are 4 different data-generating processes as described in the main text with key details listed in the second portion of the table. The columns present the bias and mean-squared error of the estimate of $\hat{\tau}$ relative to the true effect of $\tau_{T_0 + 1} = 1$.
+    Additionally, 95\% confidence intervals are formed. `Cov.' presents the percent of $95\%$ confidence intervals containing the true treatment effect.
+    `Avg.' refers to the average confidence interval length and `SD' refers to the empirical standard deviation of confidence interval length.
+  }
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+  \begin{table}
+    \def\arraystretch{1.5}
+    \caption{Simulation with $T_0 = 12$}
+    \label{tab:sim_1_t0_12_full}
+    
+    \begin{adjustbox}{width=1.38\textwidth}
+    \begin{tabular}{@{}
+      >{\RaggedRight}p{6cm} 
+      @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
+      @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
+      @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c 
+      @{\extracolsep{16pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c @{\extracolsep{8pt}}c
+    @{}} 
+      \toprule
+      & \multicolumn{5}{c}{DGP 1} & \multicolumn{5}{c}{DGP 2} & \multicolumn{5}{c}{DGP 3} & \multicolumn{5}{c}{DGP 4} \\
+      \cmidrule{2-6} \cmidrule{7-11} \cmidrule{12-16} \cmidrule{17-21}
+       & 
+       &  &  & \multicolumn{2}{c}{\emph{CI Length}} & 
+       &  &  & \multicolumn{2}{c}{\emph{CI Length}} & 
+       &  &  & \multicolumn{2}{c}{\emph{CI Length}} & 
+       &  &  & \multicolumn{2}{c}{\emph{CI Length}} \\
+      \cmidrule{5-6} \cmidrule{10-11} \cmidrule{15-16} \cmidrule{20-21}
+      \textbf{Estimator} & 
+      \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Avg.} & \textbf{SD} &
+      \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Avg.} & \textbf{SD} &
+      \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Avg.} & \textbf{SD} &
+      \textbf{Bias} & \textbf{RMSE} & \textbf{Cov.} & \textbf{Avg.} & \textbf{SD} \\
+      \midrule
+  
+      % ----
+      \input{tables/simulation-1/T0_12_ci.tex}
+      % ----
+  
+      \addlinespace[1mm]
+      \midrule
+      \addlinespace[1mm]
+  
+      Model & \multicolumn{5}{c}{TWFE} & \multicolumn{5}{c}{Factor} & \multicolumn{5}{c}{Factor} & \multicolumn{5}{c}{Factor} \\
+  
+      Treatment & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{5}{c}{$\mathds{1}(\gamma_i > 0)$} \\
+  
+      Parallel Trends & \multicolumn{5}{c}{$\checkmark$} & \multicolumn{5}{c}{$\checkmark$} & \multicolumn{5}{c}{} & \multicolumn{5}{c}{} \\
+  
+      AR$(1)$ Error Term & \multicolumn{5}{c}{} & \multicolumn{5}{c}{} & \multicolumn{5}{c}{} & \multicolumn{5}{c}{$\checkmark$} \\
+      
+      \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+    
+    \parbox{1.38\textwidth}{\small\vspace*{\medskipamount}%
+      \noindent\emph{Notes.} This table presents a set of simulations with 1000 iterations. Each row in a panel consists of a treatment effect estimator as described in the text. There are 4 different data-generating processes as described in the main text with key details listed in the second portion of the table. The columns present the bias and mean-squared error of the estimate of $\hat{\tau}$ relative to the true effect of $\tau_{T_0 + 1} = 1$.
+      Additionally, 95\% confidence intervals are formed. `Cov.' presents the percent of $95\%$ confidence intervals containing the true treatment effect.
+      `Avg.' refers to the average confidence interval length and `SD' refers to the empirical standard deviation of confidence interval length.
+    }
+  \end{table}
+\end{landscape}
 
 
 

@@ -1,18 +1,19 @@
 # %%
 library(tidyverse)
-library(fixest)
 library(here)
 library(fs)
-library(furrr)
-library(glue)
+library(kfbmisc)
 
-library(tinytable)
-options(tinytable_print_output = "markdown")
-
-library(tikzDevice)
 tikzDevice::setTikzDefaults()
 default_packages <- getOption("tikzLatexPackages")
-options("tikzLatexPackages" = c(default_packages, "\\usepackage{bm}\n"))
+packages <- c(
+  system.file("tikzsave/paper.sty", package = "kfbmisc"),
+  system.file("tikzsave/math.sty", package = "kfbmisc")
+)
+pkg_tex <- sprintf("\\usepackage{%s}", fs::path_ext_remove(packages))
+options(
+  "tikzLatexPackages" = c(default_packages, "\\usepackage{bm}\n", pkg_tex)
+)
 
 dir_create(here("data/Simulations"))
 dir_create(here("out/tables/simulation-2/"))
@@ -42,7 +43,7 @@ estimators <- tibble(
   ),
   estimator = c(
     # "TWFE",
-    "TWFE with $\\bm{w}_i \\beta_t$",
+    "TWFE with $\\bm{w}_i' \\bm{\\beta}_t$",
     "QLD ($p$ known)",
     "QLD ($p$ estimated)"
   ),
@@ -54,6 +55,7 @@ estimators <- tibble(
   )
 )
 
+# fmt: skip
 dgps <- tribble(
   ~dgp_num, ~N, ~T0, ~twfe, ~parallel_trends, ~ar_error_term, ~signal_to_noise,
   01, 500L, 4L, FALSE, FALSE, FALSE, 0.05,
@@ -77,7 +79,8 @@ dgps$instrument_noise <- (var_gamma / dgps$signal_to_noise) - var_gamma
 # B <- 25
 B <- 1000
 
-# %%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Run simulation ----
 if (RUN_SIMULATION == TRUE) {
   tictoc::tic()
   ests <- run_simulation(B, dgps, estimators, seed = 20240518)
@@ -86,9 +89,12 @@ if (RUN_SIMULATION == TRUE) {
   write_csv(ests, here("data/Simulations/simulation_2_ests.csv"))
 }
 
-#' ## Report on simulation
-# %%
-ests <- read_csv(here("data/Simulations/simulation_2_ests.csv"), show_col_types = FALSE)
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Report on simulation ----
+ests <- read_csv(
+  here("data/Simulations/simulation_2_ests.csv"),
+  show_col_types = FALSE
+)
 
 ests <- ests |>
   left_join(estimators |> select(estimator, estimator_short))
@@ -114,44 +120,48 @@ summary <- ests |>
   left_join(
     dgps |> select(dgp_num, signal_to_noise, instrument_noise),
     by = "dgp_num"
-  ) |> 
-  select(
-    instrument_noise, everything()
   ) |>
-  arrange(estimator) |> 
+  select(
+    instrument_noise,
+    everything()
+  ) |>
+  arrange(estimator) |>
   filter(signal_to_noise > 0.05)
 
 summary <- summary |>
   filter(estimator_short != "qld_p_known")
 
-# avg_bias_twfe <- ests |>
-#   filter(rel_year == 0) |>
-#   filter(estimator_short == "twfe") |>
-#   with(mean(est - true_te))
 
-# %% 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Export ----
 (plot_signal_to_noise <- ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_point(
     aes(
-      x = signal_to_noise, y = bias,
-      color = estimator, shape = estimator
+      x = signal_to_noise,
+      y = bias,
+      color = estimator,
+      shape = estimator
     ),
     data = summary,
     size = 3
   ) +
   geom_line(
     aes(
-      x = signal_to_noise, y = bias,
-      color = estimator, group = estimator
+      x = signal_to_noise,
+      y = bias,
+      color = estimator,
+      group = estimator
     ),
     data = summary,
     linewidth = 1.5
   ) +
   geom_ribbon(
     aes(
-      x = signal_to_noise, y = bias,
-      color = estimator, fill = estimator,
+      x = signal_to_noise,
+      y = bias,
+      color = estimator,
+      fill = estimator,
       group = estimator,
       # ymin = bias - 1.96 * std_error_bias,
       # ymax = bias + 1.96 * std_error_bias
@@ -159,12 +169,14 @@ summary <- summary |>
       ymax = bias_empirical_ci_upper
     ),
     data = summary,
-    alpha = 0.2, show.legend = FALSE
+    alpha = 0.2,
+    show.legend = FALSE
   ) +
   labs(
     x = "Signal to Noise Ratio",
     y = "Bias",
-    color = NULL, shape = NULL,
+    color = NULL,
+    shape = NULL,
     fill = NULL
   ) +
   scale_color_manual(
@@ -178,7 +190,7 @@ summary <- summary |>
     values = c("black", "#107895"),
   ) +
   scale_x_continuous(
-    breaks = seq(0, 1, 0.1), 
+    breaks = seq(0, 1, 0.1),
     limits = c(0.1, 1),
     expand = expansion(0, 0.02)
   ) +
@@ -202,16 +214,21 @@ summary <- summary |>
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_point(
     aes(
-      x = signal_to_noise + 0.002 * grepl("QLD", estimator) - 0.002 * grepl("TWFE", estimator),
+      x = signal_to_noise +
+        0.002 * grepl("QLD", estimator) -
+        0.002 * grepl("TWFE", estimator),
       y = bias,
-      color = estimator, shape = estimator
+      color = estimator,
+      shape = estimator
     ),
     data = summary,
     size = 3
   ) +
   geom_errorbar(
     aes(
-      x = signal_to_noise + 0.003 * grepl("QLD", estimator) - 0.003 * grepl("TWFE", estimator),
+      x = signal_to_noise +
+        0.003 * grepl("QLD", estimator) -
+        0.003 * grepl("TWFE", estimator),
       y = bias,
       color = estimator,
       group = estimator,
@@ -221,19 +238,11 @@ summary <- summary |>
     data = summary,
     linewidth = 1.25
   ) +
-  # Average bias of TWFE
-  # annotate(
-  #   "label",
-  #   x = 1, hjust = 1, y = avg_bias_twfe + 0.25,
-  #   label = string_magic("bias of TWFE"),
-  #   label.r = unit(0, "pt"), label.size = 0,
-  #   label.padding = unit(0, "pt"),
-  #   size = 5, fill = "white"
-  # ) +
   labs(
     x = "Signal to Noise Ratio",
     y = "Bias",
-    color = NULL, shape = NULL,
+    color = NULL,
+    shape = NULL,
     fill = NULL
   ) +
   scale_color_manual(
@@ -263,10 +272,12 @@ summary <- summary |>
 kfbmisc::tikzsave(
   here("out/figures/simulation-2/bias_signal_to_noise.pdf"),
   plot_signal_to_noise,
-  width = 10, height = 5
+  width = 10,
+  height = 5
 )
 kfbmisc::tikzsave(
   here("out/figures/simulation-2/bias_signal_to_noise_errorbars.pdf"),
   plot_signal_to_noise_errorbars,
-  width = 10, height = 5
+  width = 10,
+  height = 5
 )

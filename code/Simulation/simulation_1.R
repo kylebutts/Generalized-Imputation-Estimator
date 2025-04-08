@@ -1,24 +1,19 @@
 # %%
 library(tidyverse)
-library(fixest)
 library(here)
 library(fs)
-library(furrr)
-library(glue)
-
+library(kfbmisc)
 library(tinytable)
-options(tinytable_print_output = "markdown")
 
 fs::dir_create(here("data/Simulations"))
 fs::dir_create(here("out/tables/simulation-1/"))
 source(here("code/Simulation/dgp.R"))
 source(here("code/Simulation/estimators.R"))
 source(here("code/Simulation/run_simulation.R"))
-source(here("code/Simulation/summarize.R"))
+source(here("code/helpers/extract_tt_latex_body.R"))
 
-RUN_SIMULATION <- TRUE
+RUN_SIMULATION <- FALSE
 
-# %%
 estimators <- tibble(
   est_function = rlang::list2(
     function(df) {
@@ -52,7 +47,7 @@ estimators <- tibble(
   estimator = c(
     "Difference-in-means",
     "TWFE",
-    "TWFE with $\\bm{w}_i \\beta_t$",
+    "TWFE with $\\bm{w}_i' \\bm{\\beta}_t$",
     "Augmented Synthetic Control",
     "Generalized Synth ($p$ known)",
     "Generalized Synth ($p$ estimated)",
@@ -73,6 +68,7 @@ estimators <- tibble(
   )
 )
 
+# fmt: skip
 dgps <- tribble(
   ~dgp_num, ~N, ~T0, ~twfe, ~parallel_trends, ~ar_error_term, ~instrument_noise,
   01, 300L, 4L, TRUE, TRUE, FALSE, 1,
@@ -87,7 +83,8 @@ dgps <- tribble(
 
 B <- 2000
 
-# %%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Run simulation ----
 if (RUN_SIMULATION == TRUE) {
   tictoc::tic()
   ests <- run_simulation(B, dgps, estimators, seed = 20250121)
@@ -97,9 +94,12 @@ if (RUN_SIMULATION == TRUE) {
 }
 
 
-# %%
-## Report on simulation
-ests <- read_csv(here("data/Simulations/simulation_1_ests.csv"), show_col_types = FALSE)
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Report on simulation ----
+ests <- read_csv(
+  here("data/Simulations/simulation_1_ests.csv"),
+  show_col_types = FALSE
+)
 
 # %%
 # quick detailed sum
@@ -124,36 +124,153 @@ ests |>
   ) |>
   print(n = 100)
 
-# %%
-for (curr_dgp_num in dgps$dgp_num) {
-  for (curr_T0 in c(4L, 12L)) {
-    out <- here(glue("out/tables/simulation-1/dgp{curr_dgp_num}_T0_{curr_T0}.tex"))
-    ests |> 
-      filter(estimator != "Difference-in-means") |>
-      summarize_ests(dgps, dgp_num = curr_dgp_num, T0 = curr_T0) |>
-      # print() |>
-      extract_tt_latex_body() |>
-      cat(file = out)
-    # cat()
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Export ----
+summarize_ests_wide <- function(ests, which_rel_year = 0) {
+  summary <- ests |>
+    filter(rel_year == .env$which_rel_year) |>
+    summarize(
+      .by = c(dgp_num, estimator),
+      mean_estimate = mean(estimate),
+      bias = mean(estimate - true_te),
+      mse = mean((estimate - true_te)^2),
+      rmse = sqrt(mean((estimate - true_te)^2))
+    ) |>
+    pivot_wider(
+      id_cols = c(estimator),
+      names_from = dgp_num,
+      names_glue = "{.value}_{dgp_num}",
+      values_from = c(bias, rmse)
+    )
+
+  dgp_nums <- ests$dgp_num |> unique()
+  cols <- c("estimator")
+  new_col_names <- c("Estimator")
+  groups <- list()
+  for (i in seq_along(dgp_nums)) {
+    dgp <- dgp_nums[[i]]
+    cols <- c(
+      cols,
+      paste0("bias_", dgp),
+      paste0("rmse_", dgp)
+    )
+    new_col_names <- c(new_col_names, "Bias", "RMSE")
+    groups[[paste0("DGP ", dgp_nums[[i]])]] <- 1 + 2 * (i - 1) + (1:2)
   }
+  summary <- summary[, cols]
+  colnames(summary) <- new_col_names
+
+  table <- summary |>
+    tt() |>
+    format_tt(j = ("(Bias|RMSE)"), sprintf = "%0.2f") |>
+    format_tt(j = ("(Coverage)"), sprintf = "%0.1f\\%%") |>
+    group_tt(j = groups)
+
+  return(table)
 }
 
+summarize_ests_wide_ci <- function(ests, which_rel_year = 0) {
+  summary <- ests |>
+    filter(rel_year == .env$which_rel_year) |>
+    summarize(
+      .by = c(dgp_num, estimator),
+      bias = mean(estimate - true_te),
+      rmse = sqrt(mean((estimate - true_te)^2)),
+      coverage = mean(true_te >= ci_lower & true_te <= ci_upper),
+      average_ci_length = mean(ci_upper - ci_lower),
+      sd_ci_length = sd(ci_upper - ci_lower)
+    ) |>
+    pivot_wider(
+      id_cols = c(estimator),
+      names_from = dgp_num,
+      names_glue = "{.value}_{dgp_num}",
+      values_from = c(bias, rmse, coverage, average_ci_length, sd_ci_length)
+    )
+
+  dgp_nums <- ests$dgp_num |> unique()
+  cols <- c("estimator")
+  new_col_names <- c("Estimator")
+  groups <- list()
+  for (i in seq_along(dgp_nums)) {
+    dgp <- dgp_nums[[i]]
+    cols <- c(
+      cols,
+      paste0("bias_", dgp),
+      paste0("rmse_", dgp),
+      paste0("coverage_", dgp),
+      paste0("average_ci_length_", dgp),
+      paste0("sd_ci_length_", dgp)
+    )
+
+    groups[[paste0("DGP ", dgp_nums[[i]])]] <- 1 + 5 * (i - 1) + (1:5)
+
+    new_col_names <- c(
+      new_col_names,
+      "Bias",
+      "RMSE",
+      "Coverage",
+      "Avg. CI Length",
+      "SD CI Length"
+    )
+  }
+
+  summary <- summary[, cols]
+  colnames(summary) <- new_col_names
+
+  caption <- sprintf("DGP %s; T_0 = %s", dgp_num, T0)
+  dgp_details <- dgps |> dplyr::filter(dgp_num == .env$dgp_num, T0 == .env$T0)
+  notes <- with(
+    dgp_details,
+    sprintf(
+      "twfe = %s; parallel_trends = %s; ar_error_term = %s",
+      twfe,
+      parallel_trends,
+      ar_error_term
+    )
+  )
+
+  summary |>
+    tt(caption = caption, notes = notes) |>
+    group_tt(j = groups) |>
+    format_tt(j = "(Bias|RMSE|Coverage|CI Length)", sprintf = "%0.2f") |>
+    format_tt(j = "(Coverage)", sprintf = "%0.3f")
+}
+
+# %%
 cat("\n\n\n")
-out <- here(glue("out/tables/simulation-1/T0_4.tex"))
 ests |>
   filter(estimator != "Difference-in-means") |>
   filter(between(dgp_num, 1, 4), T0 == 4) |>
   summarize_ests_wide(which_rel_year = 0) |>
-  print() |>
+  print("markdown") |>
   extract_tt_latex_body() |>
-  cat(file = out)
+  cat(file = here("out/tables/simulation-1/T0_4.tex"))
 
 cat("\n\n\n")
-out <- here(glue("out/tables/simulation-1/T0_12.tex"))
 ests |>
   filter(estimator != "Difference-in-means") |>
   filter(between(dgp_num, 1, 4), T0 == 12) |>
   summarize_ests_wide(which_rel_year = 0) |>
-  print() |>
+  print("markdown") |>
   extract_tt_latex_body() |>
-  cat(file = out)
+  cat(file = here("out/tables/simulation-1/T0_12.tex"))
+
+
+cat("\n\n\n")
+ests |>
+  filter(estimator != "Difference-in-means") |>
+  filter(between(dgp_num, 1, 4), T0 == 4) |>
+  summarize_ests_wide_ci(which_rel_year = 0) |>
+  # print("markdown") |>
+  extract_tt_latex_body() |>
+  cat(file = here("out/tables/simulation-1/T0_4_ci.tex"))
+
+cat("\n\n\n")
+ests |>
+  filter(estimator != "Difference-in-means") |>
+  filter(between(dgp_num, 1, 4), T0 == 12) |>
+  summarize_ests_wide_ci(which_rel_year = 0) |>
+  # print("markdown") |>
+  extract_tt_latex_body() |>
+  cat(file = here("out/tables/simulation-1/T0_12_ci.tex"))
