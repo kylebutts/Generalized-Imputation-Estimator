@@ -385,7 +385,7 @@ When $T_0 = 4$, we use the last $5$ rows so that the post-period $f_{1,T}$ and $
 DGP 1 uses a two-way error model, $\mu_i + f_{2,t}$, which is consistent with the usual parallel trends assumption. 
 In DGPs 2-4, we use the multiplicative model $f_{1,t} \mu_i + f_{2,t} \gamma_i$.
 In DGPs 1-2, we assign treatment randomly with probability 1/2. Parallel trends holds in both DGPs because $(\mu_i, \gamma_i)' \indep D_i$.
-In DGPs 3 and 4, we generate treatment as $\mathds{1}(\mu_i > 0)$ so that treated units are more exposed to the linear time-trend than untreated units, inducing non-parallel trends.\footnote{To help make sense of our bias estimates, DGPs 3 and 4 have a difference in $y_{i,t}(\infty)$ between the treated and untreated groups in the post-period of $\left(\expec{\mu_i}{D_i = 1} - \expec{\mu_i}{D_i = 0} \right) f_{1,T} \approx (1.8 - 0.20) * 13 = 20.8$.}
+In DGPs 3 and 4, we generate treatment as $\mathds{1}(\mu_i > 1)$ so that treated units are more exposed to the linear time-trend than untreated units, inducing non-parallel trends.\footnote{To help make sense of our bias estimates, DGPs 3 and 4 have a difference in $y_{i,t}(\infty)$ between the treated and untreated groups in the post-period of $\left(\expec{\mu_i}{D_i = 1} - \expec{\mu_i}{D_i = 0} \right) f_{1,T} \approx (1.8 - 0.20) * 13 = 20.8$.}
 
 
 \begin{table}[tb!]
@@ -400,8 +400,8 @@ In DGPs 3 and 4, we generate treatment as $\mathds{1}(\mu_i > 0)$ so that treate
 
     \textbf{DGP1} & $\mu_i + f_{2,t} + \epsilon_{i,t}$ & Random \\
     \textbf{DGP2} & $f_{1,t} \mu_i + f_{2,t} \gamma_i + \epsilon_{i,t}$ & Random \\
-    \textbf{DGP3} & $f_{1,t} \mu_i + f_{2t,} \gamma_i + \epsilon_{i,t}$ & $\mathds{1}(\mu_i > 0)$ \\
-    \textbf{DGP4} & $f_{1,t} \mu_i + f_{2,t} \gamma_i + \zeta_{i,t}$ & $\mathds{1}(\mu_i > 0)$ \\
+    \textbf{DGP3} & $f_{1,t} \mu_i + f_{2t,} \gamma_i + \epsilon_{i,t}$ & $\mathds{1}(\mu_i > 1)$ \\
+    \textbf{DGP4} & $f_{1,t} \mu_i + f_{2,t} \gamma_i + \zeta_{i,t}$ & $\mathds{1}(\mu_i > 1)$ \\
 
     \bottomrule 
   \end{tabular}
@@ -413,7 +413,7 @@ In DGPs 1-3, the idiosyncratic error $\epsilon_{i,t}$ is drawn as $N(0,1)$ iid o
 In DGP 4, we replace $\epsilon_{i,t}$ with an AR(1) process $\zeta_{i,t}$, where $\zeta_{i,t} = 0.75 \zeta_{i,t-1} + z_{i,t}$. The innovation $z_{i,t}$ is iid $N(0, 1 - 0.75^2)$ over time with variance chosen so that the variance of $\zeta_{i,t}$ is also $1$. DGP 4 aims to to highlight the problems that autocorrelated errors can cause for the existing large-$T$ factor model estimators. 
 
 
-We consider nine alternative estimators. The first two are versions of the TWFE imputation estimators of \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \cite{Borusyak_Jaravel_Spiess_2021}, and should only perform well in the first two DGPs when parallel trends holds. The estimator `TWFE' assumes an untreated potential outcome model of $y_{i,t}(\infty) = c_i + \theta_t + u_{i,t}$. $\expec{c_i}{D_i = 1}$ and $\theta_t$ are estimated via OLS on the untreated sample.\footnote{When we say `untreated sample', we mean the collection of both groups' pre-treatment observations along with the never-treated group's post-treatment observations.} Most modern treatment effect analyses also condition on observed covariates. We generate two ``observed covariates" as 
+We consider eight alternative estimators. The first two are versions of the TWFE imputation estimators of \citet{Gardner_2021}, \citet{Wooldridge_2021}, and \cite{Borusyak_Jaravel_Spiess_2021}, and should only perform well in the first two DGPs when parallel trends holds. The estimator `TWFE' assumes an untreated potential outcome model of $y_{i,t}(\infty) = c_i + \theta_t + u_{i,t}$. $\expec{c_i}{D_i = 1}$ and $\theta_t$ are estimated via OLS on the untreated sample.\footnote{When we say `untreated sample', we mean the collection of both groups' pre-treatment observations along with the never-treated group's post-treatment observations.} Most modern treatment effect analyses also condition on observed covariates. We generate two ``observed covariates" as 
 \begin{gather}
     w_{i,1} = \mu_i + \xi_{i,1}\\
     w_{i,2} = \gamma_i + \xi_{i,2}
@@ -469,7 +469,7 @@ Results are presented in Table \ref{tab:sim_1_t0_4} for $T_0 = 4$ and Table \ref
 
     Model & \multicolumn{2}{c}{TWFE} & \multicolumn{2}{c}{Factor} & \multicolumn{2}{c}{Factor} & \multicolumn{2}{c}{Factor} \\
 
-    Treatment & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{2}{c}{$\mathds{1}(\gamma_i > 0)$} \\
+    Treatment & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{$\mathds{1}(\mu_i > 1)$} & \multicolumn{2}{c}{$\mathds{1}(\mu_i > 1)$} \\
 
     Parallel Trends & \multicolumn{2}{c}{$\checkmark$} & \multicolumn{2}{c}{$\checkmark$} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} \\
 
@@ -511,7 +511,7 @@ Results are presented in Table \ref{tab:sim_1_t0_4} for $T_0 = 4$ and Table \ref
 
     Model & \multicolumn{2}{c}{TWFE} & \multicolumn{2}{c}{Factor} & \multicolumn{2}{c}{Factor} & \multicolumn{2}{c}{Factor} \\
 
-    Treatment & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{2}{c}{$\mathds{1}(\gamma_i > 0)$} \\
+    Treatment & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{Random} & \multicolumn{2}{c}{$\mathds{1}(\mu_i > 1)$} & \multicolumn{2}{c}{$\mathds{1}(\mu_i > 1)$} \\
 
     Parallel Trends & \multicolumn{2}{c}{$\checkmark$} & \multicolumn{2}{c}{$\checkmark$} & \multicolumn{2}{c}{} & \multicolumn{2}{c}{} \\
 
@@ -602,15 +602,15 @@ For both retail and wholesale employment, counties receiving Walmarts had faster
 \begin{subfigure}[b]{0.75\textwidth}
   \caption{Generalized Imputation Estimator}
   \begin{adjustbox}{width=\textwidth, center}
-    \includegraphics{figures/Walmart/qld_retail.pdf}
+    \includegraphics{figures/Walmart/qld_retail_with_uniform.pdf}
   \end{adjustbox}
 \end{subfigure}
 \end{center}
 
-\note{This figure plots point estimates and analytic 95\% confidence intervals for event-study treatment effects on $\log$ retail employment. Panel (a) estimates effects using the TWFE imputation estimator proposed in \citet{Borusyak_Jaravel_Spiess_2021}. Panel (b) estimates effects using the QLD imputation estimator we propose in Section \ref{sec:estimation} with $p = 2$ and using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree. The red lines correspond to a linear estimate of pre-treatment point estimates for event time -15 to -1 and is extended into the post-treatment periods.}
+\note{This figure plots point estimates and analytic 95\% confidence intervals for event-study treatment effects on $\log$ retail employment. Panel (a) estimates effects using the TWFE imputation estimator proposed in \citet{Borusyak_Jaravel_Spiess_2021}. Panel (b) estimates effects using the QLD imputation estimator we propose in Section \ref{sec:estimation} with $p = 2$ and using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree. The red lines correspond to a linear estimate of pre-treatment point estimates for event time -15 to -1 and is extended into the post-treatment periods. The darker bars with hashes present analytic pointwise confidence intervals while the lighter bars present uniform confidence bands following the procedure described in \citet{Callaway_Santanna_2021}.}
 \end{figure}
 
-We use the QLD estimator to estimate the factors as described in Section \ref{subsection:QLD}. to estimate the factor parameters $\bm \theta$, we need a set of instruments that satisfy the two standard instrument requirements as described by Assumption \ref{asm:ALS_identification}: relevancy and exclusion. Intuitively, the relevancy restriction requires that the instruments are correlated with the full vector of factor-loadings. That is, the instruments should be selected as `proxies' for the kinds of economic factor-loadings that the researcher is concerned of. The exclusion restriction requires that the instrument values are uncorrelated with location-specific idiosyncratic shocks. For this reason, we use baseline covariate values as instruments to avoid shocks to the covariates that are correlated with shocks to the outcome variable. We calculate analytic standard errors using our GMM formulation.\footnote{We present point-wise standard errors in the figure. As discussed in appendix Section \ref{sec:agg_te}, uniform inference on the event-study estimates is also possible via a multiplier bootstrap.}
+We use the QLD estimator to estimate the factors as described in Section \ref{subsection:QLD}. to estimate the factor parameters $\bm \theta$, we need a set of instruments that satisfy the two standard instrument requirements as described by Assumption \ref{asm:ALS_identification}: relevancy and exclusion. Intuitively, the relevancy restriction requires that the instruments are correlated with the full vector of factor-loadings. That is, the instruments should be selected as `proxies' for the kinds of economic factor-loadings that the researcher is concerned of. The exclusion restriction requires that the instrument values are uncorrelated with location-specific idiosyncratic shocks. For this reason, we use baseline covariate values as instruments to avoid shocks to the covariates that are correlated with shocks to the outcome variable. We calculate confidence intervals using our GMM formulation.\footnote{We also present uniform confidence bands via a multiplier bootstrap procedure as discussed in appendix Section \ref{sec:agg_te}.}
 
 We select instruments that we suspect are driven by the general macroeconomic trends that cause differential retail employment growth in the 1980s and 1990s. For example, retail employment is likely driven by consumptive expenditures, which in turn are reflective of local labor market trends. Therefore, we use instruments that we think proxy for characteristics that determine local labor market trends. We specifically use the 1980 baseline values of the following variables as instruments: share of population employed in manufacturing, shares of population below and above the poverty line, shares of population employed in the private-sector and by the government, and shares of population with high-school and college degrees.\footnote{All of these values are obtained from 1980 Census Tables accessed from \citet{manson2020ipums}.} Note that instead of estimating $\ATT(g,t)$, we estimate $\ATT^\ell$ pooling across $(i, t)$ with $\ell = t - g_i$ as described after Theorem \ref{theorem:asymptotic_distribution}.
 
@@ -631,12 +631,12 @@ We select instruments that we suspect are driven by the general macroeconomic tr
 \begin{subfigure}[b]{0.75\textwidth}
   \caption{Generalized Imputation Estimator}
   \begin{adjustbox}{width=\textwidth, center}
-    \includegraphics{figures/Walmart/qld_wholesale.pdf}
+    \includegraphics{figures/Walmart/qld_wholesale_with_uniform.pdf}
   \end{adjustbox}
 \end{subfigure}
 \end{center}
 
-\note{This figure plots point estimates and analytic 95\% confidence intervals for event-study treatment effects on $\log$ wholesale employment. Panel (a) estimates effects using the TWFE imputation estimator proposed in \citet{Borusyak_Jaravel_Spiess_2021}. Panel (b) estimates effects using the generalized imputation estimator we propose in Section \ref{sec:estimation} with $p = 1$ and using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree. The red lines correspond to a linear estimate of pre-treatment point estimates for event time -15 to -1 and is extended into the post-treatment periods.}
+\note{This figure plots point estimates and analytic 95\% confidence intervals for event-study treatment effects on $\log$ wholesale employment. Panel (a) estimates effects using the TWFE imputation estimator proposed in \citet{Borusyak_Jaravel_Spiess_2021}. Panel (b) estimates effects using the generalized imputation estimator we propose in Section \ref{sec:estimation} with $p = 1$ and using the following instruments: 1980 share of population employed in manufacturing, 1980 shares of population below and above poverty line; 1980 shares of population employed in private-sector and by the government, 1980 shares of population with high-school degree and college degree. The red lines correspond to a linear estimate of pre-treatment point estimates for event time -15 to -1 and is extended into the post-treatment periods. The darker bars with hashes present analytic pointwise confidence intervals while the lighter bars present uniform confidence bands following the procedure described in \citet{Callaway_Santanna_2021}.}
 \end{figure}
 
 The results of our estimator are presented in panel (b) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale}. We carry out the test to determine the correct number of factors $p$ following the discussion in \citet{Ahn_Lee_Schmidt_2013}. 
@@ -748,7 +748,7 @@ To highlight the importance of the uncertainty from estimation of the factors in
   \end{adjustbox}
 \end{subfigure}
 
-\note{This figure recreates estimates from panel (b) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale} with analytic confidence intervals holding the first-stage estimate of $\bm \theta$ fixed in repeated samples.}
+\note{This figure recreates estimates from panel (b) of Figure \ref{fig:walmart_retail} and Figure \ref{fig:walmart_wholesale} with analytic confidence intervals ignoring the first step uncertainty from estimation of $\bm \theta$.}
 \end{figure}
 
 
@@ -765,7 +765,7 @@ We implement the QLD estimator of \citet{Ahn_Lee_Schmidt_2013} in a study of the
 
 \newpage~\section*{Acknowledgments}
 
-We would like to thank Stephane Bonhomme, Brantly Callaway, Brian Cadena, Peter Hull, Jeffrey Wooldridge, and Taylor Jaworski as well as seminar participants from the University of Georgia, the University of Arkansas, Louisiana State University, the University of Notre Dame, Carleton University, the University of Kentucky, Clemson University, Florida State University, Queen's University, the 2022 Midwest Econometrics Group, the CU Boulder Econometrics Brownbag, the 2023 CEA Annual Meeting, and the 2023 IAAE Annual Conference for their insightful questions and comments. We also thank the Associate Editor for their careful review of our paper, as well as the thoughtful reports from two anonymous referees. All errors are our own.
+We would like to thank Stephane Bonhomme, Brantly Callaway, Brian Cadena, Peter Hull, Ali Mehrabani, Jeffrey Wooldridge, and Taylor Jaworski as well as seminar participants from the University of Georgia, the University of Arkansas, Louisiana State University, the University of Notre Dame, Carleton University, the University of Kentucky, Clemson University, Florida State University, Queen's University, the 2022 Midwest Econometrics Group, the CU Boulder Econometrics Brownbag, the 2023 CEA Annual Meeting, and the 2023 IAAE Annual Conference for their insightful questions and comments. We also thank the Associate Editor for their careful review of our paper, as well as the thoughtful reports from two anonymous referees. All errors are our own.
 
 % ------------------------------------------------------------------------------
 \bibliography{references.bib}
@@ -1171,7 +1171,11 @@ Our plug-in estimate for $\delta$ is given by $\hat{\delta} = \sum_{g\in \mathca
 \begin{equation}
     \sqrt{N}\Big( (\widehat{\bm{\theta}}', \widehat{\bm \tau}')' - (\bm{\theta}', \bm \tau')' \Big) = - \left( \frac{1}{\sqrt{N}} \sum_{i = 1}^N (\bm D' \bm \Delta^{-1} \bm D)^{-1} \bm D' \bm \Delta^{-1} \bm g_i(\bm{\theta}, \bm \tau) \right) + o_p(1).
 \end{equation}
-This form comes from the fact that the weight matrix is positive definite with probability approaching one\footnote{This is a well-known expansion for analyzing the asymptotic properties of GMM estimators. See Chapter 14 of \citet{Wooldridge_2010} for example.}. The first term on the right-hand side is the influence function and hence inference on aggregate quantities follows directly. This result allows for use of the multiplier bootstrap to estimate standard errors in a computationally efficient manner.
+This form comes from the fact that the weight matrix is positive definite with probability approaching one\footnote{This is a well-known expansion for analyzing the asymptotic properties of GMM estimators. See Chapter 14 of \citet{Wooldridge_2010} for example.}. The first term on the right-hand side is the influence function and hence inference on aggregate quantities follows directly. 
+
+This result allows for use of the multiplier bootstrap to estimate standard errors in a computationally efficient manner. 
+Uniform confidence bands are provided in the package implementation of our estimator. 
+See algorithm 1 of \citet{Callaway_Santanna_2021} for implementation details. 
 
 % ------------------------------------------------------------------------------
 \section{Inference in Two-Way Fixed Effect Model}\label{sec:twfe_inference}
@@ -1357,7 +1361,7 @@ Here we present additional summary tables from the simulations described in Sect
 
     Model & \multicolumn{5}{c}{TWFE} & \multicolumn{5}{c}{Factor} & \multicolumn{5}{c}{Factor} & \multicolumn{5}{c}{Factor} \\
 
-    Treatment & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{5}{c}{$\mathds{1}(\gamma_i > 0)$} \\
+    Treatment & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{$\mathds{1}(\mu_i > 1)$} & \multicolumn{5}{c}{$\mathds{1}(\mu_i > 1)$} \\
 
     Parallel Trends & \multicolumn{5}{c}{$\checkmark$} & \multicolumn{5}{c}{$\checkmark$} & \multicolumn{5}{c}{} & \multicolumn{5}{c}{} \\
 
@@ -1415,7 +1419,7 @@ Here we present additional summary tables from the simulations described in Sect
   
       Model & \multicolumn{5}{c}{TWFE} & \multicolumn{5}{c}{Factor} & \multicolumn{5}{c}{Factor} & \multicolumn{5}{c}{Factor} \\
   
-      Treatment & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{$\mathds{1}(\gamma_i > 0)$} & \multicolumn{5}{c}{$\mathds{1}(\gamma_i > 0)$} \\
+      Treatment & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{Random} & \multicolumn{5}{c}{$\mathds{1}(\mu_i > 1)$} & \multicolumn{5}{c}{$\mathds{1}(\mu_i > 1)$} \\
   
       Parallel Trends & \multicolumn{5}{c}{$\checkmark$} & \multicolumn{5}{c}{$\checkmark$} & \multicolumn{5}{c}{} & \multicolumn{5}{c}{} \\
   

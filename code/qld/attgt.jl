@@ -17,8 +17,9 @@ function estimate_tau_gt(
     PFhat = Fhat * ((Fhat_pre' * Fhat_pre) \ Fhat_pre')
     for i in curr_idx
       y_diff[:, i] = ymat[:, i] - PFhat * ymat[1:convert(Int64, curr_g), i]
-      tau_gt_hat[(1 + ((l - 1) * T)):(l * T)] += y_diff[:, i]
-      N_tau_gt[(1 + ((l - 1) * T)):(l * T)] .+= 1
+      g_idx = (1+((l-1)*T)):(l*T)
+      tau_gt_hat[g_idx] += y_diff[:, i]
+      N_tau_gt[g_idx] .+= 1
     end
   end
 
@@ -73,9 +74,9 @@ function ms_tau_gt(
     PFhat = Fhat * ((Fhat_pre' * Fhat_pre) \ Fhat_pre')
     for i in curr_idx
       y_diff[:, i] = ymat[:, i] - PFhat * ymat[1:curr_g, i]
-      gt_idx = (1 + ((l - 1) * T)):(l * T)
-      ms[i, gt_idx] = y_diff[:, i] - tau_gt[gt_idx]
-      N_tau_gt[gt_idx] .+= 1
+      g_idx = (1+((l-1)*T)):(l*T)
+      ms[i, g_idx] = y_diff[:, i] - tau_gt[g_idx]
+      N_tau_gt[g_idx] .+= 1
     end
   end
 

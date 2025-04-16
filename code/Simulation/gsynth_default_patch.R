@@ -730,6 +730,7 @@ patched_gsynth.default <- function(
         T0.min.e <- r.end + 1
       }
       if (con1 | con2) {
+        # NOTE: Modified
         # stop("Some treated units has too few pre-treatment periods. Please set a larger value for min.T0 to remove them. Equal or greater than ",T0.min.e," is recommended.\n")
       }
     }
@@ -743,6 +744,7 @@ patched_gsynth.default <- function(
         T0.min.e <- r.end + 2
       }
       if (con1 | con2) {
+        # NOTE: Modified
         # stop("Some treated units has too few pre-treatment periods. Please set a larger value for min.T0 to remove them. Equal or greater than ",T0.min.e," is recommended. Or you can set a smaller range of factor numbers.\n")
       }
     }

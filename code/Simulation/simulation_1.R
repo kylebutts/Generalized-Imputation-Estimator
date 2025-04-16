@@ -34,6 +34,12 @@ estimators <- tibble(
     function(df) {
       est_gsynth(df, force = "none", p = c(0L, 3L))
     },
+    # function(df) {
+    #   est_gsynth(df, force = "none", p = 0L)
+    # },
+    # function(df) {
+    #   est_gsynth(df, force = "none", p = 1L)
+    # },
     function(df) {
       est_qld_F_known(df, do_within_transform = FALSE)
     },
@@ -51,6 +57,8 @@ estimators <- tibble(
     "Augmented Synthetic Control",
     "Generalized Synth ($p$ known)",
     "Generalized Synth ($p$ estimated)",
+    # "Generalized Synth ($p = 0$)",
+    # "Generalized Synth ($p = 1$)",
     "Factor Imputation ($\\bm{F}$ known)",
     "QLD ($p$ known)",
     "QLD ($p$ estimated)"
@@ -62,6 +70,8 @@ estimators <- tibble(
     "augsynth",
     "gsynth_p_known",
     "gsynth",
+    # "gsynth_p_0",
+    # "gsynth_p_1",
     "qld_F_known",
     "qld_p_known",
     "qld"
@@ -82,6 +92,7 @@ dgps <- tribble(
 )
 
 B <- 2000
+# B <- 100
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Run simulation ----
@@ -122,6 +133,32 @@ ests |>
     pct_p_3 = mean(selected_p == 3, na.rm = TRUE),
     mean_p = mean(selected_p, na.rm = TRUE)
   ) |>
+  print(n = 100)
+
+ests |>
+  summarize(
+    .by = c(dgp_num, T0, estimator),
+    n = n(),
+    bias = mean(estimate - true_te, na.rm = TRUE),
+    rmse = sqrt(mean((estimate - true_te)^2)),
+    coverage = mean(true_te >= ci_lower & true_te <= ci_upper),
+    avg_std_error = mean(std.error, na.rm = TRUE),
+    avg_ci_length = mean(ci_upper - ci_lower, na.rm = TRUE),
+    avg_est = mean(estimate, na.rm = TRUE),
+    est_05th = quantile(estimate, 0.05),
+    est_50th = quantile(estimate, 0.50),
+    est_95th = quantile(estimate, 0.95),
+    pct_p_0 = mean(selected_p == 0, na.rm = TRUE),
+    pct_p_1 = mean(selected_p == 1, na.rm = TRUE),
+    pct_p_2 = mean(selected_p == 2, na.rm = TRUE),
+    pct_p_3 = mean(selected_p == 3, na.rm = TRUE),
+    mean_p = mean(selected_p, na.rm = TRUE)
+  ) |>
+  mutate(estimator = str_replace(estimator, "Generalized Synth", "gsynth")) |>
+  filter(str_detect(estimator, "gsynth")) |>
+  left_join(dgps |> select(dgp_num, N), by = "dgp_num") |>
+  # select(-dgp_num) |>
+  select(dgp_num, T0, N, estimator, B = n, everything()) |>
   print(n = 100)
 
 

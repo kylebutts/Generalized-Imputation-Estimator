@@ -6,7 +6,7 @@ each_row <- function(data) {
   ))
 }
 
-# %% 
+# %%
 run_simulation <- function(B, dgps, estimators, seed = NULL) {
   set.seed(seed)
   max_T0 <- 12
@@ -50,21 +50,27 @@ run_simulation <- function(B, dgps, estimators, seed = NULL) {
             est_function <- estimator$est_function[[1]]
             res <- purrr::possibly(
               est_function,
-              otherwise = NULL, quiet = TRUE
+              otherwise = NULL,
+              quiet = TRUE
             )(df_b)
-            
+
             if (is.null(res)) {
-              warning(sprintf("On DGP %s and iteration %s, %s failed", dgp$dgp_num, b, estimator$estimator_short))
+              warning(sprintf(
+                "On DGP %s and iteration %s, %s failed",
+                dgp$dgp_num,
+                b,
+                estimator$estimator_short
+              ))
               return(res)
             }
 
-            res <- res |> 
+            res <- res |>
               mutate(estimator = estimator$estimator, .before = 1) |>
               mutate(true_te = .env$true_te, .before = estimate)
             return(res)
           }
         ))
-        
+
         # record DGP information
         estimates <- estimates |>
           mutate(
@@ -81,4 +87,3 @@ run_simulation <- function(B, dgps, estimators, seed = NULL) {
 
   list_rbind(ests)
 }
-

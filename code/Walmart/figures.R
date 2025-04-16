@@ -133,7 +133,7 @@ pre_did2s_retail <- coef(feols(
     slope = pre_did2s_retail[2],
     intercept = pre_did2s_retail[1],
     color = "#9A2415",
-    linewidth = 2
+    linewidth = 1.2
   ) +
   geom_point(
     aes(x = rel_year, y = estimate, color = pre),
@@ -145,13 +145,13 @@ pre_did2s_retail <- coef(feols(
     aes(x = rel_year, ymin = lower, ymax = upper, color = pre),
     data = did2s_retail,
     width = 0.6,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   labs(
     x = "Event Time",
     y = NULL
   ) +
-  scale_y_continuous(limits = c(-0.2, 0.3)) +
+  scale_y_continuous(limits = c(-0.2, 0.35)) +
   scale_color_manual(
     values = c("#107895", "#9A2415"),
     guide = "none"
@@ -177,7 +177,7 @@ pre_did2s_wholesale <- feols(
     slope = pre_did2s_wholesale[2],
     intercept = pre_did2s_wholesale[1],
     color = "#9A2415",
-    linewidth = 2
+    linewidth = 1.2
   ) +
   geom_point(
     aes(x = rel_year, y = estimate, color = pre),
@@ -189,7 +189,7 @@ pre_did2s_wholesale <- feols(
     aes(x = rel_year, ymin = lower, ymax = upper, color = pre),
     data = did2s_wholesale,
     width = 0.6,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   labs(
     x = "Event Time",
@@ -221,7 +221,7 @@ pre_qld_retail <- coef(feols(
     slope = pre_qld_retail[2],
     intercept = pre_qld_retail[1],
     color = "#9A2415",
-    linewidth = 2
+    linewidth = 1.2
   ) +
   geom_point(
     aes(x = rel_year, y = estimate, color = pre),
@@ -233,17 +233,70 @@ pre_qld_retail <- coef(feols(
     aes(x = rel_year, ymin = lower, ymax = upper, color = pre),
     data = qld_retail,
     width = 0.6,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   labs(
     x = "Event Time",
     y = NULL
   ) +
-  scale_y_continuous(limits = c(-0.2, 0.3)) +
+  scale_y_continuous(limits = c(-0.2, 0.35)) +
   scale_color_manual(
     values = c("#107895", "#9A2415"),
     guide = "none"
   ) +
+  kfbmisc::theme_kyle(base_size = 16) +
+  theme(
+    legend.text = element_text(size = rel(1))
+  ))
+
+(plot_qld_retail_uniform <- ggplot() +
+  geom_abline(
+    slope = 0,
+    intercept = 0,
+    linetype = "dashed",
+    linewidth = 0.8
+  ) +
+  geom_abline(
+    slope = pre_qld_retail[2],
+    intercept = pre_qld_retail[1],
+    color = "#9A2415",
+    linewidth = 1.2
+  ) +
+  geom_linerange(
+    aes(
+      x = rel_year,
+      ymin = estimate - crit_val * std_error_uniform,
+      ymax = estimate + crit_val * std_error_uniform,
+      color = pre
+    ),
+    data = qld_retail,
+    linewidth = 1.5,
+    alpha = 0.5,
+  ) +
+  geom_errorbar(
+    aes(x = rel_year, ymin = lower, ymax = upper, color = pre),
+    data = qld_retail,
+    width = 0.6,
+    linewidth = 1.6
+  ) +
+  geom_point(
+    aes(x = rel_year, y = estimate, color = pre),
+    data = qld_retail,
+    size = 3
+  ) +
+  labs(
+    x = "Event Time",
+    y = NULL
+  ) +
+  scale_y_continuous(limits = c(-0.2, 0.35)) +
+  scale_color_manual(
+    values = c("#107895", "#9A2415"),
+    guide = "none"
+  ) +
+  # scale_fill_manual(
+  #   values = colorspace::lighten(c("#107895", "#9A2415"), amount = 0.2),
+  #   guide = "none"
+  # ) +
   kfbmisc::theme_kyle(base_size = 16) +
   theme(
     legend.text = element_text(size = rel(1))
@@ -266,7 +319,7 @@ pre_qld_wholesale <- coef(feols(
     slope = pre_qld_wholesale[2],
     intercept = pre_qld_wholesale[1],
     color = "#9A2415",
-    linewidth = 2
+    linewidth = 1.2
   ) +
   geom_point(
     aes(x = rel_year, y = estimate, color = pre),
@@ -278,7 +331,7 @@ pre_qld_wholesale <- coef(feols(
     aes(x = rel_year, ymin = lower, ymax = upper, color = pre),
     data = qld_wholesale,
     width = 0.6,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   labs(
     x = "Event Time",
@@ -289,6 +342,59 @@ pre_qld_wholesale <- coef(feols(
     values = c("#107895", "#9A2415"),
     guide = "none"
   ) +
+  kfbmisc::theme_kyle(base_size = 16) +
+  theme(
+    legend.text = element_text(size = rel(1))
+  ))
+
+(plot_qld_wholesale_uniform <- ggplot() +
+  geom_abline(
+    slope = 0,
+    intercept = 0,
+    linetype = "dashed",
+    linewidth = 0.8
+  ) +
+  geom_abline(
+    slope = pre_qld_wholesale[2],
+    intercept = pre_qld_wholesale[1],
+    color = "#9A2415",
+    linewidth = 1.2
+  ) +
+  geom_linerange(
+    aes(
+      x = rel_year,
+      ymin = estimate - crit_val * std_error_uniform,
+      ymax = estimate + crit_val * std_error_uniform,
+      color = pre
+    ),
+    data = qld_wholesale,
+    linewidth = 1.5,
+    alpha = 0.5,
+  ) +
+  geom_errorbar(
+    aes(x = rel_year, ymin = lower, ymax = upper, color = pre),
+    data = qld_wholesale,
+    width = 0.6,
+    linewidth = 1.6
+  ) +
+  geom_point(
+    aes(x = rel_year, y = estimate, color = pre),
+    data = qld_wholesale,
+    size = 3
+  ) +
+  labs(
+    x = "Event Time",
+    y = NULL
+  ) +
+  scale_y_continuous(limits = c(-0.45, 0.45)) +
+  scale_color_manual(
+    values = c("#107895", "#9A2415"),
+    guide = "none"
+  ) +
+  # scale_fill_manual(
+  #   values = colorspace::lighten(c("#107895", "#9A2415"), amount = 0.2),
+  #   guide = "none"
+  # ) +
   kfbmisc::theme_kyle(base_size = 16) +
   theme(
     legend.text = element_text(size = rel(1))
@@ -321,7 +427,7 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
   geom_line(
     aes(x = rel_year, y = estimate, color = group, group = group),
     data = retail_estimators,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   scale_y_continuous(limits = c(-0.2, 0.18)) +
   scale_color_manual(
@@ -331,7 +437,7 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
       "Principal Components" = "grey50"
     ),
     guide = guide_legend(
-      override.aes = list(size = 0, linewidth = 2.2),
+      override.aes = list(size = 0, linewidth = 1.6),
       byrow = TRUE
     )
   ) +
@@ -367,9 +473,9 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
   geom_line(
     aes(x = rel_year, y = estimate, color = group, group = group),
     data = wholesale_estimators,
-    linewidth = 2
+    linewidth = 1.6
   ) +
-  scale_y_continuous(limits = c(-0.2, 0.18)) +
+  scale_y_continuous(limits = c(-0.2, 0.35)) +
   scale_color_manual(
     values = c(
       "Quasi-Long Differencing" = "grey80",
@@ -377,7 +483,7 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
       "Principal Components" = "grey50"
     ),
     guide = guide_legend(
-      override.aes = list(size = 0, linewidth = 2.2),
+      override.aes = list(size = 0, linewidth = 1.2),
       byrow = TRUE
     )
   ) +
@@ -419,13 +525,13 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
     ),
     data = qld_retail,
     width = 0.6,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   labs(
     x = "Event Time",
     y = NULL
   ) +
-  scale_y_continuous(limits = c(-0.2, 0.3)) +
+  scale_y_continuous(limits = c(-0.2, 0.35)) +
   scale_color_manual(
     values = c("#107895", "#9A2415"),
     guide = "none"
@@ -454,7 +560,7 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
     ),
     data = qld_wholesale,
     width = 0.6,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   labs(
     x = "Event Time",
@@ -473,7 +579,7 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
   geom_line(
     aes(x = rel_year, y = mean, color = group),
     data = synth_retail,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   labs(
     x = "Event Time",
@@ -499,7 +605,7 @@ wholesale_estimators <- bind_rows(cce_wholesale, pca_wholesale, qld_wholesale)
   geom_line(
     aes(x = rel_year, y = mean, color = group),
     data = synth_wholesale,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   labs(
     x = "Event Time",
@@ -554,9 +660,9 @@ wholesale_covs_ests <- bind_rows(
   geom_line(
     aes(x = rel_year, y = estimate, color = group, group = group),
     data = retail_covs_ests,
-    linewidth = 2
+    linewidth = 1.6
   ) +
-  scale_y_continuous(limits = c(-0.2, 0.24)) +
+  scale_y_continuous(limits = c(-0.2, 0.35)) +
   scale_color_manual(
     values = c(
       "TWFE Imputation" = "grey80",
@@ -564,7 +670,7 @@ wholesale_covs_ests <- bind_rows(
       "Quasi-Long Differencing" = "grey20"
     ),
     guide = guide_legend(
-      override.aes = list(size = 0, linewidth = 2.2),
+      override.aes = list(size = 0, linewidth = 1.2),
       byrow = TRUE
     )
   ) +
@@ -600,7 +706,7 @@ wholesale_covs_ests <- bind_rows(
   geom_line(
     aes(x = rel_year, y = estimate, color = group, group = group),
     data = wholesale_covs_ests,
-    linewidth = 2
+    linewidth = 1.6
   ) +
   scale_y_continuous(limits = c(-0.2, 0.24)) +
   scale_color_manual(
@@ -610,7 +716,7 @@ wholesale_covs_ests <- bind_rows(
       "Quasi-Long Differencing" = "grey20"
     ),
     guide = guide_legend(
-      override.aes = list(size = 0, linewidth = 2.2),
+      override.aes = list(size = 0, linewidth = 1.2),
       byrow = TRUE
     )
   ) +
@@ -657,6 +763,20 @@ kfbmisc::tikzsave(
 kfbmisc::tikzsave(
   here("out/figures/Walmart/qld_wholesale.pdf"),
   plot_qld_wholesale,
+  width = 10,
+  height = 5
+)
+
+## QLD
+kfbmisc::tikzsave(
+  here("out/figures/Walmart/qld_retail_with_uniform.pdf"),
+  plot_qld_retail_uniform,
+  width = 10,
+  height = 5
+)
+kfbmisc::tikzsave(
+  here("out/figures/Walmart/qld_wholesale_with_uniform.pdf"),
+  plot_qld_wholesale_uniform,
   width = 10,
   height = 5
 )
