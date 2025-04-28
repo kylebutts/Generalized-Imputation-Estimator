@@ -1,0 +1,120 @@
+\usepackage{setspace}
+\renewcommand{\baselinestretch}{1.5}
+\usepackage[margin=1in]{geometry}
+
+% packages
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = true,
+  allcolors = blue,
+  breaklinks = true,
+  bookmarksopen = true
+}
+\usepackage{pdflscape}
+\usepackage[shortlabels]{enumitem}
+\usepackage{xparse}
+
+% bibliography
+\usepackage{natbib}
+\bibliographystyle{econ-aea}
+
+% tables and figures
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{subcaption}
+\captionsetup*[subfigure]{format=plain, font={footnotesize, bf}}
+
+% Fix \input with tables
+% \input fails when \\ is at end of external .tex file
+\makeatletter
+\let\input\@@input
+\makeatother
+
+\usepackage{adjustbox}
+
+\NewDocumentCommand{\note}{O{Notes.} m g}{%
+  \IfNoValueTF{#3}{%
+    \parbox{\textwidth}{\footnotesize\vspace*{\medskipamount}%
+      \noindent\emph{#1} #2
+    }%
+  }{%
+    \parbox{#2}{\footnotesize\vspace*{\medskipamount}%
+      \noindent\emph{#1} #3
+    }%
+  }
+}
+
+
+% math
+\usepackage{amsmath,amsthm,amssymb}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}{Example}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\usepackage{bm}
+\usepackage{dsfont}
+
+
+
+\newcommand{\propositionautorefname}{Proposition}
+\newcommand{\assumptionautorefname}{Assumption}
+\newcommand{\exampleautorefname}{Example}
+\newcommand{\lemmaautorefname}{Lemma}
+\newcommand{\corollaryautorefname}{Corollary}
+\newcommand{\definitionautorefname}{Definition}
+\newcommand{\remarkautorefname}{Remark}
+
+\newcommand{\bc}[1]{\left\lbrace #1 \right\rbrace} 
+\newcommand{\bp}[1]{\left( #1 \right)} 
+\newcommand{\bs}[1]{\left[ #1 \right]} 
+\NewDocumentCommand{\expec}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\mathbb{E}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2}}
+    }{%
+      \,\mathbb{E}\IfValueT{#1}{_{#1}}{\bs{#2 \ |\ #3}}
+    }
+  }
+}
+\NewDocumentCommand{\prob}{o g g}{%
+  \IfNoValueTF{#2}{%
+    \operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}%
+  }{%
+    \IfNoValueTF{#3}{%
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bs{#2}}
+    }{%
+      \,\mathbb{P}\IfValueT{#1}{_{#1}}{\bs{#2 \ |\ #3}}
+    }
+  }
+}
+\newcommand{\plim}{\operatorname{plim}}
+\newcommand{\indep}{\perp\!\!\!\perp} 
+
+\usepackage{ragged2e}
+\def\pre{\text{pre}}
+\def\post{\text{post}}
+\def\ATT{\text{ATT}}
+\def\Rank{\text{Rank}}
+\def\bigO{\mathcal{O}}
+\def\littleO{\mathcal{o}}
+
+
+\usepackage{xcolor}
+\definecolor{purple}{HTML}{5601A4}
+\definecolor{cranberry}{HTML}{E64173}
+\definecolor{jet}{HTML}{131516}
+\definecolor{asher}{HTML}{555F61}
+\definecolor{slate}{HTML}{314F4F}
+
+% For drafting
+\newbool{INCLUDECOMMENTS}
+\NewDocumentCommand{\coauthorComment}{O{NAME} +m}{%
+  \ifbool{INCLUDECOMMENTS}{{\color{cranberry}\textbf{#1:} #2}}{}
+}
+
